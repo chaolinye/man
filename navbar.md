@@ -3,6 +3,7 @@
 - 基础
     - [Java](/docs/java/)
     - [Linux](/docs/linux/)
+    - [Go](/docs/go/)
 
 - 框架
     - [Mybatis]()
