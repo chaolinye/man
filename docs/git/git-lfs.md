@@ -55,7 +55,7 @@ git lfs install
 
 - 首次安装后运行
 
-- 在 Git 工程中首次引入 Git LFS 时运行
+- 在新的 Git 工程使用 Git LFS(新建的 Git 工程或者新 clone 的工程)
 
 该命令会做两件事：
 
