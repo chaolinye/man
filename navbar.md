@@ -30,7 +30,5 @@
     - [k8s]()
     - [serverless]()
 
-- 研发效能
-    - [liquibase]()
-    - [gitlab]()
+- [研发效能](/docs/devops/)
     - [Git](/docs/git/)
