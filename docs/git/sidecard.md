@@ -3,3 +3,5 @@
 - [分支清理](./clean-branch.md)
 - [网络代理](./proxy.md)
 - [Git LFS](./git-lfs.md)
+- [Git Bash 中文乱码问题解决](./git-bash.md)
+- [代码统计](code-statistics.md)
