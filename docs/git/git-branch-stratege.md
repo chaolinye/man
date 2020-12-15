@@ -56,6 +56,8 @@ Git Flow 是应用最广的 Git 分支管理实践。
 
 > 可以根据团队实际情况对 Git Flow 分支管理策略进行调整适配
 
+> Git Flow 的缺点是分支较多、产生冲突的可能性也较大，在实际操作中，可以由由一两个精通 Git 的技术骨干负责除了 develop 分支外的其他分支的拉出、合并、冲突解决，普通成员只需要关注 develop 分支，这样可以在一定程度上减轻 Git Flow 的复杂度
+
 
 ## Github Flow
 
@@ -91,13 +93,25 @@ GitHub Flow 特点：
 
 Google 和 Facebook 主要就是采用这种分支管理策略
 
-大概的操作流程就是: 大部分的开发工作都在主线完成，要发布版本了就拉出一个 release 分支，上线后再合入主线
+特点总结如下:
+
+- 有且仅有一个开发分支，即主干分支。
+
+- 所有改动都发生在主干分支。
+
+- 发布可以从主干拉发布分支。
+
+- 主干上进行的修复需要根据缺陷的修复策略，确定是否 cherry pick 到对应版本的发布分支。
 
 ## 分支策略的选择
 
-国内大部分团队都应该采用 Git Flow 分支管理策略
+三种分支策略的优缺点：
 
-至于 Github Flow 和 TBD 要深思熟虑后，确实自己团队适合才使用
+![](../images/git-branch-stratege.png ":size=50%")
+
+个人建议国内大部分团队都应该采用 Git Flow 分支管理策略，如果觉得分支过多，可以根据实际情况进行精简
+
+至于 Github Flow 和 TBD 要深思熟虑（团队协作成熟度、基础设施成熟度）后，确实适合才使用
 
 ## References
 
@@ -106,3 +120,5 @@ Google 和 Facebook 主要就是采用这种分支管理策略
 - [Git Flow 出处](https://nvie.com/posts/a-successful-git-branching-model/)
 
 - [GitHub Flow](https://guides.github.com/introduction/flow/)
+
+- [如何选择 Git 分支模式？](https://zhuanlan.zhihu.com/p/158463879)
