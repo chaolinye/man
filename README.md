@@ -1,4 +1,5 @@
 # HOME
 
+个人技术手册
 
-[跳转](https://yechaolin.gitee.io/test.html)
+> 好记性不如烂笔头
