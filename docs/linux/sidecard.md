@@ -1,2 +1,3 @@
 - [README](./)
 - [常用命令](./command)
+- [Shell 的初始化执行脚本](./shell-init)
