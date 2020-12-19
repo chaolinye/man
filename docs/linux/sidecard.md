@@ -3,3 +3,5 @@
 - [Shell 的初始化执行脚本](./shell-init)
 - [快捷键](./keyboard)
 - [包管理软件](./package-manage.md)
+- [网络](./network.md)
+- [文件传输](./file-transfer.md)
