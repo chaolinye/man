@@ -6,7 +6,12 @@ Linux 系统服务本质上就是一些后台（`daemon`）进程
 
 > 这些后台进程的名称大多以 `d` 结尾
 
-### daemon 管理方式的变化
+
+## 前台服务与后台服务
+
+[Linux 守护进程的启动方法](http://www.ruanyifeng.com/blog/2016/02/linux-daemon.html)
+
+## daemon 管理方式的变化
 
 ### 早期的 daemon
 
@@ -70,11 +75,17 @@ systemctl start atd.service
 # 关闭服务
 systemctl stop atd.service
 
+# 强制关闭服务
+systemctl kill httpd.service
+
 # 重启服务
 systemctl restart atd.service
 
 # 查看服务状态
 systemctl status atd.service
+
+# 查看服务配置文件
+systemctl cat atd.service
 
 # 设置服务开机自启动
 systemctl enable atd.service
@@ -176,6 +187,32 @@ systemctl list-dependencies atd.service --reverse
 
 - `/run/`: lock file 以及 PID file 的暂存档
 
+## 服务配置文件
+
+```bash
+systemctl cat sshd.service
+```
+
+```ini
+[Unit]
+Description=OpenSSH server daemon
+Documentation=man:sshd(8) man:sshd_config(5)
+After=network.target sshd-keygen.service
+Wants=sshd-keygen.service
+
+[Service]
+EnvironmentFile=/etc/sysconfig/sshd
+ExecStart=/usr/sbin/sshd -D $OPTIONS
+ExecReload=/bin/kill -HUP $MAINPID
+Type=simple
+KillMode=process
+Restart=on-failure
+RestartSec=42s
+
+[Install]
+WantedBy=multi-user.target
+```
+
 systemd 配置目录文件格式介绍请 [跳转](http://linux.vbird.org/linux_basic/0560daemons.php#systemd_cfg)
 
 > 可以通过 `man systemd.unit`, `man systemd.service`, `man systemd.timer` 查询 `/etc/systemd/system/` 底下配置服务文件的语法
@@ -238,3 +275,6 @@ systemctl status backup.service
 ## References
 
 - [鸟叔 Linux 私房菜--认识系统服务](http://linux.vbird.org/linux_basic/0560daemons.php)
+- [Systemd 入门教程：命令篇](http://www.ruanyifeng.com/blog/2016/03/systemd-tutorial-commands.html)
+- [Systemd 入门教程：实战篇](http://www.ruanyifeng.com/blog/2016/03/systemd-tutorial-part-two.html)
+- [Node 应用的 Systemd 启动](http://www.ruanyifeng.com/blog/2016/03/node-systemd-tutorial.html)
