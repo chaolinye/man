@@ -10,6 +10,28 @@
     cat /etc/os-release
     ```
 
+- 查看系统信息
+
+    ```bash
+    # 查看系统服务
+    systemctl
+
+    # 查看当前登录的用户
+    loginctl
+
+    # 查看本地化设置
+    localectl
+
+    # 查看当前时区设置
+    timedatectl
+
+    # 查看当前主机的信息
+    hostnamectl
+
+    # 查看启动耗时
+    systemd-analyze
+    ```
+
 - 创建目录并进入目录
 
     ```bash
