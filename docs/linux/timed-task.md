@@ -123,15 +123,86 @@ systemctl status crond
 # 查看任务列表
 crontab -l
 
-# 创建任务
+# 删除全部任务，删除单个任务用 crontab -e
+crontab -r
+
+# 创建任务, 会打开一个 vim 编辑窗口
 crontab -e
 ```
+
+定时任务内容：每天凌晨 03:00 清理 /home/user/temp/ 文件夹下 **上次访问时间在 24 小时前** 的文件
+
+```
+00 03 * * * /usr/sbin/tmpwatch 24 /home/user/temp/
+```
+
+### 任务配置
+
+crond 一般从以下三个地方读取配置
+
+> crond 每分钟会重新读取一次配置
+
+- `/etc/crontab`
+
+- `/etc/cron.d/*`
+
+- `/var/spool/cron/*`
+
+> `crontab -e` 创建的任务就是存在 `/var/spool/cron/<usernname>` 文件中
+
+!> `crontab -e` （即 `/var/spool/cron/<username>` 文件）定义任务的格式是 `分 时 日 月 周 指令`  
+而 `/etc/crontab` 文件和 `/etc/cron.d/*` 目录下的文件定义任务的格式还需要指定用户，即 `分 时 日 月 周 用户名 指令`
 
 ### 权限控制
 
 通过 `/etc/cron.allow` 和 `/etc/cron.deny` 文件进行 cron 的权限控制
 
 > 两个文件的权限控制和 at 的逻辑一致
+
+### 任务执行记录查看
+
+```bash
+cat /var/log/cron | grep -i xxx
+```
+
+## 重新执行停机期间错过的定时任务
+
+需要用到工具 `anacron`，目前已集成到 `cron` 中
+
+anacron 每个小时被 crond 执行一次，然后 anacron 再去检测相关的排程任务有没有被执行，如果有超过期限的工作在， 就执行该排程任务，执行完毕或无须执行任何排程时，anacron 就停止了。
+
+> `cat /ect/cron.hourly/0anacron` 可查看定时任务触发 anacron
+
+anacron 的配置文件是 `/etc/anacrontab`，默认内容如下
+
+```
+# /etc/anacrontab: configuration file for anacron
+
+# See anacron(8) and anacrontab(5) for details.
+
+SHELL=/bin/sh
+PATH=/sbin:/bin:/usr/sbin:/usr/bin
+MAILTO=root
+# the maximal random delay added to the base delay of the jobs
+RANDOM_DELAY=45
+# the jobs will be started during the following hours only
+START_HOURS_RANGE=3-22
+
+#period in days   delay in minutes   job-identifier   command
+1	5	cron.daily		nice run-parts /etc/cron.daily
+7	25	cron.weekly		nice run-parts /etc/cron.weekly
+@monthly 45	cron.monthly		nice run-parts /etc/cron.monthly
+```
+
+以 `cron.daily` 这行分析 anacron 的工作流程
+
+- 由 `/etc/anacrontab` 分析到 `cron.daily `这项工作名称的天数为 `1` 天；由 `/var/spool/anacron/cron.daily` 取出最近一次执行 anacron 的时间戳, 和目前的时间比较，若差异天数为 1 天以上(含 1 天)，就准备进行指令；
+
+- 若准备进行指令，根据 `/etc/anacrontab` 的设定，将延迟 `5` 分钟 + `3` 小时(看 `START_HOURS_RANGE` 的设定)；
+
+- 延迟时间过后，开始执行后续指令，亦即 `run-parts /etc/cron.daily` 这串指令；
+
+!> 可见默认只有 `/etc/cron.{daily, weekly, monthly}` 三个目录下的任务才会在停机错过后被 anacron 重新执行
 
 ## References
 
