@@ -302,6 +302,8 @@ tcpdump -i any -nn -w result.pcap src net 10.0.75
 
 3. 使用 wireshark 打开分析
 
+    ![](../images/wireshark.png)
+
 ## 连接或者启动 TCP/UDP 端口
 
 语法：
