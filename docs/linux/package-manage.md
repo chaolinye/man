@@ -49,6 +49,9 @@ yum check-update
 yum search wget
 yum install -y wget
 
+# 查找包含某个命令的软件包
+yum provides *bin/nslookup
+
 # 安装本地 rpm 包
 yum install some.rpm
 

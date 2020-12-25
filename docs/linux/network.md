@@ -225,6 +225,12 @@ netstat -tulnp
 
 ### IP 和域名的互相查询
 
+下载域名查询相关工具包：
+
+```bash
+yum install -y bind-utils
+```
+
 - host
 
     ```bash
