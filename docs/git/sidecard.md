@@ -7,3 +7,4 @@
 - [代码统计](./code-statistics)
 - [Git 客户端](./git-client)
 - [Git 分支管理策略](./git-branch-stratege)
+- [Git Patch](./git-patch)
