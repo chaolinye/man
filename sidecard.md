@@ -5,3 +5,4 @@
 - [技术方法论](/docs/methodology.md)
 - [程序员所要知道的数字](/docs/programmer-number.md)
 - [配置中心对比](/docs/config-center.md)
+- [命名](/docs/home/naming.md)
