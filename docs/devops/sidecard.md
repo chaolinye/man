@@ -7,3 +7,4 @@
 - [Prometheus](./prometheus)
 - [MyPerf4j](./myPerf4j)
 - [Liquibase 应用指南](./liquibase)
+- [构建文档平台](./document)
