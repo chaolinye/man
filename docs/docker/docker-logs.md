@@ -72,9 +72,33 @@ CMD ["./run.sh"]
 
 run.sh  中启动了一个后台进程，使用 tail 命令强制将 /var/log/app.log 的内容传输至标准输出，随后使用 exec 命令将 python app.py  作为容器的主进程运行。
 
+## 实时查看容器日志
+
+[Dozzle](https://dozzle.dev/) 是一款轻量、简单的容器日志查看工具。
+
+使用 docker compose 构建 dozzle
+
+```yaml
+version: '3'
+services:
+  dozzle:
+    container_name: 'dozzle'
+    image: 'amir20/dozzle:latest'
+    ports:
+      - '18888:8080'
+    volumes:
+      - '/var/run/docker.sock:/var/run/docker.sock:ro'
+```
+
+![](../images/dozzle.png ":size=50%")
+
+
+
+
 ## References
 
 - [docker logs 实现剖析](http://guide.daocloud.io/dcs/docker-logs-9153967.html)
 - [docker exec 与容器日志](http://guide.daocloud.io/dcs/docker-exec-9153970.html)
 - [Docker 容器日志的那些事儿](http://guide.daocloud.io/dcs/docker-9153973.html)
 - [官方文档](https://docs.docker.com/config/containers/logging/)
+- [实时查看容器日志](https://juejin.cn/post/6895221361036230664)
