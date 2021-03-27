@@ -5,3 +5,4 @@
 - [配置中心对比](/docs/config-center.md)
 - [命名](/docs/home/naming.md)
 - [写好 README](/docs/home/hello-readme.md)
+- [读书方法](/docs/home/how-read.md)
