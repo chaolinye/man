@@ -1,2 +1,5 @@
 - [README]()
 - [issue](./issue)
+- [常用命令](./command)
+- [基准测试](./benchmark)
+- [性能剖析](./profile)
