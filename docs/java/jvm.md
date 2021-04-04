@@ -112,6 +112,8 @@ Direct Memory 并不是虚拟机运行时数据区的一部分，主要是给 NI
     - 混合收集(Mixed GC)： 收集整个新生代和部分老年代，目前只有 G1 有
 - 整堆收集（FullGC）： 收集整个 Java 堆和方法区的垃圾收集 
 
+相关命令:
+
 ### 标记-清除算法
 
 适用场景：CMS 的老年代收集
@@ -128,6 +130,12 @@ Direct Memory 并不是虚拟机运行时数据区的一部分，主要是给 NI
 新生代划分为 Eden 区、两个 Survivor 区，比例默认是 8:1:1
 
 新对象在 Eden 区分配内存，垃圾回收 Eden 区和其中一个 Survivor 区，存活对象放入另一个 Survivor 区，如果放不下，则直接升入老年代
+
+相关参数
+
+- `-Xmm`: 指定新生代大小
+- `-XX:SurvivorRatio`: 指定 suvivor 区比例（ratio=Eden大小/Suvivor大小）
+- `-XX:PretenureSizeThreshold`: 直接晋升老年代的对象大小
 
 ### 标记-整理算法
 
@@ -227,7 +235,142 @@ Direct Memory 并不是虚拟机运行时数据区的一部分，主要是给 NI
 - 增量更新(CMS)
 - 原始快照(G1)
 
-
-
 ## 经典垃圾收集器
+
+### Serial 和 Serial Old 收集器
+
+最基础、最老的一对垃圾收集器，简单粗暴，缺点是停顿时间过长
+
+> 至今，Hotspot 虚拟机客户端模式下的默认新生代收集器依然是 Serial 收集器
+
+![](../images/gc-serial.svg)
+
+### ParNew 收集器
+
+ParNew 收集器本质上是Serial收集器的多线程版本，并没有太多的创新之处
+
+> 在单核机器上，ParNew 并不比 Serial 好，多核 CPU ParNew 才有优势
+
+> 在 JDK 7之前，`ParNew + CMS` 是 JVM 服务端模式首选的收集器
+
+![](../images/gc-parnew.svg)
+
+相关参数 
+
+- `-XX:+UseParNewGC`：使用 ParNew 收集器
+- `-XX:ParallelGCThreads=xx`: 限制垃圾收集的多线程数
+
+### Parallel Scavenge 收集器
+
+> 新生代收集器
+
+和 ParNew 不一样，Parallel Scavenge 收集器关注的是吞吐量，被称为 `吞吐量有限收集器`
+
+> 吞吐量 = 运行用户代码时间 / (运行用户代码时间 + 运行垃圾收集时间)
+
+相关参数
+
+- `-XX:MaxGCPauseMillis`: 控制垃圾收集最大停顿时间
+- `-XX:GCTimeRatio`: 设置吞吐量大小（ratio = 用户代码时间/垃圾收集事假）
+- `-XX:+UseAdaptiveSizePolicy`: 不用人工指定新生代大小、SurvivorRatio等等参数，由收集器根据策略动态调整
+
+### Parallel Old 收集器
+
+Parallel Old 是 Parallel Scavenge 收集器的老年代版本
+
+> 在 Parallel Old 出现之前，Parallel Scavenge 由于无法和 CMS 配套，只能会 Serial Old 配置，导致整体性能不佳
+
+> Parallel Old 出现后，Parallel scavenge + Parallel Old 是 JDK9 之前 Hotspot 服务器模式下的默认垃圾收集器 是
+
+![](./images/gc-parallel.svg)
+
+### CMS 收集器
+
+> 老年代收集器
+
+CMS（Concurrent Mark Sweep）收集器是一种以获取最短回收停顿时间为目标的收集器，被称为 `并发低停顿收集器`
+
+![](../images/gc-cms.svg)
+
+由于 CMS 收集过程中，用户线程是并发的，如果等老年代空间满了才开始收集，用户线程新创建的对象将无法分配内存，因此需要在老年代使用到一定程度时触发收集
+
+CMS 使用的是标记-清除算法，会导致内存碎片化问题，如果出现一个大对象无法分配内存，就不得不提前触发 Full GC，使用 Serial Old 来整理老年代空间，为了解决这个问题，
+
+相关参数
+
+- `-XX:+UseConcMarkSweepGC`: 指定使用 CMS 收集器
+- `-XX:CMSInitiatingOccupancyFraction`: 指定触发 CMS 收集的内存使用阈值
+- `-XX:+UseCMSCompactAtFullCollection`: FULL GC 时进行内存整理
+- `-XX:CMSFullGCsBeforeCompaction`: 指定执行几次FULL GC后进行内存整理
+
+### Garbage First 收集器
+
+JDK9 后的默认垃圾收集器
+
+G1 把连续的 Java 堆划分为多个相等的 Region，每个 Region 根据需要扮演新生代的 Eden、Survivor 空间，或者老年代空间
+
+大小超过 Region 大小的一半即可判定为大对象，存储大对象的 Region 区域，称为 Humongous 区域
+
+G1 每次只选择回收收益最高的一批 Region，不需要回收整个新生代或者老年代，因此停顿时间是可控的，不会被堆的大小所影响
+
+> 停顿时间不会被堆的大小所影响，这就是 G1 的最大优势
+
+为了解决跨 Region 引用，G1 在每个 Region 都预留了一个记忆集的结构，记录哪些 Region 引用了该 Region
+
+> 每个 Region 都有记忆集，大概占用了堆容量的 10% - 20%，内存占用是 G1 的最大缺点
+
+由于 G1 每次只回收部分的 Region，这就要求回收的速度要高于内存分配的速度，否则就只能 Stop the world 来解决了
+
+![](../images/gc-g1.svg)
+
+相关参数：
+
+- `-XX:G1HeapRegionSize`: 指定 Region 大小
+- `-XX:MaxGCPauseMillis`: 指定最大停顿时间
+
+
+> 从 G1 开始，最先进的垃圾收集器的设计导向都不约而同地变为追求能够应付应用的内存分配速率，而不追求一次把整个Java堆全部清理干净
+
+### 低延迟垃圾收集器
+
+> 衡量垃圾收集器的三项最重要的指标：内存占用、吞吐量和延迟，三者共同构成了一个 `不可能三角`
+
+延迟日益称为最重要的指标
+
+CMS 使用的是标记清除算法，随着内存空间的增多，终将触发严重的 Stop the world 进行内存整理，这个 Stop the world 时间和堆的大小相关
+
+G1 使用的是标记整理算法，局部看来是标记复制算法，在复制的过程中也是需要 Stop the world 的，随着可以通过控制 Region 的数量控制停顿时间
+
+> 也就是说 G1 及之前的垃圾收集器都无法做到内存整理的并发，低延迟垃圾收集器就是要解决内存整理的并发问题
+
+#### Shenandoah 收集器
+
+Shenandoah 采用和 G1 一样的 Region 布局，通过在对象头存储了转发指针，然后读屏障来将访问转移到新对象来实现内存整理的并发
+
+> 有个和句柄一样的缺点，每次对象访问都会带来一次额外的开销，Shenandoah 是目前第一款使用到读屏障的收集器
+
+对于并发整理的时候，用户进程和 GC 进程存在多线程问题，Shenandoah 是通过 CAS 来保证并发是对象的访问正确性的
+
+#### ZGC 收集器
+
+> 号称停顿时间在 10ms 以下
+
+ZGC 也是采用了 Region 布局，但是其中的 Region 不是一样的，会分为大、中、小三类，暂时也没有给 Region 分成新生代、老年代等角色。
+
+对于并发整理，ZGC 巧妙地使用了 64 位指针暂未使用的几个高位来标记当前指针的指向
+
+> 染色指针是一种直接将少量额外信息存储在指针上的技术
+
+![](../images/gc-pointer.svg)
+
+通过这些标记位，虚拟机可以直接从指针中看到其引用对象的三色标记状态、是否进入了重分配（即被移动过）、是否只能通过finalize()方法才能被访问到
+
+> G1 和 Shenandoah 是使用一个 1/64 堆大小的 Bitmap 来记录的
+
+> ZGC 使用了多重映射技术，将这些标记位不同的同一指针映射到同一物理内存中
+
+> Shenandoah 通过标记位可以知道是否需要转发指针，然后根据 Region 的转发表访问到复制后的对象，，并同时修正更新引用的值，这样只有第一次访问旧对象会慢，这被称为指针的自愈
+
+> ZGC 在并发标记阶段，并没有像之前的垃圾收集器一样，通过维护记忆集，只扫描标记部分的堆内存，反而是扫描整个堆内存来进行标记，这种选择让 ZGC 在内存占用方面也比较少，但也限制了它能承受的对象分配效率不会太高
+
 
