@@ -1,5 +1,16 @@
 # JVM
 
+## 常用命令
+
+```bash
+# 查看 jvm 默认参数
+java -XX:+PrintFlagsFinal -version
+# 查看默认使用的 GC
+java -XX:+PrintFlagsFinal -version | grep -E 'Use.+GC'
+# 查看 jvm 进程指定的参数
+jinfo -flags <pid>
+```
+
 ## 运行时数据区
 
 ![](../images/jvm-data.svg)
@@ -65,6 +76,8 @@ Direct Memory 并不是虚拟机运行时数据区的一部分，主要是给 NI
 - TLAB，TLAB不需要同步处理，用完了才同步处理
 
 ## 垃圾收集
+
+[官方文档](https://docs.oracle.com/en/java/javase/11/gctuning/index.html)
 
 ### 哪些对象可以回收？
 
@@ -373,4 +386,407 @@ ZGC 也是采用了 Region 布局，但是其中的 Region 不是一样的，会
 
 > ZGC 在并发标记阶段，并没有像之前的垃圾收集器一样，通过维护记忆集，只扫描标记部分的堆内存，反而是扫描整个堆内存来进行标记，这种选择让 ZGC 在内存占用方面也比较少，但也限制了它能承受的对象分配效率不会太高
 
+### 选择合适的垃圾收集
+
+1. Faas（函数即服务）-- Epsilon 收集器（无操作收集器）
+
+2. JDK7及之前延迟优先的选 CMS + ParNew，吞吐量优先的选 Parallel scavenge + Parallel Old
+
+3. JDK8 - JDK11 选 G1
+
+4. JDK12 以后延迟优先选 ZGC
+
+> 主要要考虑堆的大小，延迟优先或吞吐量优先
+
+### 垃圾收集器日志
+
+JDK 9 之前
+
+```bash
+# 查看 GC 基本信息
+java -XX:+PrintGC
+# 查看 GC 详细信息
+java -XX:+PrintGCDetails
+# 查看 GC 前后堆、方法区可用容量变化
+java -XX:+PrintHeapAtGC
+# 查看 GC 过程中用户线程并发及停顿时间
+java -XX:+PrintGCApplicationConcurrentTime -XX:+PrintGCApplicationStoppedTime
+# 查看熬过收集后剩余对象的年龄分布信息
+java -XX:+PrintTenuringDistribution
+```
+
+JDK 9 之后
+
+```bash
+# 查看 GC 基本信息
+java -Xlog:gc
+# 查看 GC 详细信息
+java -Xlog:gc*
+# 查看 GC 前后堆、方法区可用容量变化
+java -Xlog:gc+heap=debug
+# 查看 GC 过程中用户线程并发及停顿时间
+java -Xlog:safepoint
+# 查看熬过收集后剩余对象的年龄分布信息
+java -Xlog:gc+age=trace
+```
+
+## 虚拟机性能监控、故障处理工具
+
+定位 JVM 问题，知识、经验是关键基础，数据是依据，工具是运用知识处理数据的手段
+
+数据包括：
+
+- 异常堆栈
+
+> 在应用层面打印
+
+- 虚拟机运行日志
+
+- 垃圾收集器日志
+
+> 上一章已经列出了常见的日志打印参数
+
+- 线程快照（threaddump/javacore 文件）
+
+- 堆转储快照（headdump/hprof 文件）
+
+
+### 基础命令
+
+> JCMD 和 JHSDB 是集成式的多功能工具类，JHSDB 
+
+| 基础工具 | JCMD | JHSDB | 用途|
+| :--: | :--: | :--: | :--: |
+| jps -lm | jcmd | N/A | 查看 jvm 进程列表 |
+| jmap -dump <pid> | jcmd <pid> GC.heap_dump | jhsdb jmap --binaryheap | 生成堆快照 |
+| jmap -histo <pid> | jcmd <pid> GC.class_histogram | jhsdb jmap --histo | 打印当前堆中对象直方图 |
+| jstack <pid> | jcmd <pid> Thread.print | jhsdb jstack ---locks | 打印线程快照 |
+| jinfo -sysprops <pid> | jcmd <pid> VM.system_properties | jhsdb info --sysprorps | 查看 jvm 系统属性 |
+| jinfo -flags <pid> | jcmd <pid> VM.flags | jhsdb jfino -flags | 查看 jvm 参数 |
+| jstat -gc <pid> | |  |  | 查看 gc 信息 |
+
+### 图形化工具
+
+- jconsole
+
+> 可以监控内存、线程、类、MBean
+
+- jvisualvm
+
+> 查看进程的配置、环境信息，垃圾收集、线程信息，堆快照分析等等
+
+- jhsdb
+
+- java mission control
+
+## 类文件结构
+
+Class 文件是一组以 8 个字节为基础单位的二进制流，中间没有添加任何分隔符
+
+Class 文件格式本质上只有两种数据类型 `无符号数` 和 `表`
+
+- `无符号数`。以 u1、u2、u4、u8 来分别表示 1、2、4、8 个字节的无符号数，可以用来描述数字、索引引用、数量值或者按照 UTF-8 编码构成字符串值
+
+- `表`。由多个无符号数或者其他表构成的复合数据类型，所有表的命名都习惯性地以 `_info` 结尾。用于描述有层次关系的复合结构的数据， 整个 Class 文件本质上也可以视为一张表
+
+### class 文件结构
+
+![](../images/class.png ":size=40%")
+
+> class 文件的魔数是 `0xCAFEBABE`, 主版本号 JDK 1.1 是 `45`，以此类推
+
+### 常量池表
+
+常量池表首先是一个 u1 字段表示常量类型，然后就是根据常量类型定义的字段了，比如常见的
+
+![](../images/constant-utf8.png ":size=50%")
+
+### 字段表
+
+![](../images/class-field.png ":size=50%")
+
+> 字段描述符是字段类型的字符串描述，比如 `String[] abc` 的描述符是 `[java.lang.String`, 
+
+![](../images/class-descriptor.png ":size=50%")
+
+### 方法表
+
+![](../images/class-method.png ":size=50%")
+
+> 结构和字段表相似，主要的差异是最后的 attribute_info
+
+> 方法描述符： `int indexOf(char[] source, int sourceOffset, int sourceCount, char[]target)` 的描述符是 `([CII[C]])I`
+
+### 属性表
+
+存放类，字段，方法的额外属性，比如方法的执行字节码存在 Code 的属性中，方法抛出的异常存在 Exceptions 属性中，泛型的参数化类型信息存储在 Signature 属性中等
+
+> 属性表是 class 文件最容易扩展的部分，很多额外的信息都可以存储在这里，以便于运行期使用，比如用 Signature 记录下泛型类型，这样就是在运行期通过反射获取真实的类型，在一定程度上解决泛型类型擦除的问题
+
+![](../images/class-attribute.png ":size=50%")
+
+### 字节码指令
+
+#### 加载和存储指令
+
+- 将一个局部变量加载到操作栈:iload、iload_<n>、lload、lload_<n>、fload、fload_<n>、dload、
+dload_<n>、aload、aload_<n> 
+- 将一个数值从操作数栈存储到局部变量表:istore、istore_<n>、lstore、lstore_<n>、fstore、
+fstore_<n>、dstore、dstore_<n>、astore、astore_<n> 
+- 将一个常量加载到操作数栈:bipush、sipush、ldc、ldc_w、ldc2_w、aconst_null、iconst_m1、
+iconst_<i>、lconst_<l>、fconst_<f>、dconst_<d>
+- 扩充局部变量表的访问索引的指令: wide
+
+#### 运算指令
+
+- 加法指令:iadd、ladd、fadd、dadd 
+- 减法指令:isub、lsub、fsub、dsub 
+- 乘法指令:imul、lmul、fmul、dmul 
+- 除法指令:idiv、ldiv、fdiv、ddiv 
+- 求余指令:irem、lrem、frem、drem 
+- 取反指令:ineg、lneg、fneg、dneg 
+- 位移指令:ishl、ishr、iushr、lshl、lshr、lushr 
+- 按位或指令:ior、lor 
+- 按位与指令:iand、land 
+- 按位异或指令:ixor、lxor 
+- 局部变量自增指令:iinc
+- 比较指令:dcmp g、dcmp l、fcmp g、fcmpl、lcmp
+
+### 同步指令
+
+方法级的同步是隐式的，无须通过字节码指令来控制，它实现在方法调用和返回操作之中。
+当方法调用时，调用指令将会检查方法的 `ACC_SYNCHRONIZED` 访问标志是否被设置，如果设置了，执行线程就要求先成功持有管程，然后才能执行方法，最后当方法完成(无论是正常完成 还是非正常完成)时释放管程。
+
+同步一段指令集序列通常是由Java语言中的 synchronized 语句块来表示的，Java虚拟机的指令集中有 `monitorenter` 和 `monitorexit` 两条指令来支持synchronized 关键字的语义
+
+```java
+void onlyMe(Foo f) { 
+    synchronized(f) {
+        doSomething(); 
+    }
+}
+```
+
+字节码
+
+![](../images/class-synchronized.png)
+
+> 为了保证在方法异常完成时 monitorenter 和 monitorexit 指令依然可以正确配对执行，编译器会自动产生一个异常处理程序，这个异常处理程序声明可处理所有的异常，它的目的就是用来执行 monitorexit 指令。
+
+## 类的加载
+
+![](../images/class-load.png)
+
+### 6 种触发类初始化的场景
+
+- 调用 new、getstatic、putstatic、invokestatic 指令时
+
+- 使用 java.lang.reflect 包对类进行反射调用时
+
+- 子类初始化时
+
+- 主类
+
+- 动态语言的方法句柄对应的类
+
+- 有默认方法的接口，在实现类被初始化时
+
+### 类加载器
+
+![](../images/class-loader.png ":size=50%")
+
+![](../images/class-loader-jdk9.png ":size=50%")
+
+![](../images/class-loader-osgi.png ":size=50%")
+
+
+## Java 的编译器
+
+- 前端编译器: JDK 的 Javac
+- 即时编译器: HotSpot 虚拟机的 C1、C2 编译器，Graal编译器。
+- 提前编译器: JDK的 Jaotc
+
+### 前端编译器
+
+Java 源文件  -> class 文件
+
+> 前端编译器的优化，支撑着程序员的编码效率和语言使用者的幸福感的提高
+
+语法糖就是前端编译器的提高编码效率的一种手段
+
+- 泛型
+
+    > 类型擦除式泛型，只是语法糖，运行期无法获取到具体类型（后续 class 文件引入了 Signature、LocalVariableTypeTable 等新的属性用于解决运行期泛型的类型识别问题）
+
+    > 现在而已，所谓的擦除，仅仅是对方法的 Code 属性中的字节码进行擦除，实际上元数据中还是保留了泛型信息，这也是我们在编码时能通过反射手段取得参数化类型的根本依据
+
+- 自动装箱、拆箱
+
+- foreach
+
+用户层面可以通过编译时的注解处理器来优化开发效率和体验，比如 lombok
+
+### 后端编译
+
+#### 即时编译器
+
+![](../images/jit.png)
+
+> 解释器和编译器一起工作叫做混合模式(mixed mode)
+
+> 在分层编译出现之前，解释器通常只能其中一个编译器搭配工作
+
+java 相关参数
+
+- `-client`: 指定虚拟机运行于客户端模式
+
+- `-server`: 指定虚拟机运行于服务器模式
+
+- `-Xint`: 强制虚拟机运行于解释模式
+
+- `-XComp`: 运行于编译模式，优化采用编译，无法编译时才用解释
+
+![](../images/compiler.png)
+
+编译对象（热点代码）
+
+- 被多次调用的方法
+
+- 被多次执行的循环体(栈上替换)
+
+热点代码探测方法
+
+- 采用
+
+- 计数器（方法调用计数器、回边计数器）
+
+> Hotspot 用的是 计数器
+
+参数
+
+- `-XX:CompileThreshold`: 方法调用计数器阈值
+
+- `-XX:OnStackReplacePercentage`: OSR 比率
+
+#### 提前编译器
+
+#### 常见的编译优化技术
+
+- 方法内联(最重要)
+
+- 公共子表达式消除
+
+- 数据边界检查消除
+
+- 逃逸分析（最前沿）
+
+> 逃逸程度: 不逃逸、方法逃逸、线程逃逸
+
+> 逃逸优化: 栈上分配，标量替换、同步消除
+
+## Java 内存模型
+
+![](../images/memory-model.png)
+
+8 中操作: lock、unlock、read、load、use、assign、store、write
+
+> read和load 以及 store和write 是一起出现，不可分割的
+
+> lock 操作会清空工作内存此变量的值
+
+> 执行 unlock 操作之前，必须先执行 store、write 操作
+
+### volatile 变量
+
+volatile 是用来解决变量的可见性问题的
+
+volatile 变量的 read、load、use 是一起出现的， assign、store、write 也是一起出现的
+
+volatile 变量只能保证可见性，对于多线程环境，要满足两个规则，才能
+
+- 运行结果并不依赖变量的当前值，或者能够确保只有单一的线程修改变量的值
+
+- 变量不需要与其他的状态变量共同参与不变约束
+
+> volatile 还禁止指令重排序
+
+### 并发的原子性、可见性和有序性
+
+#### 原子性
+
+read、load、user、assign、store、write 这六个都是原子操作
+
+大范围的原子性保证，通过 lock 和 unlock，对应的字节码指令就是 monitorenter 和 monitorexit, 对应的关键字就是 synchronized
+
+### 可见性
+
+volatile 变量可以保证可见性
+
+synchronized 关键字，利用 lock 会清除工作内存变量值及 unlock 之前会 store+write，也可以保证可见性
+
+final 变量，只有初始化完成，就不能修改
+
+### 有序性
+
+Java 只能保证单线程内的执行是有序的，这种有序只是结果的有序，实际执行，不一定是严格按指令顺序来的
+
+多线程的时候，这种有序就会被打破
+
+保证有序性的方法：volatile 和 synchronized
+
+### 线程
+
+#### 线程的实现
+
+- 内核线程
+
+> 实现简单、性能低
+
+- 用户线程
+
+> 实现困难、复制，性能高
+
+- 内核线程+用户线程混合实现
+
+Hotspot 采用的是 内核线程
+
+#### 线程的状态转换
+
+![](../images/thread-state.png)
+
+
+### 线程安全
+
+共享的数据可分为
+
+- 不可变 (String)
+
+- 绝对线程安全
+
+- 相对线程安全 （Vector， ConcurrentHashMap）
+
+- 线程兼容（ArrayList HashMap）
+
+### 线程安全的实现方法
+
+- 互斥同步（synchronized，ReenterLock）
+
+- 非阻塞同步（CAS）
+
+- 无同步(ThreadLocal)
+
+
+### 锁的优化
+
+- 自旋锁和自适应自旋锁
+
+> 自适应自旋锁的自选次数是根据策略来，而不是指定的
+
+- 锁消除
+
+- 锁粗化
+
+- 轻量级锁
+
+- 偏向锁
 
