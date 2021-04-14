@@ -343,7 +343,9 @@ public class Semaphore implements java.io.Serializable {
 
 > 现代 CPU 指令一般都会有 CAS 相关指令，三个参数，内存地址、原始值、新值
 
-CAS 实现的标准原子类： `AtomicInteger` `AtomicLong` `AtomicBoolean` `AtomicReferences`
+CAS 实现的标准原子类： `AtomicInteger` `AtomicLong` `AtomicBoolean` `AtomicReferences` 等
+
+
 
 ## Java 内存模型
 
