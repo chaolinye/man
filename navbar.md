@@ -15,7 +15,7 @@
     - [MySQL](/docs/mysql/)
     - [Redis](/docs/redis/)
     - [RocketMQ](/docs/rocketmq/)
-    - [Kafka](/docs/kafka)
+    - [Kafka](/docs/kafka/)
 
 - 大数据
     - [Hadoop]()
