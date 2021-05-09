@@ -26,6 +26,8 @@
 | 扩大/缩小选择范围 | `Ctrl + W` / `Ctrl + Shift + W` | `option + up/down` |
 | 显示上下文 | `Alt + Q` | `option + shift + Q` |
 | 展示当前可用 Action | `Alt + Enter` | `option + enter` |
+| 上下移动语句块 |   |  `command + shift + up/down` |
+| 上下移动当前行 |   |  `option + shift + up/down` |
 
 ## 常用操作
 
