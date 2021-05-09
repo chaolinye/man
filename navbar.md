@@ -4,6 +4,7 @@
     - [Java](/docs/java/)
     - [Linux](/docs/linux/)
     - [Go](/docs/go/)
+    - [数据结构与算法](/docs/algorithm/)
 
 - 框架
     - [Mybatis]()
