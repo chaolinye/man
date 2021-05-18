@@ -29,6 +29,28 @@
 | 上下移动语句块 |   |  `command + shift + up/down` |
 | 上下移动当前行 |   |  `option + shift + up/down` |
 
+## 编程技巧
+
+### TDD
+
+先写代码，然后通过 F2 找到报错的地方，通过 Alt + Enter 创建类或者方法
+
+### live template
+
+| 关键字  | 用法  |
+| :--: | :--: |
+| var | 在语句末尾使用，创建变量 |
+| for | 在变量后面使用，foreach 循环变量 |
+| fori | 在变量后面使用，for 循环变量 |
+| sout | 独自使用，或者在变量后使用 |
+| psvm | 创建 main 方法 |
+| prsf | private final static |
+| psfs | public final static String |
+| ifn | if null 判断 |
+| ifnn | if not null 判断 |
+
+> 更多 Live Template 请在 IDEA 的 Settings 查看
+
 ## 常用操作
 
 ### 查找冗余代码
