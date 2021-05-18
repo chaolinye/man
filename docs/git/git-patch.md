@@ -61,6 +61,35 @@ git am patch1.patch
 
 !> git am 会直接使用 patch 文件中的 diff 的信息，还有提交者，时间等等来自动提交,不需要我们再去提交 commit
 
+### git send-email
+
+patch 文件生成后，一般会通过邮件发送给开源项目的负责人
+
+可以通过 `git send-email` 发送补丁邮件
+
+- 首先需要设置邮箱相关配置，下面是一个 QQ 邮箱的配置
+
+    ```bash
+    $ cat ~/.gitconfig 
+    # 已省略多余配置
+    [sendemail]
+        smtpserver = smtp.qq.com
+        smtpuser = 2285915269@qq.com
+            smtppass = yourpass
+            from = 2285915269@qq.com
+            confirm = always
+    ```
+
+- 邮件发送
+
+    ```bash
+    git send-email *.patch --to chaolin1994@163.com
+    ```
+
+- 应用邮件补丁
+
+    可以通过邮箱 Web 页面把补丁邮件下载到本地，然后通过 `git am` 应用
+
 ## References
 
 - [Git 打补丁-- patch 和 diff 的使用（详细）](https://www.jianshu.com/p/ec04de3f95cc)
