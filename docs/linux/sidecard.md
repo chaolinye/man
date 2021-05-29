@@ -1,5 +1,6 @@
 - [README](./)
 - [常用命令](./command)
+- [常用脚本](./script)
 - [Shell 的初始化执行脚本](./shell-init)
 - [快捷键](./keyboard)
 - [包管理软件](./package-manage)
