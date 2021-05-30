@@ -30,6 +30,8 @@
     - [k8s]()
     - [serverless]()
 
+- [架构设计](/docs/architecture/)
+
 - [前端](/docs/frontend/)
 
 - [研发效能](/docs/devops/)
