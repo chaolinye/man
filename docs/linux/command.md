@@ -10,6 +10,12 @@
     cat /etc/os-release
     ```
 
+- 查看本机公网IP
+
+    ```bash
+    curl cip.cc
+    ```
+
 - 查看系统信息
 
     ```bash
