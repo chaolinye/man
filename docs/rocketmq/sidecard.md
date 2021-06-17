@@ -1,2 +1,0 @@
-- [README]()
-- [RocketMQ vs Kafka](./vs)

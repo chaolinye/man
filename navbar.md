@@ -15,8 +15,7 @@
 - 中间件
     - [MySQL](/docs/mysql/)
     - [Redis](/docs/redis/)
-    - [RocketMQ](/docs/rocketmq/)
-    - [Kafka](/docs/kafka/)
+    - [MQ](/docs/mq/)
 
 - 大数据
     - [Hadoop]()
