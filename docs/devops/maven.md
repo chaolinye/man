@@ -176,6 +176,32 @@ Super POM 位置: `$MAVEN_HOME/lib/maven-model-builder-${version}.jar!/org/apach
 
 [官方插件文档](http://maven.apache.org/plugins/index.html)
 
+## Maven 版本号规范
+
+[官方文档](https://maven.apache.org/pom.html#Dependency_Version_Requirement_Specification)
+
+### 版本号规范
+
+Maven 版本号采用区间的语法
+
+![](../images/maven-version-specification.png)
+
+> 会拉取区间内最新的版本包
+
+### 版本号的大小比较
+
+![](../images/maven-version-order.png)
+
+简而言之，先根据 `-` 分割版本段，去掉每个版本段尾部的 `null` 值，再根据版本段比较两个版本号，短的进行补充 `null` 值
+
+![](../images/maven-version-order2.png)
+
+命令行验证版本号的大小
+
+```bash
+java -jar ${MAVEN_HOME}/lib/maven-artifact-3.3.9.jar [versions...]
+```
+
 ## FAQ
 
 ### maven 编译后 resources 下某些二进制文件失效
