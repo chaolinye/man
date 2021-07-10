@@ -36,7 +36,7 @@ Netty 让 Java 在高性能服务器领域有了和 C++ 的一比之力
 
 IO 多路复用主要有两种实现 select 和 epoll。
 
-select 使用数据存储监听的 socket，数组大小限制了监听的 socket 数量，其次通过轮询来寻找可用的就绪的 socket，寻找性能会随着 socket 数量的增长而降低
+select 使用数组存储监听的 socket，数组大小限制了监听的 socket 数量，其次通过轮询来寻找可用的就绪的 socket，寻找性能会随着 socket 数量的增长而降低
 
 epoll 的优势：
 
