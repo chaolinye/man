@@ -9,3 +9,4 @@
 - [Liquibase 应用指南](./liquibase)
 - [构建文档平台](./document)
 - [Macbook](./mac)
+- [持续集成](./CI)
