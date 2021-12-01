@@ -202,6 +202,14 @@ Maven 版本号采用区间的语法
 java -jar ${MAVEN_HOME}/lib/maven-artifact-3.3.9.jar [versions...]
 ```
 
+## 仓库优先级
+
+仓库查找顺序
+
+- 本地仓库
+- `settings.xml` -> `<profile>` -> `<repositories>`
+- `pom.xml -> <repositories>` 或者 `settings.xml -> <mirrors>`
+
 ## FAQ
 
 ### maven 编译后 resources 下某些二进制文件失效
@@ -237,3 +245,6 @@ java -jar ${MAVEN_HOME}/lib/maven-artifact-3.3.9.jar [versions...]
 </project>
 ```
 
+## References
+
+- [Maven仓库理解和优先级](https://swenfang.github.io/2018/06/03/Maven-Priority/)
