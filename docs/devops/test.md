@@ -166,9 +166,99 @@ JUnit4 架构
 - 
 
 
+## Test Double(测试替身)
 
+如果测试的目标对象依赖于其它对象或者外部资源，真实构建这些外部对象会造成单元测试过度复杂，导致性能极大降低，外部资源的变化可能会破坏单元测试的可重复性，那么这些外部对象应该怎么构建呢？
 
+回答是采用 `替身(Double)`
 
+> Double 替身来自于表演行业
+
+测试中的替身分为五种：
+
+### Dummy
+
+Dummy Object 英文直译冒牌货
+
+Dummy 的用途是用来填充目标测试对象中需要的物件。而 Dummy 不会对测试目标造成任何的影响。纯粹的填充物件，让测试程式能够运行
+
+如果测试目标只是需要这样一个对象，而这个对象并不会影响结果，这样一个对象就是 Dummy 对象
+
+### Stub
+
+替身对象的返回影响目标对象的结果, 也就是说替身对象要有合适的返回，这样的替身就是 Stub
+
+当不能或者不想使用依赖对象的真实数据使，使用 Stub 对象返回预置的数据
+
+![](../images/stub-double.png ":size=50%")
+
+### Fake
+
+Fake 替身对象会有自己的实现，但是不同于真实的实现，会更加的简单
+
+> Stub 返回的是死数据， Fake 会执行自己的逻辑得到数据返回
+
+![](../images/fake-double.png ":size=50%")
+
+### Spy
+
+Spy 用来验证目标对象对其依赖对象造成的效果
+
+### Mock
+
+Mock 是一个能够判断目标是不是有正确使用依赖对象的替身。
+
+Mock 跟 Spy 的最大差别是，Mock 用来验证目标对象的行为，而 Spy 用来验证目标对象对依赖对象状态的改变。
+
+> mock 对象没有 stub 的方法返回的是默认值
+
+> spy 对象没有 stub 的方法会执行原对象的方法，得到原对象方法的返回
+
+![](../images/mock-double.png ":size=50%")
+
+## Mockito
+
+Mockito 就是一个创建 Test Double 的开源框架。
+
+### Mockito 原理
+
+简单实现 Mockito 的 mock、when、then
+
+```java
+public class Mockito {
+
+    private static Map<Invocation, Object> results = new HashMap<Invocation, Object>();
+    private static Invocation lastInvocation;
+
+    public static <T> T mock(Class<T> clazz) {
+        Enhancer enhancer = new Enhancer();
+        enhancer.setSuperclass(clazz);
+        enhancer.setCallback(new MockInterceptor());
+        return (T)enhancer.create();
+    }
+
+    private static class MockInterceptor implements MethodInterceptor {
+        public Object intercept(Object obj, Method method, Object[] args, MethodProxy proxy) throws Throwable {
+            Invocation invocation = new Invocation(proxy, method, args, proxy);
+            lastInvocation = invocation;
+            if (results.containsKey(invocation)) {
+                return results.get(invocation);
+            }
+            return null;
+        }
+    }
+
+    public static <T> When<T> when(T o) {
+        return new When<T>();
+    }
+
+    public static class When<T> {
+        public void thenReturn(T retObj) {
+            results.put(lastInvocation, retObj);
+        }
+    }
+}
+```
 
 
 
@@ -176,7 +266,7 @@ JUnit4 架构
 
 - [你知道 Junit 是怎么跑的吗？](https://juejin.cn/post/6977171333922684958)
 - [JUnit4 文档](https://junit.org/junit4/)
-
+- [Test Doubles — Fakes, Mocks and Stubs.](https://blog.pragmatists.com/test-doubles-fakes-mocks-and-stubs-1a7491dfa3da)
 
 
 
