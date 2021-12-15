@@ -163,7 +163,9 @@ JUnit4 架构
 
 ![](../images/junit4-arch.png)
 
-- 
+JUnit5 架构
+
+![](../images/junit5-arch.png ":size=50%")
 
 
 ## Test Double(测试替身)
