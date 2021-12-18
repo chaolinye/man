@@ -259,8 +259,6 @@ java -jar ${MAVEN_HOME}/lib/maven-artifact-3.3.9.jar [versions...]
 
 区别在于 `-DskipTest` 会执行 `testCompile` 阶段，而 `-Dmaven.test.skip` 不会 
 
-
-
 ## References
 
 - [Maven 构建生命周期](https://maven.apache.org/guides/introduction/introduction-to-the-lifecycle.html)
