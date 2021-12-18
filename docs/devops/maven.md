@@ -21,6 +21,14 @@ mvn dependency:tree
 mvn dependency:sources
 ```
 
+## Maven Build Lifecycle
+
+![](../images/maven-clean.png)
+
+![](../images/maven-default.png)
+
+![](../images/maven-site.png)
+
 ## Maven 镜像
 
 Maven 官方仓库(`https://repo1.maven.org/maven2/`) 国内访问较慢，建议使用镜像加速
@@ -245,6 +253,15 @@ java -jar ${MAVEN_HOME}/lib/maven-artifact-3.3.9.jar [versions...]
 </project>
 ```
 
+### `-Dmaven.test.skip=true` 和 `-DskipTests` 的区别
+
+两者都是用于跳过 `test` 阶段
+
+区别在于 `-DskipTest` 会执行 `testCompile` 阶段，而 `-Dmaven.test.skip` 不会 
+
+
+
 ## References
 
+- [Maven 构建生命周期](https://maven.apache.org/guides/introduction/introduction-to-the-lifecycle.html)
 - [Maven仓库理解和优先级](https://swenfang.github.io/2018/06/03/Maven-Priority/)
