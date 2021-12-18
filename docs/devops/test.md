@@ -262,10 +262,226 @@ public class Mockito {
 }
 ```
 
+### Stub
 
+```java
+ //You can mock concrete classes, not just interfaces
+ LinkedList mockedList = mock(LinkedList.class);
+
+ //stubbing
+ when(mockedList.get(0)).thenReturn("first");
+ when(mockedList.get(1)).thenThrow(new RuntimeException());
+
+ //following prints "first"
+ System.out.println(mockedList.get(0));
+
+ //following throws runtime exception
+ System.out.println(mockedList.get(1));
+
+ //following prints "null" because get(999) was not stubbed
+ System.out.println(mockedList.get(999));
+
+ //Although it is possible to verify a stubbed invocation, usually it's just redundant
+ //If your code cares what get(0) returns, then something else breaks (often even before verify() gets executed).
+ //If your code doesn't care what get(0) returns, then it should not be stubbed.
+ verify(mockedList).get(0);
+```
+
+### Spy
+
+```java
+   List list = new LinkedList();
+   List spy = spy(list);
+
+   //optionally, you can stub out some methods:
+   when(spy.size()).thenReturn(100);
+
+   //using the spy calls *real* methods
+   spy.add("one");
+   spy.add("two");
+
+   //prints "one" - the first element of a list
+   System.out.println(spy.get(0));
+
+   //size() method was stubbed - 100 is printed
+   System.out.println(spy.size());
+
+   //optionally, you can verify
+   verify(spy).add("one");
+   verify(spy).add("two");
+```
+
+### Argument matchers
+
+```java
+//stubbing using built-in anyInt() argument matcher
+ when(mockedList.get(anyInt())).thenReturn("element");
+
+ //stubbing using custom matcher (let's say isValid() returns your own matcher implementation):
+ when(mockedList.contains(argThat(isValid()))).thenReturn(true);
+
+ //following prints "element"
+ System.out.println(mockedList.get(999));
+
+ //you can also verify using an argument matcher
+ verify(mockedList).get(anyInt());
+
+ //argument matchers can also be written as Java 8 Lambdas
+ verify(mockedList).add(argThat(someString -> someString.length() > 5));
+```
+
+### Answer
+
+```java
+ when(mock.someMethod(anyString())).thenAnswer(
+     new Answer() {
+         public Object answer(InvocationOnMock invocation) {
+             Object[] args = invocation.getArguments();
+             Object mock = invocation.getMock();
+             return "called with arguments: " + Arrays.toString(args);
+         }
+ });
+
+ //Following prints "called with arguments: [foo]"
+ System.out.println(mock.someMethod("foo"));
+```
+
+### Capturing arguments 
+
+```java
+   ArgumentCaptor<Person> argument = ArgumentCaptor.forClass(Person.class);
+   verify(mock).doSomething(argument.capture());
+   assertEquals("John", argument.getValue().getName());
+```
+
+### Verify
+
+```java
+   verify(mock, timeout(100).times(2)).someMethod();
+```
+
+### 注解
+
+- `@Captor` simplifies creation of ArgumentCaptor - useful when the argument to capture is a nasty generic class and you want to avoid compiler warnings
+- `@Spy` - you can use it instead spy(Object).
+- `@Mock` - you can use it instead mock(Object)
+- `@InjectMocks` - injects mock or spy fields into tested object automatically.
+
+四种开启注解的方法
+
+- `MockitoAnnotations.openMocks(Object)`
+- `MockitoJUnitRunner`
+
+    ```java
+    @RunWith(MockitoJunitRunner.class)
+    public class TheTest {
+        // ...
+    }
+    ```
+
+- `MockitoRule`
+
+    ```java
+    @RunWith(YetAnotherRunner.class)
+    public class TheTest {
+        @Rule public MockitoRule mockito = MockitoJUnit.rule();
+        // ...
+    }
+    ```
+
+- JUnit5 的 `MockitoExtension`
+
+    ```java
+    @MockitoSettings(strictness = Strictness.STRICT_STUBS)
+    public class ExampleTest {
+
+        @Mock
+        private List<Integer> list;
+
+        @Test
+        public void shouldDoSomething() {
+            list.add(100);
+        }
+    }
+    ```
+
+### Mocking static methods
+
+```java
+ assertEquals("foo", Foo.method());
+ try (MockedStatic mocked = mockStatic(Foo.class)) {
+ mocked.when(Foo::method).thenReturn("bar");
+ assertEquals("bar", Foo.method());
+ mocked.verify(Foo::method);
+ }
+ assertEquals("foo", Foo.method());
+```
+
+### Mocking object construction
+
+```java
+ assertEquals("foo", new Foo().method());
+ try (MockedConstruction mocked = mockConstruction(Foo.class)) {
+ Foo foo = new Foo();
+ when(foo.method()).thenReturn("bar");
+ assertEquals("bar", foo.method());
+ verify(foo).method();
+ }
+ assertEquals("foo", new Foo().method());
+```
+
+### BDD 模式
+
+[Mockito BDD 文档](https://javadoc.io/static/org.mockito/mockito-core/4.2.0/org/mockito/BDDMockito.html)
+
+```java
+ import static org.mockito.BDDMockito.*;
+
+ Seller seller = mock(Seller.class);
+ Shop shop = new Shop(seller);
+
+ public void shouldBuyBread() throws Exception {
+   //given
+   given(seller.askForBread()).willReturn(new Bread());
+
+   //when
+   Goods goods = shop.buyBread();
+
+   //then
+   assertThat(goods, containBread());
+ }s
+```
+
+### FAQ
+
+#### `thenReturn`、`thenThrow` 和 `doReturn`、`doThrow` 的使用场景
+
+使用原则：尽量使用 `thenReturn`、`thenThrow`(可读性好)，无法使用时，才用 `doReturn`、`doThrow`
+
+需要使用 `doReturn`、`doThrow` 的常见场景：
+
+- stub 返回 `void` 的方法: 空返回不能作为 `Mockito.when()` 的参数
+
+    ```java
+    doThrow(new RuntimeException()).when(mockedList).clear();
+
+    //following throws RuntimeException:
+    mockedList.clear();
+    ```
+- spy 对象时, `Mockito.when().thenReturn` 会调用原对象的方法，可能导致报异常
+
+    ```java
+    List mockedList = spy(ArrayList.class);
+
+    doReturn("Hello").when(mockedList).get(0);
+
+    //following throws RuntimeException:
+    assertEquals("Hello", mockedList.get(0))
+    ```
 
 ## References
 
+- [Mockito 官方文档](https://javadoc.io/doc/org.mockito/mockito-core/latest/org/mockito/Mockito.html)
 - [你知道 Junit 是怎么跑的吗？](https://juejin.cn/post/6977171333922684958)
 - [JUnit4 文档](https://junit.org/junit4/)
 - [Test Doubles — Fakes, Mocks and Stubs.](https://blog.pragmatists.com/test-doubles-fakes-mocks-and-stubs-1a7491dfa3da)
