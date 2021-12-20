@@ -6,6 +6,8 @@
 
 > 测试让开发人员可以对开发的软件质量拥有信心
 
+> 优秀实践：用测试覆盖已发现的问题，理论上可以收敛问题数量，提高质量
+
 单元测试(Unit Test) 是系统测试的基础，同时也是测试驱动开发（TDD）的基础
 
 单元测试的要求
@@ -82,15 +84,172 @@ JUnit 是 Java 领域最流行的单元测试框架。
     public static <T> void assertThat(T actual, Matcher<? super T> matcher)
     ```
 
+    优点：可读性好
+
+    例子：
+
+    ```java
+    import static org.hamcrest.CoreMatchers.*;
+    //...
+    assertThat(x, is(3));
+    assertThat(x, is(not(4)));
+    assertThat(responseString, either(containsString("color")).or(containsString("colour")));
+    assertThat(myList, hasItem("3"));
+    ```
+
     > Matcher 是来自于 hamcrest-core 的 `org.hamcrest.Matcher` 类，因此 junit 依赖于 hamcrest-core
+
+    > 常用的 Matcher 定义在 `org.hamcrest.CoreMatchers` 中 `org.junit.matchers.JUnitMatchers`
+
+    > 一般可通过继承 `BaseMatcher` 来实现自己的 Matcher
+
+    ```java
+    public class CoreMatchers {
+        //...
+        public static <T> org.hamcrest.Matcher<T> allOf(java.lang.Iterable<org.hamcrest.Matcher<? super T>> matchers) {
+            return org.hamcrest.core.AllOf.<T>allOf(matchers);
+        }
+        //...
+    }
+
+    public class AllOf<T> extends DiagnosingMatcher<T> {
+
+        private final Iterable<Matcher<? super T>> matchers;
+
+        public AllOf(Iterable<Matcher<? super T>> matchers) {
+            this.matchers = matchers;
+        }
+
+        @Override
+        public boolean matches(Object o, Description mismatch) {
+            for (Matcher<? super T> matcher : matchers) {
+                if (!matcher.matches(o)) {
+                    mismatch.appendDescriptionOf(matcher).appendText(" ");
+                    matcher.describeMismatch(o, mismatch);
+                return false;
+                }
+            }
+            return true;
+        }
+
+        @Factory
+        public static <T> Matcher<T> allOf(Iterable<Matcher<? super T>> matchers) {
+            return new AllOf<T>(matchers);
+        }
+        //...
+    }
+    
+    ```
+
+### Aggregating tests in suites
+
+JUnit 通过 Suite 的概念将多个测试类分组，可以只执行某个组的测试
+
+```java
+@RunWith(Suite.class)
+@Suite.SuiteClasses({
+  TestFeatureLogin.class,
+  TestFeatureLogout.class,
+  TestFeatureNavigate.class,
+  TestFeatureUpdate.class
+})
+
+public class FeatureTestSuite {
+  // the class remains empty,
+  // used only as a holder for the above annotations
+}
+```
+
+### Parameterized tests
+
+功能：一个测试支持多组数据，不必要写多行测试代码
+
+```java
+@RunWith(Parameterized.class)
+public class FibonacciTest {
+    @Parameters
+    public static Collection<Object[]> data() {
+        return Arrays.asList(new Object[][] {     
+                 { 0, 0 }, { 1, 1 }, { 2, 1 }, { 3, 2 }, { 4, 3 }, { 5, 5 }, { 6, 8 }  
+           });
+    }
+
+    private int fInput;
+
+    private int fExpected;
+
+    public FibonacciTest(int input, int expected) {
+        this.fInput = input;
+        this.fExpected = expected;
+    }
+
+    @Test
+    public void test() {
+        assertEquals(fExpected, Fibonacci.compute(fInput));
+    }
+}
+```
+
+### Ignoring a Test
+
+```java
+@Ignore("Test is ignored as a demonstration")
+@Test
+public void testSame() {
+    assertThat(1, is(1));
+}
+```
+
+### Timeout for tests
+
+方法级别
+
+```java
+@Test(timeout=1000)
+public void testWithTimeout() {
+  ...
+}
+```
+
+测试类级别
+
+```java
+public class HasGlobalTimeout {
+    public static String log;
+    private final CountDownLatch latch = new CountDownLatch(1);
+
+    @Rule
+    public Timeout globalTimeout = Timeout.seconds(10); // 10 seconds max per method tested
+
+    @Test
+    public void testSleepForTooLong() throws Exception {
+        log += "ran1";
+        TimeUnit.SECONDS.sleep(100); // sleep for 100 seconds
+    }
+
+    @Test
+    public void testBlockForever() throws Exception {
+        log += "ran2";
+        latch.await(); // will block 
+    }
+}
+```
 
 ### Runner
 
 JUnit4 使用 Runner 来运行测试
 
+> Runner 是 JUnit4 的主要扩展点，通过自定义 Runner 可以在测试的整个生命周期的注入任何的变量等等
+
 Runner 自带的 Runner 主要如下:
 
 ![](../images/junit4-runner.png)
+
+常用的三方 Runners
+
+- [SpringJUnit4ClassRunner](https://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/test/context/junit4/SpringJUnit4ClassRunner.html)
+- [MockitoJUnitRunner](http://site.mockito.org/mockito/docs/current/org/mockito/runners/MockitoJUnitRunner.html)
+- [Others...](https://github.com/junit-team/junit4/wiki/Custom-runners)
 
 使用 @RunWith 注解指定 runner， 如果没有指定，那么JUnit将会使用默认的运行器（JUnit4）
 
@@ -127,25 +286,6 @@ mvn -Dtest=OneTest#testMethod
 ```
 
 IDE 执行过于简单，略
-
-### 高级特性
-
-- Suite
-
-    JUnit 通过 Suite 的概念将多个测试类分组，可以只执行某个组的测试
-
-- Parameterized
-
-    通过二维数组定义多组输入输出，实现同样测试代码，验证多组输入输出
-
-- Rule
-
-    通过
-
-- Theory
-
-    TODO
-
 
 ### JUnit5
 
@@ -481,6 +621,7 @@ public class Mockito {
 
 ## References
 
+- [JUnit4 官方文档](https://junit.org/junit4/)
 - [Mockito 官方文档](https://javadoc.io/doc/org.mockito/mockito-core/latest/org/mockito/Mockito.html)
 - [你知道 Junit 是怎么跑的吗？](https://juejin.cn/post/6977171333922684958)
 - [JUnit4 文档](https://junit.org/junit4/)
