@@ -4,3 +4,4 @@
 - [领域驱动开发](./ddd)
 - [CAP 理论](./cap)
 - [分布式系统指标](./system-metric)
+- [重构](./refactor)
