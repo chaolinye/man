@@ -7,7 +7,7 @@
     - [数据结构与算法](/docs/algorithm/)
 
 - 框架
-    - [Mybatis]()
+    - [Mybatis](/docs/mybatis/)
     - [Spring](/docs/spring/)
     - [Netty](/docs/netty/)
     - [ServiceComb](/docs/service-comb/)
