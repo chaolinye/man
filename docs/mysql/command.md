@@ -31,3 +31,16 @@ set AUTOCOMMIT = 1;
 # 设置自动提交
 set session transaction isolation level read committed;
 ```
+
+## 用户权限
+
+```sql
+-- 查看当前用户权限
+show grants;
+
+-- 查看其他用户权限
+show grants for 'username'@'10.%';
+
+-- 查看系统有哪些用户
+select User,Host from mysql.user;
+```
