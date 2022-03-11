@@ -61,7 +61,7 @@ DokuWiki 是目前最好的开源 wiki 软件，功能简洁强大，插件众�
 
 支持 Markdown [插件](https://www.dokuwiki.org/plugin:mdpage?s[]=markdown)
 
-### MiniWiki
+### MinDoc
 
 MinDoc 是一款针对 IT 团队开发的简单好用的文档管理系统。
 
@@ -83,6 +83,7 @@ docker run --name=mindoc --restart=always -e DB_ADAPTER=sqlite3 -e MYSQL_INSTANC
 > 相对于 MinDoc 功能更为强大，更适合多团队的文档管理
 
 [官网地址](https://github.com/phachon/mm-wiki)
+[Docker 快速构建 mm-wiki](https://gitee.com/yechaolin/hello-docker/tree/master/mm-wiki)
 
 
 
