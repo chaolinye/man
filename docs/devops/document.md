@@ -84,6 +84,7 @@ docker run --name=mindoc --restart=always -e DB_ADAPTER=sqlite3 -e MYSQL_INSTANC
 
 [官网地址](https://github.com/phachon/mm-wiki)
 [Docker 快速构建 mm-wiki](https://gitee.com/yechaolin/hello-docker/tree/master/mm-wiki)
+[支持粘贴上传](https://github.com/phachon/mm-wiki/pull/310/files)
 
 
 
