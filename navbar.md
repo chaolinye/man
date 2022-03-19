@@ -4,6 +4,7 @@
     - [Java](/docs/java/)
     - [Linux](/docs/linux/)
     - [Go](/docs/go/)
+    - [JavaScript](/docs/javascript/)
     - [数据结构与算法](/docs/algorithm/)
 
 - 框架
