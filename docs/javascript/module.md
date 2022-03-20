@@ -281,7 +281,18 @@ Node 同时支持 CommonJS 和 ES module，使用时的区分如下：
 
 > ES 模块文件中 `import` CommonJS 模块时，`module.exports` 导出成 `default `
 
-> CommonJS 模块文件中不支持 `requrie()` ES6 模块，可以使用 `import()` 异步导入
+> CommonJS 模块文件中不支持 `requrie()` ES6 模块，可以使用 `import()` 异步导入(`import()`也可以用来异步导入 CommonJS 模块)
+
+```js
+// say.mjs
+export default function() {
+    console.log("sayHi")
+}
+
+
+// index.js
+import("./say.mjs").then(sayHi => sayHi.default())
+```
 
 > ES 模块不支持直接导入 JSON 文件（ES 标准中有相应的提案了）
 
