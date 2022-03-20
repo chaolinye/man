@@ -354,7 +354,7 @@ alert("Old browsers ignore script with unknown type=module, but execute this.");
 
 > 也就是说，原生模块也是可以使用的
 
-```js
+```html
 <!-- 假设我们从诸如 Webpack 这类的打包工具中获得了 "bundle.js" 脚本 -->
 <script src="bundle.js"></script>
 ```
