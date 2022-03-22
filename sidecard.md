@@ -6,3 +6,4 @@
 - [命名](/docs/home/naming.md)
 - [写好 README](/docs/home/hello-readme.md)
 - [读书方法](/docs/home/how-read.md)
+- [研发工作优秀实践](/docs/home/work-practice)
