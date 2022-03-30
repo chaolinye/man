@@ -6,7 +6,7 @@
 
 用清单记录这些事情，避免遗漏，安排优先级，定期回顾，更好地掌握进度和完成任务，也让自己对工作更有掌握感
 
-> 提供几个清单工具作为参考: ediary, OneNote，Microsoft TODO等
+> 提供几个清单工具作为参考: [双链笔记本 logseq](https://logseq.com/), ediary, OneNote，Microsoft TODO等
 
 ## 经常写文档
 
