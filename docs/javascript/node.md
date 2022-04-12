@@ -1,5 +1,603 @@
 # Node
 
-## 模块加载
+## Node 简介
+
+Ryan Dahl 最初的目标是写一个基于事件驱动、非阻塞I/O的Web服务器，以达到更高的性能，提供 Apache 等服务器之外的选择。
+
+> 项目的发展超过了他最初单纯开发一个 Web 服务器的想法，变成了构建网络应用的一个基础框架，这样可以在它的基础上构建更多的东西，诸如服务器、客户端、命令行工具等。
+
+考虑到`高性能`、`符合事件驱动`、`没有历史包袱`这3个主要原因，JavaScript 成为了 Node 的实现语言。
+
+Node 就是网络节点的意思，每一个Node进程都构成这个网络应用中的一个节点，这是它名字所含意义的真谛。
+
+> 官方命名就是 Node，但这个名称在很多场景可以会有歧义，所以也常叫做 Node.js
+
+### Node 给 JavaScript 带来的意义
+
+JavaScript作为一门图灵完备的语言，长久以来却限制在浏览器的沙箱中运行，它的能力取决于浏览器中间层提供的支持有多少。
+
+Node 让 JavaScript 可以脱离浏览器而运行，活跃在服务端、客户端、命令行工具等领域。
+
+同时 Node 和 Npm 也推动了前端工程化的进展
+
+### Node vs Chrome 浏览器
+
+![](../images/chromevsnode.png ":size=30%")
+
+除了 HTML、WebKit 和显卡这些 UI 相关技术没有支持外，Node 的结构与 Chrome十分相似。它们都是基于事件驱动的异步架构，浏览器通过事件驱动来服务界面上的交互，Node通过事件驱动来服务I/O
+
+### Node 的特点
+
+Node 相对于传统的后端语言，有以下特点
+
+- 单线程
+
+    > Node 进程只有一个业务线程
+
+- 异步 IO
+
+    > 单线程的设计，也让 Node 的 IO 必然是异步的
+
+- 事件与回调函数的编程方式
+
+    > 继承前端的编程方式
+
+- 跨平台
+
+    > JavaScript 本身是解释型语言，Node 基于 libuv 库封装了平台差异，暴露出统一的 API，以实现 JavaScript 代码的跨平台
+
+    ![](../images/node-cross-platform.png ":size=20%")
+
+### Node 的应用场景
+
+- I/O 密集型
+- 前后端统一技术栈
+- 高并发
+- serverless
+
+## 模块机制
+
+Web1.0 时代，JavaScript 主要有两个作用，一个是表单校验，另一个是网页特效，这时前端的 JavaScript 代码量不会很大。
+
+web2.0 时代，大量业务逻辑放到了前端来实现，JavaScript 代码量剧增，代码复用成为重要需求。各种前端库和框架被开发出来，这么库大致经历了工具类库、组件库、前端框架、前端应用的变迁：
+
+![](../images/js-lib.png ":size=20%")
+
+在类聚和抽象代码库的过程中，JavaScript 中的一个先天缺陷日益突出：缺少模块机制
+
+JavaScript 代码只能通过全局变量访问其它代码库，为了避免全局变量的冲突，不得不用命名空间等方式人为地约束代码，让模块之间的引用十分的丑陋
+
+为了解决这个问题，社区提出了 CommonJS 规范
+
+### CommonJS
+
+CommonJS 的愿景是让 JavaScript 能够在任何地方运行
+
+CommonJS 规范主要补充了 JavaScript 在服务端的相应规范
+
+> Node 就是对 CommonJS 规范的一个实现
+
+![](../images/commonjs.png ":size=50%")
+
+为了能够开发大型应用程序，CommonJS 定义了模块规范以及包管理规范
+
+具体规范可以参考 [CommonJS 规范](./module?id=commonjs-规范)
+
+### Node 的模块实现
+
+Node 解析模块有 3 个步骤：
+
+1. 路径分析
+2. 文件定位
+3. 编译执行
+
+在 Node 中，模块分为两类：一类是 Node 提供的模块，称为核心模块；另一类是用户编写的模块，称为文件模块。
+
+> 部分核心模块会编译到 Node 的二进制执行文件中，Node 进程启动时，就被直接加载进内存中，这部分模块无需路径分析和文件定位
+
+> Node 会缓存模块解析的结果，即每个模块只会被解析执行一次
+
+模块之间的主要调用关系
+
+![](../images/node-module-stack.png ":size=50%")
+
+#### 路径分析
+
+模块路径标识符类型：
+
+1. 核心模块，如 http、fs、path 等。
+
+2. `.` 或 `..` 开始的相对路径文件模块。
+
+3. 以 `/` 开始的绝对路径文件模块。
+
+4. 非路径形式的文件模块，如自定义的 connect 模块。
+
+    > 其实就是查找 node_modules 目录下的模块，先在当前文件目录下找 node_modules，如果没有从父目录逐级往上找，直到根目录
+
+> 路径分析，就是先找缓存，然后按上面的类型的顺序来找
+
+### 文件定位
+
+![](../images/node-module-parse.png)
+
+### 模块编译
+
+在Node中，每个文件模块都是一个对象，它的定义如下
+
+```js
+function Module(id, parent) {
+    this.id = id;
+    this.exports = {};
+    this.parent = parent;
+    if (parent && parent.children) {
+        parent.children.push(this)
+    }
+
+    this.filename = null;
+    this.loaded = false;
+    this.children = [];
+}
+
+Module.cache = {}
+```
+
+> Node 文件模块中的 `module` 对象就是这样一个实例
+
+- js 模块文件的编译
+
+    ```js
+    require(moduleId) {
+        if (Module.cache[moduleId]) {
+            return Module.cache[moduleId].exports;
+        }
+
+        let moduleContent = findModuleContentById(moduleId);
+
+        let depModule = new Module(moduleId, module);
+
+        new Function("requrie", "exports", "module", "__filename", "__dirname", moduleContent)(require, depModule.exports, depModule. __filename, __dirname)
+
+        Module.cache[moduleId] = depModule;
+
+        return depModule.exports
+    }
+    ```
+
+- node 模块文件的编译
+
+    实际上，.node 的模块文件并不需要编译，因为它是编写 C/C++ 模块之后编译生成的，所以这里只有加载和执行的过程。在执行的过程中，模块的 exports 对象与 .node 模块产生联系，然后返回给调用者。
+
+- json 模块文件的编译
+
+    Node 利用 fs 模块同步读取 JSON 文件的内容之后，调用 JSON.parse() 方法得到对象，然后将它赋给模块对象的 exports，以供外部调用。
+
+- 其它后缀的模块文件的编译
+
+    默认按 js 模块文件来编译，如果要自定义编译，可以扩展 `Module._extensions` 对象，比如内置的 `.json` 文件的编译方法：
+
+    ```js
+    Module._extensions['.json'] = function(module, filename) {
+        var content = NativeModule.require('fs').readFileSync(filename, 'utf8');
+        try {
+            module.exports = JSON.parse(stripBOM(content));
+        } catch (err) {
+            err.message = filename + ":" + err.message;
+            throw err;
+        }
+    }
+    ```
+
+    Module 对象在代码中访问不到，但是 `Module._extensions` 会被赋值给 `require()` 的 `extensions` 属性，所以通过在代码中访问 `require.extensions` 可以知道系统中已有的扩展加载方式
+
+    ```js
+    console.log(require.extensions);
+    ```
+
+### 兼容 CommonJS Module 和 ES Module
+
+ECMASCript 在语言规范层面定义了模块机制，这是未来的主流，新版本的 Node 同时兼容了 CommonJS Module 和 ES Module 规范，具体选用逻辑如下：
 
 ![](../images/module-loaders.png)
+
+### 包与 npm
+
+Node组织了自身的核心模块，也使得第三方文件模块可以有序地编写和使用。但是在第三方模块中，模块与模块之间仍然是散列在各地的，相互之间不能直接引用。而在模块之外，包和NPM则是将模块联系起来的一种机制。
+
+包的出现，则是在模块的基础上进一步组织JavaScript代码
+
+![](../images/node-package.png ":size=50%")
+
+包实际上是一个存档文件，即一个目录直接打包为．zip或tar.gz格式的文件，安装后解压还原为目录
+
+完全符合CommonJS规范的包目录应该包含如下这些文件
+
+- package.json：包描述文件。
+- bin：用于存放可执行二进制文件的目录。
+- lib：用于存放JavaScript代码的目录。
+- doc：用于存放文档的目录。
+- test：用于存放单元测试用例的代码。
+
+包描述文件的定义具体请阅读[文档](https://docs.npmjs.com/cli/v7/configuring-npm/package-json)
+
+CommonJS包规范是理论，NPM是其中的一种实践。NPM 之于 Node，相当于 Maven 之于 Java。NPM 帮助 Node 完成了第三方模块的发布、安装和依赖等
+
+> npm 是目前所有语言各种包管理系统中最活跃的，包数量最多的，可以在上面找到很多有用的工具。npm 也极大促进了前端工程化的进程
+
+npm 的 基本命令
+
+```bash
+# 查看 npm 版本
+npm -v
+
+# 查看所有命令
+npm 
+
+# 安装全局命令；注意不是安装全局依赖，这里安装的包并不能被 requrie；而是根据包描述文件中的bin字段配置，将实际脚本链接到与 Node 可执行文件相同的路径下
+npm install -g <package>
+
+# 从npm下载并安装包
+npm install <package>
+
+# 安装本地的包
+npm install <tarball file>
+npm install <tarball url>
+npm install <folder>
+
+# 临时指定npm仓库安装
+npm install <package> --registry=http://registry.url
+
+# 指定后续的 npm 仓库
+npm config set registry http://registry.url
+
+# 初始化包描述文件
+npm init
+
+# 注册包仓库账号
+npm adduser
+
+# 登录包仓库账号
+npm login
+
+# 发布包
+npm publish .
+
+# 查看依赖书
+npm ls
+```
+
+npm 钩子机制详看[文档](https://docs.npmjs.com/cli/v7/using-npm/scripts)
+
+在企业内部一般都搭建 npm 的私仓和镜像站，比如可以通过 [Nexus](https://hub.docker.com/r/sonatype/nexus3) 来搭建
+
+## 异步 IO
+
+### IO 模型
+
+如果只有同步 IO，只能通过多线程或者多进程来实现并发，同时由于创建进程线程和执行期进程线程上下文切换的开销较大，导致进程线程数量不能太多，并发量受限
+
+[Unix 5 种 IO 模型](../netty/?id=_5-%e7%a7%8d-io-%e6%a8%a1%e5%9e%8b)
+
+现实的异步IO实现：
+
+通过让部分线程进行阻塞I/O或者非阻塞I/O加轮询技术来完成数据获取，让一个线程进行计算处理，通过线程之间的通信将I/O得到的数据进行传递，这就轻松实现了异步I/O
+
+![](../images/node-async-io.png ":size=50%")
+
+> 我们时常提到Node是单线程的，这里的单线程仅仅只是JavaScript执行在单线程中罢了。在Node中，无论是*nix还是Windows平台，内部完成I/O任务的另有线程池。
+
+### Node 的异步 IO
+
+在进程启动时，Node便会创建一个类似于 `while(true)` 的循环，每执行一次循环体的过程我们称为 `Tick`
+
+![](../images/node-eventloop.png ":size=50%")
+
+事件循环、观察者、请求对象、I/O线程池这四者共同构成了Node异步I/O模型的基本要素。
+
+![](../images/node-aio.png ":size=50%")
+
+Node Web 服务器事件循环
+
+![](../images/node-web-eventloop.png ":size=50%")
+
+### 非 IO 的异步 API
+
+- setTimeout
+
+    ![](../images/node-setTimeout.png ":size=50%")
+
+- process.nextTick()
+
+    每次调用 `process.nextTick()` 方法，只会将回调函数放入队列中，在下一轮 `Tick` 时取出执行。定时器中采用红黑树的操作时间复杂度为 `O(lg(n))`, `nextTick()` 的时间复杂度为 `O(1)`。相较之下，`process.nextTick()` 更高效。
+
+- setImmediate()
+
+    `setImmediate()` 的实现方式和 `process.nextTick()` 类似，只是优先级没有 `process.nextTick()` 高
+    在具体实现上，`process.nextTick()` 的回调函数保存在一个数组中，`setImmediate()` 的结果则是保存在链表中。
+    在行为上，`process.nextTick()` 在每轮循环中会将数组中的回调函数全部执行完，而 `setImmediate()` 在每轮循环中执行链表中的一个回调函数
+
+## 异步编程
+
+### 函数式编程
+
+在开始异步编程之前，先得知晓 JavaScript 现今的回调函数和深层嵌套的来龙去脉。在 JavaScript 中，函数（function）作为一等公民，使用上非常自由，无论调用它，或者作为参数，或者作为返回值均可
+
+`高阶函数` 是高阶函数则是可以把函数作为参数，或是将函数作为返回值的函数
+
+`偏函数` 用法是指创建一个调用另外一个部分——参数或变量已经预置的函数——的函数的用法
+
+### 异步编程的优势和难点
+
+- 优势: 高性能
+
+    > Node带来的最大特性莫过于基于事件驱动的非阻塞I/O模型，这是它的灵魂所在
+
+- 难点
+
+    - 异常处理
+    - 函数嵌套过深
+    - 阻塞代码
+    - 多线程编程
+    - 异步转同步
+
+### 异步编程常见模式
+
+- 事件发布/订阅模式。
+
+    事件发布/订阅模式自身并无同步和异步调用的问题，但在Node中，emit()调用多半是伴随事件循环而异步触发的，所以我们说事件发布/订阅广泛应用于异步编程。
+
+    利用 Node 的 events 库实现事件机制
+
+    ```js
+    var events = require('events')
+
+    function Stream() {
+        events.EventEmitter.call(this);
+    }
+
+    util.inherits(Stream, events.EventEmitter)
+    ```
+
+    使用偏函数实现多个异步后同步
+
+    ```js
+    var after = function (times, callback) {
+        var count = 0, results = {};
+        return function(key, value) {
+            results[key] = value;
+            count++;
+            if (count === times) {
+                callback(results);
+            }
+        }
+    }
+
+    var done = after(times, render);
+    var emitter = new events.Emitter();
+    emitter.on("done", done);
+
+    fs.readFile(template_path, "utf8", function(err, template) {
+        emitter.emit('done', 'template', template);
+    })
+
+    db.query(sql, function(err, data) {
+        emitter.emit('done', 'data', data)
+    })
+
+    I10n.get(function(err, resources) {
+        emitter.emit('done', 'resources', resources);
+    }) 
+    ```
+
+- [Promise/Deferred](http://wiki.commonjs.org/wiki/Promises) 模式
+
+    > 从 ES6 开始已经成为语言级别的规范，主流方向
+
+    Promise 相关规范可以查看 [wiki](http://wiki.commonjs.org/wiki/Promises)
+
+    具体使用方法可以参考 [文档](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Guide/Using_promises)
+
+    下面针对其中的 [Promise/A](http://wiki.commonjs.org/wiki/Promises/A) 规范，通过 Node 的 events 模块来实现一个 Promise 机制，依次来展示 Promise 大致的实现思路
+
+    ```js
+    var Promise = function () {
+        EventEmitter.call(this)
+    }
+    util.inherits(Promise, EventEmitter)
+
+    Promise.prototype.then = function (fullfilledHandler, errorHandler, progressHandler) {
+        if (typeof fullfilledHandler === 'function') {
+            this.once('success', fullfilledHandler)
+        }
+
+        if (typeof errorHandler === 'function') {
+            this.once('error', errorHandler);
+        }
+
+        if (typeof progressHandler === 'function') {
+            this.once('progress', progressHandler)
+        }
+
+        return this;
+    }
+
+    var Deferred = function () {
+        this.state = 'unfullfilled';
+        this.promise = new Promise();
+    }
+
+    Deferred.prototype.resolve = function (obj) {
+        this.state = 'fullfilled';
+        this.promise.emit('success', obj)
+    }
+
+    Deferred.prototype.reject = function(err) {
+        this.state = 'failed';
+        this.promise.emit('error', err)
+    }
+
+    Deferred.prototype.progress = function(data) {
+        this.promise.emit('progress', data)
+    } 
+    ```
+
+    > `Deferred` 主要是用于内部，用于维护异步模型的状态；Promise 则作用于外部，通过 `then()` 方法暴露给外部以添加自定义逻辑
+
+    > 上述只是 Promsie 的一个实现思路，真实的 ECMAScript Promise 会更加的优雅严谨
+
+    使用 Promise 封装已有的 Emitter 对象
+
+    ```js
+    var promisify = function(res) {
+        var deferred = new Deferred();
+        var result = '';
+        res.on("data", function (chunk) {
+            result += chunk;
+            deferred.progress(chunk);
+        })
+
+        res.on("end", function() {
+            deferred.resolve(result);
+        })
+
+        res.on("error", function(err) {
+            deferred.reject(err);
+        })
+
+        return defered.promise;
+    }
+    ```
+
+    支持序列执行的 Promise
+
+    ```js
+    var Deferred = function() {
+        this.promise = new Promise();
+    }
+
+    Deferred.prototype.resolve = function(obj) {
+        var promise = this.promise;
+        var handler;
+        while((handler = promise.queue.shift())) {
+            if (handler && handler.fulfilled) {
+                var ret == handler.fulfilled(obj);
+                if (ret && ret.isPromise) {
+                    ret.queue = promise.queue;
+                    this.promise = ret
+                    return;
+                }
+            }
+        }
+    }
+
+    // reject 的实现思路与resolve相同
+
+    var Promise = function() {
+        // 队列用于存储待执行的回调函数
+        this.queue = []
+        this.isPromise = true;
+    }
+
+    Promise.prototype.then = function (fulfilledHandler, errorHandler, progressHandler) {
+        var handler = {};
+        if (typeof fullfilledHandler === 'function') {
+            handler.fulfilled = fulfilledHandler;
+        }
+        // 省略 errorHandler 和 progressHandler 的处理
+        this.queue.push(handler);
+        return this;
+    }
+    ```
+
+- 流程控制库
+
+    > Promise 已取得主导地位，这一模块就不多介绍
+
+## 内存控制
+
+由于浏览器页面内存占用一般不多，就算过多，用户也会自行刷新页面，所以在过去很长一段时间内JavaScript开发者很少在开发过程中遇到需要对内存精确控制的场景，也缺乏控制的手段。
+
+随着 Node 的发展，JavaScript 开始用于服务端开发；在服务端场景，内存占用过多或者泄露会严重影响服务的性能和稳定性，是不可接受的。
+
+为此，每个 Node 开发者都应该了解 Node 的内存机制
+
+### V8 的垃圾回收机制与内存限制
+
+V8 是 Node 的执行引擎，其作用可类比于 Java 中的 JVM
+
+Lars Bak 是 V8 的主要领导者，刚好他之前就是在 Sun 担任 HotSpot 团队的技术领导，因此 V8 的垃圾回收机制和 JVM 有很多类似的地方
+
+> 可参考 [JVM](../java/jvm.md) 章节来作类比学习
+
+在 V8 中，所有的 JavaScript 对象都是通过堆来进行分配的
+
+堆内存主要分为新生代和老年代:
+
+- 新生代采用标记复制算法
+
+    > 和 JVM 不一样的是，V8 的新生代没有 Eden，只有 From 和 To 空间。
+    
+    > 对象在 From 空间分配，垃圾回收把存活的对接从 From 空间复制到 To 空间，同时互换两个空间的角色
+
+- 老年代采用标记清除算法
+
+    > 没有空间分配时再采用标记整理算法清理碎片化空间
+
+    > 为了降低全堆垃圾回收带来的停顿时间，V8 先从标记阶段入手，将原本要一口气停顿完成的动作改为增量标记（incremental marking），也就是拆分为许多小“步进”，每做完一“步进”就让 JavaScript 应用逻辑执行一小会儿
+
+    ![](../images/v8-old-sweep.png ":size=50%")
+
+    > V8 还引入了延迟清理（lazy sweeping）与增量式整理（incrementalcompaction），让清理与整理动作也变成增量式的。同时还计划引入并行标记与并行清理，进一步利用多核性能降低每次停顿的时间
+
+对象从新生代晋升的条件有以下两个，满足其一即可
+
+- 之前经历过一次回收，
+- To 空间的内存占用比超过限制(默认是 25%)。
+
+!> 为了避免过大的堆导致过长的停顿时间，默认情况下，V8 堆内存的最大值在 64 位系统上为 1464 MB（1400 old + 2 * 32 new）,32位系统上则为 732 MB（700 old +  2* 16 new）
+
+相关命令
+
+```bash
+# 获取内存信息, rss 为进程的常驻内存部分(其余部分在 swap 或者 filesystem 中), heapTotal 和 heapUsed 对应的是 V8 的堆内存信息
+node -e "console.log(process.memoryUsage())"
+
+# 指定新生代和老年代大小,单位为 MB
+node --max-old-space-size=1700 --max-new-space-size=1024 test.js
+
+# 开启打印垃圾收集日志
+node --trace_gc test.js > gc.log
+
+# 打开性能分析开关，获取垃圾回收性能数据，数据存储在当前目录下的 v8.log 文件中
+node --prof test.js
+# 使用 Node 源码的 deps/v8/tools 目录下的 linux-tick-processor 分析日志
+linux-tick-processor v8.log
+```
+
+### 高效使用内存
+
+在正常的 JavaScript 执行中，无法立即回收的内存有 `闭包` 和 `全局变量引用` 这两种情况。由于 V8 的内存限制，要十分小心此类变量是否无限制地增加，因为它会导致老生代中的对象增多。
+
+### 内存泄漏
+
+造成内存泄漏的原因有如下几个。
+
+- 缓存。
+- 队列消费不及时。
+- 作用域未释放。
+
+内存泄漏排查工具: node-heapdump
+
+### 堆外内存
+
+Node 中的 Buffer 对象不同于其他对象，它不经过 V8 的内存分配机制，所以也不会有堆内存的大小限制。
+
+## Buffer
+
+
+
+
+## References
+
+- [Node 文档](https://nodejs.org/dist/latest-v16.x/docs/api/)
+- [《深入浅出 Node.js》]()
