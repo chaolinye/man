@@ -674,6 +674,199 @@ res.on('end', function() {
 
 > 网络请求都是需要先把字符串转成 Buffer 再传送，对于静态内容，可以先转成 Buffer，后续的传送都直接用这个 Buffer，可以避免每次都转换，提高性能
 
+## 网络编程
+
+Node 最初就是为了搭建 web 服务器而生
+
+Node 提供了 net、dgram、http、https 这4个模块，分别用于处理 TCP、UDP、HTTP、HTTPS，适用于服务器端和客户端。
+
+### TCP
+
+[文档](https://nodejs.org/dist/latest-v16.x/docs/api/net.html)
+
+服务端:
+
+```js
+var net = require('net')
+
+var server = net.createServer(function(socket) {
+    console.log("have a new client connected")
+
+    socket.on('data', function(data) {
+        socket.write('你好')
+    })
+
+    socket.on('end', function() {
+        socket.write('连接断开')
+    })
+
+    socket.write('欢迎光临')
+})
+
+// 监听接口
+server.listen(8124, function() {
+    console.log('server bound')
+})
+
+// 或者监控 sock 文件
+server.listen('/tmp/echo.sock', function() {
+    console.log('server bound')
+})
+```
+
+客户端
+
+```js
+var net = require('net')
+var client = net.connect({port: 8124}, function() {
+    console.log('client connected')
+    client.write('world!\n')
+})
+
+client.on('data', function(data) {
+    console.log(data.toString)
+    client.end()
+})
+
+client.on('end', function() {
+    console.log('client disconnected')
+})
+```
+
+### UDP
+
+[文档](https://nodejs.org/dist/latest-v16.x/docs/api/dgram.html)
+
+### HTTP
+
+[文档](https://nodejs.org/dist/latest-v16.x/docs/api/http.html)
+
+Node 的 http 模块包含对 HTTP 处理的封装。HTTP服务继承自 TCP 服务器（net模块）
+
+TCP 服务以 `connection` 为单位进行服务，HTTP 服务以 `request` 为单位进行服务。http 模块即是将 `connection` 到 `request` 的过程进行了封装
+
+![](../images/http-wrap-tcp.png ":size=50%")
+
+http 模块将连接所用套接字的读写抽象为 `ServerRequest` 和 `ServerResponse` 对象，它们分别对应请求和响应操作。
+在请求产生的过程中，http 模块拿到连接中传来的数据，调用二进制模块 `http_parser` 进行解析，在解析完请求报文的报头后，触发 `request` 事件，调用用户的业务逻辑
+
+![](../images/tcp2http.png ":size=30%")
+
+服务端
+
+```js
+const http = require('http');
+
+// Create a local server to receive data from
+const server = http.createServer((req, res) => {
+  var buffers = []
+  req.on('data', function(trunk){
+      buffers.push(trunk);
+  }).on('end', function() {
+      var buffer = Buffer.concat(buffers);
+      // TODO
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({
+        data: 'success'
+      }));
+  })
+});
+
+server.listen(8000);
+```
+
+
+客户端
+
+```js
+const http = require('http');
+
+const postData = JSON.stringify({
+  'msg': 'Hello World!'
+});
+
+const options = {
+  hostname: 'localhost',
+  port: 8000,
+  path: '/upload',
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'Content-Length': Buffer.byteLength(postData)
+  }
+};
+
+const req = http.request(options, (res) => {
+  console.log(`STATUS: ${res.statusCode}`);
+  console.log(`HEADERS: ${JSON.stringify(res.headers)}`);
+  res.setEncoding('utf8');
+  res.on('data', (chunk) => {
+    console.log(`BODY: ${chunk}`);
+  });
+  res.on('end', () => {
+    console.log('No more data in response.');
+  });
+});
+
+req.on('error', (e) => {
+  console.error(`problem with request: ${e.message}`);
+});
+
+// Write data to request body
+req.write(postData);
+req.end();
+```
+
+### WebSocket
+
+> 尽管 Node 没有内置 WebSocket 的库，但是社区的 `ws` 模块封装了 WebSocket 的底层实现
+
+```js
+const http = require('http');
+
+// Create an HTTP server
+const server = http.createServer((req, res) => {
+  res.writeHead(200, { 'Content-Type': 'text/plain' });
+  res.end('okay');
+});
+server.on('upgrade', (req, socket, head) => {
+  socket.write('HTTP/1.1 101 Web Socket Protocol Handshake\r\n' +
+               'Upgrade: WebSocket\r\n' +
+               'Connection: Upgrade\r\n' +
+               '\r\n');
+
+  var websocket = new WebSocket();
+  websocket.setSocket(socket);
+  setInterval(function() {
+    websocket.send(new Date() + ": test data")
+  }, 50)
+  wobsocket.send("heloo")
+});
+
+// Now that server is running
+server.listen(1337);
+```
+
+浏览器客户端
+
+```js
+var socket = new WebSocket('ws://127.0.0.1:1337/updates')
+socket.onopen = function() {
+  console.log("connected")
+}
+socket.onmessage = function (event) {
+  console.log(event.data);
+}
+```
+
+## 构建 Web 应用
+
+
+
+### 网路安全
+
+[TLS/SSL 文档](https://nodejs.org/dist/latest-v16.x/docs/api/tls.html#tlscreateserveroptions-secureconnectionlistener)
+[HTTPS 文档](https://nodejs.org/dist/latest-v16.x/docs/api/https.html#httpscreateserveroptions-requestlistener)
 
 ## References
 
