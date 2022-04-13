@@ -594,10 +594,89 @@ Node 中的 Buffer 对象不同于其他对象，它不经过 V8 的内存分配
 
 ## Buffer
 
+[官方文档](https://nodejs.org/dist/latest-v16.x/docs/api/buffer.html)
 
+JavaScript 中没有关于二进制字节的类型，这在主要操作字符串的前端问题不大，但是对于 Web 应用，二进制流是很常见的。
+
+为此，Node 引入了 Buffer。
+
+Buffer 是一个像 Array 的对象，但它主要用于操作字节
+
+Buffer是一个典型的 JavaScript 与 C++ 结合的模块，它将性能相关部分用 C++ 实现，将非性能相关的部分用 JavaScript 实现
+
+![](../images/node-buffer.png ":size=50%")
+
+> Buffer 所占用的内存不是通过V8分配的，属于堆外内存
+
+由于 Buffer 太过常见，Node 在进程启动时就已经加载了它，并将其放在全局对象（global）上。所以在使用 Buffer 时，无须通过 require() 即可直接使用。
+
+### Buffer 内存分配
+
+为了高效地使用申请来的内存，Node采用了 slab 分配机制。slab就是一块申请好的固定大小的内存区域，大小是 8KB，在 JavaScript 层面以它作为单位单元进行内存的分配。
+
+伪代码:
+
+```js
+var pool;
+function allocPool() {
+    pool = new SlowBuffer(Buffer.pollSize);
+    pool.used = 0;
+}
+
+function Buffer() {
+    if (!pool || pool.length - pool.used < this.length>) {
+        allocPool();
+    }
+    this.parent = pool;
+    this.offset = pool.used;
+    pool.used += this.length;
+    if (pool.used & 7) pool.used = (pool.used + 8) & ~7
+}
+```
+
+如果 slab 剩余的空间不够，将会构造新的 slab，原 slab 中剩余的空间会造成浪费
+
+由于同一个slab可能分配给多个 Buffer 对象使用，只有这些小 Buffer 对象在作用域释放并都可以回收时，slab的8 KB空间才会被回收
+
+如果需要超过8 KB的Buffer对象，将会直接分配一个SlowBuffer对象作为slab单元，这个 slab 单元将会被这个大Buffer对象独占。
+
+```js
+this.parent = new SlowBuffer(this.length);
+this.offset = 0;
+```
+
+### Buffer 的常见用法
+
+字符串和Buffer的互转
+
+```js
+var str = "你好世界"
+var buf = Buffer.from(str, 'utf-8')
+asset buf.toString('utf-8') === str
+```
+
+Buffer 的拼接
+
+```js
+// 以下是网络请求经典代码
+var chunks = []
+var size = 0;
+res.on('data', function (chunk) {
+    chunks.push(chunk)
+    size += chunk.length;
+})
+res.on('end', function() {
+    var buf = Buffer.concat(chunks, size);
+    var str = buf.toString('utf8')
+    console.log(str)
+})
+```
+
+> 网络请求都是需要先把字符串转成 Buffer 再传送，对于静态内容，可以先转成 Buffer，后续的传送都直接用这个 Buffer，可以避免每次都转换，提高性能
 
 
 ## References
 
 - [Node 文档](https://nodejs.org/dist/latest-v16.x/docs/api/)
+- [Node Github](https://github.com/nodejs/node)
 - [《深入浅出 Node.js》]()
