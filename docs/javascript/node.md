@@ -1132,6 +1132,81 @@ var handle = function(req, res, stack) {
 
 使用模板引擎
 
+## 多进程
+
+Node 的特色就是单线程+事件驱动, 它带来的好处是：程序状态是单一的，在没有多线程的情况下没有锁、线程同步问题，操作系统在调度时也因为较少上下文的切换，可以很好地提高CPU的使用率。
+
+但是单线程也有两个很明显的缺点：1. 无法充分利用多核 CPU 的算力，2. 单线程上抛出的异常没有被捕获，将会引起整个进程的崩溃
+
+### 多进程架构
+
+为了能够充分使用多核 CPU，Node 提供了 [child_process](https://nodejs.org/dist/latest-v16.x/docs/api/child_process.html) 模块来创建子进程，实现多进程架构
+
+父子进程采用 IPC 通信，Node 中实现 IPC 通道的是管道（pipe）技术。但此管道非彼管道，在Node中管道是个抽象层面的称呼，具体细节实现由libuv提供，在Windows下由命名管道（named pipe）实现，*nix系统则采用 `Unix Domain Socket` 实现。
+
+父进程在实际创建子进程之前，会创建IPC通道并监听它，然后才真正创建出子进程，并通过环境变量（`NODE_CHANNEL_FD`）告诉子进程这个IPC通道的文件描述符。子进程在启动的过程中，根据文件描述符去连接这个已存在的IPC通道，从而完成父子进程之间的连接
+
+多进程架构 TCP 服务器
+
+```js
+// parent.js
+var cp = require('child_process')
+var child1 = cp.fork('child.js')
+var child2 = cp.fork('child.js')
+
+var server = require('net').createServer();
+server.listen(1337, function() {
+  // IPC 不可以传递对象，这里由框架解析，最后传递的是文件描述符
+  child1.send('server', server)
+  child2.send('server', server)
+  server.close()
+})
+
+// child.js
+process.on('message', function(m, server) {
+  if (m === 'server') {
+    server.on('connect', function(socket) {
+      socket.end('handled by child, pid is ' + process.pid + '\n')
+    })
+  }
+})
+```
+
+![](../images/node-multi-process-tcp1.png ":size=50%")
+
+![](../images/node-multi-process-tcp2.png ":size=50%")
+
+多个应用监听相同端口时，文件描述符同一时间只能被某个进程所用。换言之就是网络请求向服务器端发送时，只有一个幸运的进程能够抢到连接，也就是说只有它能为这个请求进行服务。这些进程服务是抢占式的。
+
+### 稳定多进程集群
+
+- 性能问题
+
+- 多个工作进程的存活状态管理。
+
+  > 工作进程监听到进程错误，发送事件给父进程重启新的工作进程，同时等待所有连接断开或者超时后退出进程
+
+- 工作进程的平滑重启。
+
+  > 先启动一个新的工作进程，然后关闭一个老的工作进程
+
+- 配置或者静态数据的动态重新载入
+
+### Cluster 模块
+
+[文档](https://nodejs.org/dist/latest-v16.x/docs/api/cluster.html)
+
+事实上 cluster 模块就是 child_process 和 net 模块的组合应用
+
+cluster 启动时，它会在内部启动 TCP 服务器，在 cluster.fork() 子进程时，将这个 TCP 服务器端 socket 的文件描述符发送给工作进程。
+
+## 单元测试
+
+常见测试框架 [Jest](https://jestjs.io/) 和 [mocha](https://mochajs.org/)
+
+单元测试相关理念可参考 [单元测试章节](http://localhost:3000/#/docs/devops/test)
+
+
 ## References
 
 - [Node 文档](https://nodejs.org/dist/latest-v16.x/docs/api/)
