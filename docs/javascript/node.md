@@ -859,14 +859,278 @@ socket.onmessage = function (event) {
 }
 ```
 
-## 构建 Web 应用
-
-
-
 ### 网路安全
 
 [TLS/SSL 文档](https://nodejs.org/dist/latest-v16.x/docs/api/tls.html#tlscreateserveroptions-secureconnectionlistener)
 [HTTPS 文档](https://nodejs.org/dist/latest-v16.x/docs/api/https.html#httpscreateserveroptions-requestlistener)
+
+## 构建 Web 应用
+
+> npm 社区有上有很多优秀的 Web 框架，比如 [express](https://expressjs.com/), [connect](https://github.com/senchalabs/connect)
+
+Node 提供的 http 模块相对来说比较简单，要完成真实的业务需求，还需要大量的工作。
+
+从一个简单的 http 服务器到一个 Web 应用框架，需要加持以下的能力
+
+- 请求方法的判断
+- URL的路径解析
+- URL中查询字符串解析
+- Cookie的解析
+- Basic认证
+- 表单数据的解析
+- 任意格式文件的上传处理
+- Session
+- 中间件(Filter)
+- CSRF
+- 请求体大小限制
+
+
+其实要实现这些能力并非难事，一切都是从 request 事件展开
+
+```js
+var http = require('http');
+http.createServer(function (req, res) {
+  // request 事件处理回调
+  res.writeHead(200, {'Content-Type': 'text/plain'});
+  res.end('Hello World\n');
+}).listen(1337, '127.0.0.1')
+```
+
+接下来看下 Web 框架 Connect 或者 Express 的入口代码
+
+```js
+var app = connect();
+// var app = express();
+// TODO
+http.createServer(app).listen(1337);
+```
+
+可见，request 事件回调就是一个 Web 框架的封装入口
+
+接下来我们将在 reqeust 中实现 Web 框架的部分能力
+
+### 根据请求方法转发
+
+Node 的 http 模块会解析 http 协议，获取请求方法放置到 req.method 中
+
+```js
+function (req, res) {
+  switch(req.method) {
+    case 'POST':
+      update(req, res);
+      break;
+    case 'DELETE':
+      remove(req, res);
+      break;
+    case 'PUT':
+      create(req, res);
+      break;
+    case 'GET':
+    default:
+      get(req, res);
+  }
+}
+```
+
+### 查询字符串
+
+```js
+var url = require('url')
+var querystring = require('querystring')
+// 解析成 JSON 对象
+req.query = querystring.parse(url.parse(req.url).query);
+```
+
+### Cookie
+
+```js
+var parseCookie = function(cookie) {
+  var cookies = {}
+  if (!cookies) {
+    return cookies
+  }
+  var list = cookie.split(';')
+  for (var i = 0; i < list.length; i++) {
+    var pair = list[i].split('=')
+    cookies[pairs[0].trim()] = pair[1];
+  }
+  return cookies;
+}
+
+function (req, res) {
+  req.cookies = parseCookie(req.headerss.cookie)
+  handle(req, res)
+}
+```
+
+### 请求体解析
+
+```js
+var hasBody = function (req) {
+  return 'content-length' in req.headers;
+}
+var mime = function(req) {
+  var str = req.headers['content-type'] || '';
+  return str.split(';')[0];
+}
+function (req, res) {
+  if (hasBody(req)) {
+    if (mime(req) === 'multipart/form-data') {
+      var form = new formidable.IncommingForm();
+      form.parse(req, function (err, fields, files)) {
+        req.body = fields;
+        req.files = files;
+        handle(req, res)
+      }
+    } else {
+      var buffers = []
+      req.on('data', function(chunk) {
+        buffers.push(chunk)
+      })
+      req.on('end', function(){
+        req.rawBody = Buffer.concat(buffers).toString();
+        parseBody(req, res)
+        handle(req, res)
+      })
+    }
+    
+  }
+}
+
+var formidable = require('formidable')
+function handle(req, res) {
+  switch(mime(req)) {
+    case 'application/x-www-form-urlencoded':
+      req.body = querystring.parse(req.rawBody);
+      break;
+    case 'application/json':
+      req.body = JSON.parse(req.rawBody)
+      break;
+  }
+}
+```
+
+### 路由解析
+
+如何根据 URL 做路由映射，这里有两个分支实现。
+
+一种方式是通过 `手工关联映射`，一种是 `自然关联映射`。前者会有一个对应的路由文件来将URL映射到对应的控制器，后者没有这样的文件
+
+- 手动关联映射
+
+  ```js
+  var routes = []
+
+  var use = function(path, action) {
+    routes.push([path, action])
+  }
+
+  function (req, res) {
+    var pathname = url.parse(req.url).pathname
+    for (var i = 0; i < routes.length; i++) {
+      var route = routes[i]
+      if (pathname === route[0]) {
+        action(req, res);
+        return;
+      }
+    }
+    handle404(req, res)
+  }
+  ```
+
+  > 还可以继续让路由支持正则匹配、路径参数等
+
+- 自然关联映射
+
+  基于约定的方式，用 require() 加载相应路径下的处理函数
+
+### RESFful 与请求方法路由
+
+MVC 模式大行其道了很多年，直到 RESTful 的流行，大家才意识到 URL 也可以设计得很规范，请求方法也能作为逻辑分发的单元。
+
+它的设计哲学主要将服务器端提供的内容实体看作一个资源，并表现在URL上。
+
+REST的设计就是，通过URL设计资源、请求方法定义资源的操作，通过Accept决定资源的表现形式。
+
+> 相比 MVC, RESTful 只是将 HTTP 请求方法也加入了路由的过程，以及在 URL 路径上体现得更资源化。
+
+### 中间件
+
+中间件的行为比较类似 Java 中过滤器（filter）的工作原理，就是在进入具体的业务处理之前，先让过滤器处理
+
+前面的解析步骤都可以抽成中间件
+
+> 加个中间层解决问题
+
+一般中间层是通过尾触发的方式实现
+
+> 当然也有通过外层遍历，约定返回值来决定是否继续往下执行，一般需要定义前置和后置两个方法，两个方法间数据通过 context 对象传递
+
+```js
+var middleware = function(req, res, next) {
+  // TODO
+  next()
+}
+
+var routes = {
+  all: []
+  get: []
+  post: []
+}
+
+app.use = function (path) {
+  var handle;
+  if (typeof path === 'string') {
+    handle = {
+      path: pathRegexp(path),
+      stack: Array.prototype.slice.call(arguments, 1)
+    }
+  } else {
+    handle = {
+      path: pathRegexp('/')
+      stack: Array.prototype.slice.call(arguments, 0)
+    }
+  }
+  routes.all.push(handle)
+}
+
+app.use(querystring);
+app.use(cookie)
+app.use(session)
+app.get('/user/:username', getUser);
+app.get('/user/:username', authorize, updateUser)
+
+function (req, res) {
+  var pathname = url.parse(req.url).pathname
+  var method = req.method.toLowerCase();
+  var stacks = match(pathname, routes.all)
+  stacks.concat = match(pathname, routes[method]);
+  if (stacks.length) {
+    handle(req, res, stacks);
+  } else {
+    handle404(req, res);
+  }
+}
+
+var handle = function(req, res, stack) {
+  var next = function() {
+    var middleware = stack.shift()
+    if (middleware) {
+      middleware(req, res, next);
+    }
+  }
+  next();
+}
+```
+
+中间件要注重性能，避免占用过多的耗时
+
+- 编写高效的中间件
+- 合理利用路由，避免不必要的中间件执行
+
+### 页面渲染
+
+使用模板引擎
 
 ## References
 
