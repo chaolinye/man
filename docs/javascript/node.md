@@ -1204,7 +1204,7 @@ cluster 启动时，它会在内部启动 TCP 服务器，在 cluster.fork() 子
 
 常见测试框架 [Jest](https://jestjs.io/) 和 [mocha](https://mochajs.org/)
 
-单元测试相关理念可参考 [单元测试章节](http://localhost:3000/#/docs/devops/test)
+单元测试相关理念可参考 [单元测试章节](/docs/devops/test)
 
 
 ## References
