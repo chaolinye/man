@@ -1,3 +1,3 @@
 - [README]()
 - [nginx](./nginx)
-- [HAProxy]()
+- [HAProxy](./haproxy)
