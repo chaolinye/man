@@ -18,6 +18,7 @@
     - [MySQL](/docs/mysql/)
     - [Redis](/docs/redis/)
     - [MQ](/docs/mq/)
+    - [Load Balance](/docs/lb/)
 
 - 大数据
     - [Hadoop]()
