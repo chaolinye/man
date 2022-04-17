@@ -45,10 +45,30 @@ Pod 内部多个容器共享 UTS、IPC、网络等名称空间是通过一个名
 > 比如 `pods` 可以用 `po`，`replicationcontroller` 可以用 `rc`, `services` 可以用 `svc`
 
 ```bash
+# 查看命令帮助文档
+kubectl --help
+kubectl <command> --help
+
+# 查看所有支持的 api resource
+kubectl api-resources
+# 查看某个 API 对象支持的字段
+kubectl explain pod
+kubectl explain pod.spec
+
 # 查看集群信息
 kubectl cluster-info
 # 查看所有命名空间的所有资源
 kubectl get all -A
+
+# 从 json 或者 yaml 文件中创建资源
+kubectl create -f file.yml
+
+# 删除资源
+kubectl delete <TYPE> <name>
+# 删除当前命名空间的某种类型资源
+kubectl delete <TYPE> --all
+# 删除当前命名空间的几乎所有类型资源
+kubectl delete all --all
 
 # 列出 pod 资源
 kubectl get pods -n [namespace]
@@ -58,6 +78,19 @@ kubectl describe pods [pod-name] -n [namespace]
 kubectl get pods [pod-name] -o yaml -n [namespace]
 # 查看 pod 运行在那个节点上
 kubectl get pods -o wide
+
+# 查看资源的标签
+kubectl get <TYPE> --show-labels
+# 查看资源的特定标签
+kubectl get <TYPE> -L label1,label2
+# 根据标签过滤资源
+kubectl get <TYPE> -l label1=value1
+kubectl get <TYPE> -l label2
+kubectl get <TYPE> -l '!label3'
+# 添加标签
+kubectl label <TYPE> <name> label1=value1 
+# 修改标签
+kubectl label <TYPE> <name> label1=value2 --overwrite
 
 # 修改 ReplicationController 的副本数
 kubectl scale rc <rc_name> --replicas=<number>
@@ -71,9 +104,11 @@ kubectl port-forward service/<service_name> <local_port>:<service_port>
 # 运行一个容器的最简单方法
 kubectl run <pod_name> --image=<image>:<tag> --port=8080 --command -- <cmd> <arg1> ...<argN>
 # 查看容器日志
-kubectl logs [pod-name] -c [container-name] -n [namespace]
+kubectl logs <pod-name> [<container-name>] -n <namespace>
+# 如果容器之前崩溃过，可以通过下面命令访问之前容器的崩溃日志
+kubectl logs --previous <pod_name> -n <namesapce>
 # 进入容器
-kubectl exec [pod-name] -c [container-name] -it bash -n [namespace]
+kubectl exec -it <pod-name> [-c <container-name>] -n <namespace> -- bash
 ```
 
 > 涉及指定容器的，如果没有指定，就默认会查询主容器
@@ -83,6 +118,8 @@ kubectl exec [pod-name] -c [container-name] -it bash -n [namespace]
 先安装 [minikube](https://minikube.sigs.k8s.io/docs/start/)
 
 启动 K8S 集群: `minikube start`
+
+如果本地有安装 kubectl，可以直接使用 kubectl 命令，如果没有则通过别名来使用: `alias kubectl='minikube kubectl --'`
 
 确认集群是否正常: `kubectl cluster-info`
 
@@ -124,6 +161,40 @@ kube-system   replicaset.apps/coredns-64897985d   1         1         1       14
 关闭集群: `minikube stop`
 
 删除所有集群资源: `minikube delete --all`
+
+## 调试运行中的 Pod
+
+[文档](https://kubernetes.io/zh/docs/tasks/debug-application-cluster/debug-running-pod/)
+
+1. 创建运行新命令的 Pod 副本
+
+    ```bash
+    kubectl debug <pod_name> -it --copy-to=<debug_pod_name> --container=<container_name_to_debug> -- <cmd> <arg1>...<argN>
+    ```
+
+2. 创建运行新镜像的 Pod 副本
+
+    ```bash
+    kubectl debug <pod_name> -it --copy-to=<debug_pod_name>  --set-image=<container_name_to_debug>=<new_image>:<tag>
+    ```
+
+3. 给 Pod 加临时容器，共享进程命名空间，在临时容器中调试问题容器
+
+    ```bash
+    kubectl run <pod_name> --image=<ephermeral_container_name>:<tag> --target=<container_name_to_debug>
+    ```
+
+    根据[共享进程命名空间的特性](https://kubernetes.io/zh/docs/tasks/configure-pod-container/share-process-namespace/)调试问题容器
+
+    ```bash
+    # 查看进程信息
+    ps aux
+    # 查看进程文件系统
+    cat /proc/1/root/etc/nginx/nginx.conf
+    ```
+
+    > minikube 开启临时容器特性： `minikube start --feature-gates=EphemeralContainers=true`
+
 
 ## References
 
