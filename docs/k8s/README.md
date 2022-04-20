@@ -14,27 +14,6 @@ Kubernetes 是容器编排系统，被称为云原生时代的操作系统
 
 ![](../images/kube-components.png)
 
-## Pod
-
-Pod 是 k8s 中最小的可部署单元
-
-> 如果说容器封装了进程，那么 Pod 就是封装了进程组
-
-同一个 Pod 中的多个容器会默认共享以下名称空间：
-
-- UTS 名称空间
-- 网络名称空间
-- IPC 名称空间
-- 时间名称空间
-
-### Kubernetes 中 Pod 名称空间共享的实现细节
-
-Pod 内部多个容器共享 UTS、IPC、网络等名称空间是通过一个名为 `Infra Container` 的容器来实现的，这个容器是整个 Pod 中第一个启动的容器，只有几百 KB 大小（代码只有很短的几十行），Pod 中的其他容器都会以 `Infra Container` 作为父容器，UTS、IPC、网络等名称空间实质上都是来自 Infra Container 容器。
-
-如果容器设置为共享 PID 名称空间的话，`Infra Container` 中的进程将作为 `PID 1` 进程，其他容器的进程将以它的子进程的方式存在，此时将由 Infra Container 来负责进程管理（譬如清理僵尸进程）、感知状态和传递状态。
-
-由于 Infra Container 的代码除了注册 SIGINT、SIGTERM、SIGCHLD 等信号的处理器外，就只是一个以 `pause()` 方法为循环体的无限循环，永远处于 Pause 状态，所以也常被称为 `Pause Container`。
-
 ## kubectl 常用命令行
 
 语法: `kubectl [command] [TYPE] [NAME] [flags]`
@@ -162,39 +141,25 @@ kube-system   replicaset.apps/coredns-64897985d   1         1         1       14
 
 删除所有集群资源: `minikube delete --all`
 
-## 调试运行中的 Pod
+## 关于 apiVersion 属性
 
-[文档](https://kubernetes.io/zh/docs/tasks/debug-application-cluster/debug-running-pod/)
+apiVersion 属性由两部分组成 `API 组` 和 `实际的 API 版本`，格式是 `apiVersion: group/version`
 
-1. 创建运行新命令的 Pod 副本
+某些 Kubernetes 资源位于所谓的核心 API 组中，该组并不需要在 apiVersion 字段中指定，只需要指定版本即可，格式是 `apiVersion: version`
 
-    ```bash
-    kubectl debug <pod_name> -it --copy-to=<debug_pod_name> --container=<container_name_to_debug> -- <cmd> <arg1>...<argN>
-    ```
+相关命令
 
-2. 创建运行新镜像的 Pod 副本
+```bash
+# 查看有哪些 apiVersion
+kubectl api-versions
 
-    ```bash
-    kubectl debug <pod_name> -it --copy-to=<debug_pod_name>  --set-image=<container_name_to_debug>=<new_image>:<tag>
-    ```
+# 查看 api 资源和 apiVersiohn 之间的对应关系
+kubectl api-resources
+```
 
-3. 给 Pod 加临时容器，共享进程命名空间，在临时容器中调试问题容器
+## 标签和选择算符
 
-    ```bash
-    kubectl run <pod_name> --image=<ephermeral_container_name>:<tag> --target=<container_name_to_debug>
-    ```
-
-    根据[共享进程命名空间的特性](https://kubernetes.io/zh/docs/tasks/configure-pod-container/share-process-namespace/)调试问题容器
-
-    ```bash
-    # 查看进程信息
-    ps aux
-    # 查看进程文件系统
-    cat /proc/1/root/etc/nginx/nginx.conf
-    ```
-
-    > minikube 开启临时容器特性： `minikube start --feature-gates=EphemeralContainers=true`
-
+[文档](https://kubernetes.io/zh/docs/concepts/overview/working-with-objects/labels/#set-based-requirement)
 
 ## References
 
