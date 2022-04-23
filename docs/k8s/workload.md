@@ -25,6 +25,8 @@ Pod 内部多个容器共享 UTS、IPC、网络等名称空间是通过一个名
 
 Kubernetes 可以通过存活探针([liveness probe](https://kubernetes.io/zh/docs/concepts/workloads/pods/pod-lifecycle/#container-probes)) 检查容器是否还在运行。如果探测失败，则会定期执行探针并重新启动容器
 
+> 探针是由 Kubelet 执行的
+
 相关命令
 
 ```bash
