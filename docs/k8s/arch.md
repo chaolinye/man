@@ -78,6 +78,25 @@ API 服务器通知客户端资源变更的机制
 - PersistentVolume 控制器
 - 其他
 
+## 监控指标架构
+
+[文档](https://kubernetes.io/zh/docs/tasks/debug-application-cluster/resource-metrics-pipeline/)
+
+![](../images/k8s-monitor.png)
+
+- cAdvisor: 用于收集、聚合和公开 Kubelet 中包含的容器指标的守护程序。
+
+    >  cAdvisor 从 `cgroups` 读取指标
+
+- kubelet: 用于管理容器资源的节点代理。 可以使用 `/metrics/resource` 和 `/stats` kubelet API 端点访问资源指标。
+
+- Summary API: kubelet 提供的 API，用于发现和检索可通过 `/stats` 端点获得的每个节点的汇总统计信息。
+
+- metrics-server: 集群插件组件，用于收集和聚合从每个 kubelet 中提取的资源指标。 API 服务器提供 Metrics API 以供 HPA、VPA 和 `kubectl top` 命令使用。 Metrics Server 是 Metrics API 的参考实现。
+
+- Metrics API: Kubernetes API 支持访问用于工作负载自动缩放的 CPU 和内存。 要在你的集群中进行这项工作，你需要一个提供 Metrics API 的 API 扩展服务器。
+
+
 
 ## References
 
