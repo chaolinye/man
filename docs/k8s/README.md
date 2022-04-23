@@ -58,8 +58,8 @@ kubectl get pods [pod-name] -o yaml -n [namespace]
 # 查看 pod 运行在那个节点上
 kubectl get pods -o wide
 
-# 将本地的某个端口的请求转发到 pod 的某个端口，可以简化本地对 pod 的调试
-kubectl port-forward <pod_name> <local_port>:<pod_port>
+# 将本地的某个端口的请求转发到某个资源下的 pod ，可以简化本地对 pod 的调试
+kubectl port-forward <TYPE> <name> <local_port>:<pod_port>
 
 # 查看资源的标签
 kubectl get <TYPE> --show-labels
@@ -186,3 +186,4 @@ kubectl api-resources
 - [容器的崛起](http://icyfenix.cn/immutable-infrastructure/container/history.html)
 - [Kubernetes 生产环境安装文档](https://kubernetes.io/zh/docs/setup/production-environment/)
 - [Kubernetes 安装工具文档](https://kubernetes.io/zh/docs/tasks/tools/)
+- [使用端口转发来访问集群中的应用](https://kubernetes.io/zh/docs/tasks/access-application-cluster/port-forward-access-application-cluster/)

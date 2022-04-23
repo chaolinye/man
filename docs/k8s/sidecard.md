@@ -3,7 +3,7 @@
 - [工作负载](./workload)
 - [Pod 的通信与负载均衡](./lb)
 - [存储与配置](./storage)
-- [访问 kubernetes 元数据](./access-metadata)
+- [访问 kubernetes 元数据](./metadata)
 - [权限与安全]()
 - [调度机制]()
 - [自动伸缩]()

@@ -177,6 +177,8 @@ Secret 结构和 ConfigMap 类似，均是键值对的映射，使用方法也�
 
 > Secret 在 etcd 中存储，在 etcd 中并没有加密，如果需要在 etcd 中加密可以使用 [静态加密](https://kubernetes.io/zh/docs/tasks/administer-cluster/encrypt-data/)
 
+> Secret 的 value 在 yaml 定义中要写成 Base64 格式
+
 ```yaml
 apiVersion: v1
 data:
@@ -225,7 +227,9 @@ kubectl create secret generic <name> --from-file=<key>=<file_path>
 kubectl create secret generic <name> --from-file=<dir_path>
 ```
 
-每个 Pod 都会被自动挂上一个 secret 卷
+### 默认的 Secret
+
+每个 Pod 都会被自动挂上一个 secret 卷，如下
 
 ```yaml
 spec:
@@ -247,6 +251,7 @@ spec:
           items:
           - key: ca.crt
             path: ca.crt
+          # k8s 根证书
           name: kube-root-ca.crt
       - downwardAPI:
           items:
