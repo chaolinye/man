@@ -34,6 +34,9 @@ kubectl api-resources
 kubectl explain pod
 kubectl explain pod.spec
 
+# 观察集群事件
+kubectl get events --watch
+
 # 查看集群信息
 kubectl cluster-info
 # 查看所有命名空间的所有资源
@@ -179,6 +182,10 @@ kubectl api-resources
 - [通过文件将 Pod 信息呈现给容器](https://kubernetes.io/zh/docs/tasks/inject-data-application/downward-api-volume-expose-pod-information/)
 
 - [使用 Secret 安全地分发凭证](https://kubernetes.io/zh/docs/tasks/inject-data-application/distribute-credentials-secure/)
+
+## 管理命名空间下的内存，CPU 和 API 资源
+
+[文档](https://kubernetes.io/zh/docs/tasks/administer-cluster/manage-resources/)
 
 ## References
 
