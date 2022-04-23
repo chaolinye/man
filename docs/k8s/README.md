@@ -92,6 +92,8 @@ kubectl exec -it <pod-name> [-c <container-name>] -n <namespace> -- bash
 
 > 涉及指定容器的，如果没有指定，就默认会查询主容器
 
+> 命令行中的 `--` 是用来分割 kubectl 命令和容器内要执行的命令，避免混淆出错
+
 ## 本地配置 Kubernetes 环境
 
 先安装 [minikube](https://minikube.sigs.k8s.io/docs/start/)

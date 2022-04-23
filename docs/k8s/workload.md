@@ -21,7 +21,7 @@ Pod 内部多个容器共享 UTS、IPC、网络等名称空间是通过一个名
 
 由于 Infra Container 的代码除了注册 SIGINT、SIGTERM、SIGCHLD 等信号的处理器外，就只是一个以 `pause()` 方法为循环体的无限循环，永远处于 Pause 状态，所以也常被称为 `Pause Container`。
 
-### 容器的存活检测
+### 容器的存活、就绪、启动检测
 
 Kubernetes 可以通过存活探针([liveness probe](https://kubernetes.io/zh/docs/concepts/workloads/pods/pod-lifecycle/#container-probes)) 检查容器是否还在运行。如果探测失败，则会定期执行探针并重新启动容器
 
@@ -34,6 +34,10 @@ kubectl describe pod <pod_name>
 # 查看前一个已崩溃容器的日志
 kubectl logs <pod_name> --previous
 ```
+
+如果启动事件比较长，然后也不想放宽存活检测的超时事件，可以使用 `启动探针`（`startupProbe`）
+
+容器是否可以提供服务可以使用 `就绪探针`(readinessProbe)
 
 ### 调试运行中的 Pod
 
