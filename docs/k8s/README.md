@@ -58,6 +58,9 @@ kubectl get pods [pod-name] -o yaml -n [namespace]
 # 查看 pod 运行在那个节点上
 kubectl get pods -o wide
 
+# 将本地的某个端口的请求转发到 pod 的某个端口，可以简化本地对 pod 的调试
+kubectl port-forward <pod_name> <local_port>:<pod_port>
+
 # 查看资源的标签
 kubectl get <TYPE> --show-labels
 # 查看资源的特定标签
@@ -162,6 +165,20 @@ kubectl api-resources
 ## 标签和选择算符
 
 [文档](https://kubernetes.io/zh/docs/concepts/overview/working-with-objects/labels/#set-based-requirement)
+
+## 给应用注入数据
+
+- [为容器设置启动时要执行的命令和参数](https://kubernetes.io/zh/docs/tasks/inject-data-application/define-command-argument-container/)
+
+- [为容器设置环境变量](https://kubernetes.io/zh/docs/tasks/inject-data-application/define-environment-variable-container/)
+
+- [定义相互依赖的环境变量](https://kubernetes.io/zh/docs/tasks/inject-data-application/define-interdependent-environment-variables/)
+
+- [通过环境变量将 Pod 信息呈现给容器](https://kubernetes.io/zh/docs/tasks/inject-data-application/environment-variable-expose-pod-information/)
+
+- [通过文件将 Pod 信息呈现给容器](https://kubernetes.io/zh/docs/tasks/inject-data-application/downward-api-volume-expose-pod-information/)
+
+- [使用 Secret 安全地分发凭证](https://kubernetes.io/zh/docs/tasks/inject-data-application/distribute-credentials-secure/)
 
 ## References
 

@@ -17,6 +17,8 @@ Pod 的通信存在几种形式：
 
     > 可以通过 Service 暴露，也可以自定义实现
 
+[容器网路与生态](http://icyfenix.cn/immutable-infrastructure/network/cni.html#%E7%BD%91%E7%BB%9C%E6%8F%92%E4%BB%B6%E7%94%9F%E6%80%81)
+
 ## Service
 
 Kubernetes 为每个 Pod 提供了唯一的 IP 地址，但是 Pod 是非永久性资源， 如果你使用 Deployment 来运行你的应用程序，则它可以动态创建和销毁 Pod，这样每次更新后的，Deployment 管理的 Pod 的 IP 地址会变。那么应该如何访问这样一组 Pod 呢？
