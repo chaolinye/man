@@ -54,3 +54,4 @@ Pod 监控和限制的就是 `working set` 内存
 - [Kubernetes limit 中的内存指的是什么?](https://www.jianshu.com/p/ab0764c108de)
 - [kubernetes上报Pod已用内存不准问题分析](https://cloud.tencent.com/developer/article/1637682)
 - [查看linux的page cache文件系统缓存里面是那些文件占用的vmtouch命令](https://gmd20.github.io/blog/%E6%9F%A5%E7%9C%8Blinux%E7%9A%84page-cache%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E7%BC%93%E5%AD%98%E9%87%8C%E9%9D%A2%E6%98%AF%E9%82%A3%E4%BA%9B%E6%96%87%E4%BB%B6%E5%8D%A0%E7%94%A8%E7%9A%84vmtouch%E5%91%BD%E4%BB%A4/)
+- [Grafana上监控kubernetes中Pod已用内存不准问题分析](https://ormissia.github.io/posts/problems/5002-k8s-memory/)

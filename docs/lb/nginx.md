@@ -8,6 +8,60 @@
 
 - 负载均衡
 
+## 请求转发规则
+
+![](../images/nginx-request.png)
+
+[How nginx processes a request](https://nginx.org/en/docs/http/request_processing.html)
+
+[location 文档](https://nginx.org/en/docs/http/ngx_http_core_module.html#location)
+
+示例定义
+
+```nginx
+  server {
+      listen      80;
+      server_name example.org www.example.org;
+      ...
+  }
+
+  server {
+      listen      80 default_server;
+      server_name example.net www.example.net;
+      ...
+      # 精准匹配
+      location = / {
+          root /data/www/index.html
+      }
+      # 前缀匹配
+      location / {
+          root /data/www;
+      }
+      # 高优先级前缀匹配
+      location ^~ /images/ {
+          proxy_pass http://127.0.0.1:8989;
+      }
+      # 大小写不敏感的正则匹配
+      location ~* \.(gif|jpg|png)$ {
+          expires 30d;
+      }
+      # 正则匹配
+      location ~ \.php$ {
+          fastcgi_pass  localhost:9000;
+          fastcgi_param SCRIPT_FILENAME
+                        $document_root$fastcgi_script_name;
+          include       fastcgi_params;
+      }
+  }
+
+  server {
+      listen      80;
+      server_name example.com www.example.com;
+      ...
+  }
+  
+```
+
 ## 常用命令
 
 ```bash
@@ -19,9 +73,11 @@ nginx -t
 nginx -s reload
 ```
 
+## 创建
+
 ## 配置
 
-```conf
+```nginx
 user       www www;  ## Default: nobody
 worker_processes  5;  ## Default: 1
 error_log  logs/error.log;
