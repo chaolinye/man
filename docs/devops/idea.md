@@ -51,6 +51,30 @@
 
 > 更多 Live Template 请在 IDEA 的 Settings 查看
 
+## 容器构建 Jetbrain WEB 版 IDE
+
+[JetBrains Projector 项目](https://lp.jetbrains.com/projector/)
+
+> 属于 "远程开发" 开发解决方案
+
+> 也可以作为免费使用 JetBrain 产品的一个渠道
+
+下面以 clion 为例展示下搭建过程:
+
+```bash
+# 启动 clion 容器，并绑定本地目录到容器中
+docker run -p 8887:8887 -d --name clion -v /home/someone/code:/home/projector-user/code jetbrains/projector-clion
+# 或者挂载一个 volume
+docker volume create clion-code
+docker run -p 8887:8887 -d --name clion -v clion-code:/home/projector-user/code jetbrains/projector-clion
+
+# 修改容器代码目录权限
+docker exec -it clion bash
+chown -R projector-user:projector /home/projector-user/code
+
+# 用浏览器访问 https://localhost:8887
+```
+
 ## 常用操作
 
 ### 查找冗余代码
