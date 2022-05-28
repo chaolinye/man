@@ -72,8 +72,6 @@ ES Scripting 演进历史
 | < Elasticsearch 5.0 | Groovy 脚本 |
 | >= Elasticsearch 5.0 | painless 脚本 |
 
-
-
 `POST /<index>/_update/<_id>`
 
 
