@@ -106,7 +106,7 @@ iptables 的规则是用户真正要书写的规则。
     # 阻止来自某个 IP/网段 的所有连接
     iptables -A INPUT -s 10.10.10.10 -j DROP
     # 端口转发, 80 端口的包转发给 8080 端口
-    iptables -t nat -A PERROUTING -i eth0 -p tcp --dport 80 -j REDIRECT --to-port 8080
+    iptables -t nat -A PREROUTING -i eth0 -p tcp --dport 80 -j REDIRECT --to-port 8080
     # 已建立或相关封包予以通过
     iptables -A INPUT -m state --state RELATED,ESTABLISHED -j ACCEPT
     # 禁用 ping
