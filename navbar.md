@@ -37,6 +37,8 @@
 
 - [前端](/docs/frontend/)
 
+- [人工智能](/docs/ai/)
+
 - [研发效能](/docs/devops/)
     - [Git](/docs/git/)
 
