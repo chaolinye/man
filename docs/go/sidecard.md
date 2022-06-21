@@ -1,2 +1,3 @@
 - [README]()
 - [Go 包管理](./package)
+- [Go For Webassembly](./go-wasm)
