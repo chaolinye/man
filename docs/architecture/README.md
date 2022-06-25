@@ -31,3 +31,5 @@
 - [架构师之路](https://www.w3cschool.cn/architectroad/)
 
 - [凤凰架构](http://icyfenix.cn/)
+
+- [DDIA-数据密集型系统设计](https://vonng.github.io/ddia/#/preface)
