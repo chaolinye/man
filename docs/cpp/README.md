@@ -160,3 +160,7 @@ int main() {
 }
 ```
 
+
+## References
+
+- [Effective Modern C++](https://cntransgroup.github.io/EffectiveModernCppChinese/Introduction)
