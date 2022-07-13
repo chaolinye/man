@@ -1,23 +1,5 @@
 # C++ 语言特性
 
-## 控制语句
-
-### 循环
-
-- `while(condition) { statement }`
-- `do { statement } while(condition)`
-- `for(initial statement;condition;after statement) { statement }`
-
-### 判断
-
-- `if (condition) { statement} else if (anoter condition) { statement } else { statement }`
-
-## 注释
-
-- 单行注释: `//`
-- 多行注释: `/*   */` 
-
-
 ## 类型和变量
 
 ### 内置类型
@@ -113,18 +95,267 @@ C++语言支持分离式编译（separate compilation）机制，该机制允许
 
 声明（declaration）使得名字为程序所知，一个文件如果想使用别处定义的名字则必须包含对那个名字的声明。而定义（definition）负责创建与名字关联的实体。
 
+c++ 中的声明
+
+```cpp
+extern int x;                       //对象声明
+
+class Widget;                       //类声明
+
+bool func(const Widget& w);         //函数声明
+
+enum class Color;                   //限域enum声明
+```
+
 > 变量能且只能被定义一次，但是可以被多次声明。
 
 > 变量的定义必须出现在且只能出现在一个文件中，而其他用到该变量的文件必须对其进行声明，却绝对不能重复定义。
 
 > 定义在文件第一级的名字（变量、函数、类型）等属于全局作用域，整个进程可见。
 
-
 ### 复合类型
 
+复合类型（compound type）是指基于其他类型定义的类型。最常的是 `引用` 和 `指针`。
 
+#### 引用
+
+引用（reference）为对象起了另外一个名字，引用类型引用（refers to）另外一种类型。
+
+通过将声明符写成 &d 的形式来定义引用类型，其中 d 是声明的变量名
+
+```cpp
+int ival = 1024;
+int &refVal = ival; // refVal 指向 ival（是 ival 的另一个名字）
+int &refVal2；  // 报错：引用必须被初始化
+```
+
+> 引用即别名，**引用并非对象**，相反的，它只是为一个已经存在的对象所起的另外一个名字。
+
+> 允许在一条语句中定义多个引用，其中每个引用标识符都必须以符号 `&` 开头
+
+#### 指针
+
+与引用类似，指针也实现了对其他对象的间接访问。
+
+然而指针与引用相比又有很多不同点。
+
+其一，指针本身就是一个对象，允许对指针赋值和拷贝，而且在指针的生命周期内它可以先后指向几个不同的对象。
+
+其二，指针无须在定义时赋初值。和其他内置类型一样，在块作用域内定义的指针如果没有被初始化，也将拥有一个不确定的值。
+
+指针存放某个对象的地址，要想获取该地址，需要使用取地址符（操作符 `&`）, 使用解引用符（操作符 `*`）来访问该对象
+
+```cpp
+int ival = 42;
+int *p = &ival;
+cout << *p;
+```
+
+`void＊` 是一种特殊的指针类型，可用于存放任意对象的地址。
+
+利用 `void＊` 指针能做的事儿比较有限：拿它和别的指针比较、作为函数的输入或输出，或者赋给另外一个 `void＊` 指针。
+
+
+#### 理解复合类型的声明
+
+变量的定义包括**一个基本数据类型和一组声明符**。在同一条定义语句中，虽然基本数据类型只有一个，但是声明符的形式却可以不同。也就是说，一条定义语句可能定义出不同类型的变量：
+
+```cpp
+// i 是一个 int 型的数，p 是一个 int 型指针，r 是一个 int 型引用
+int i = 1024, *p = &i, &r = i;
+```
+
+> 很多程序员容易迷惑于基本数据类型和类型修饰符的关系，其实后者不过是声明符的一部分罢了。
+
+> 拼写的时候建议将 ＊（或是&）与变量名连在一起。比如 `int *p = &ival`
+
+阅读声明语句建议从右往左阅读。离变量名最近的符号（下例中是 &r 的符号 &）对变量的类型有最直接的影响，因此r是一个引用。声明符的其余部分用以确定r引用的类型是什么，此例中的符号＊说明r引用的是一个指针
+
+```cpp
+int i = 42
+int *p = &i;
+int *&r = p; // r 是一个对指针 p 引用
+```
+
+#### const 限定符
+
+因为const对象一旦创建后其值就不能再改变，所以const对象必须初始化
+
+默认状态下，const对象仅在文件内有效。因为编译器需要将在编译过程中把用到该变量的地方都替换成对应的值。
+
+如果 const 的值并不是常量表达式，然后想在多个文件之间共享 const 对象，必须在变量的声明和定义之前都添加 `extern` 关键字。
+
+```cpp
+// file_1.cc
+extern const int bufSize = fcn();
+// file_1.h
+extern const int bufSize;
+```
+
+允许为一个常量引用绑定非常量的对象、字面值。
+
+```cpp
+const int &r1 = 42;
+const int &r2 = r1 * 2;
+int &r3 = r1 * 2;           // 错误，r3 是一个普通的非常量引用
+```
+
+> 在这种情况下，ri 绑定了一个`临时量`（temporary）对象。所谓临时量对象就是当编译器需要一个空间来暂存表达式的求值结果时临时创建的一个未命名的对象。
+
+常量表达式（const expression）是指值不会改变并且在编译过程就能得到计算结果的表达式。
+
+显然，字面值属于常量表达式，用常量表达式初始化的const对象也是常量表达式。
+
+C++11 新标准规定，允许将变量声明为 constexpr 类型以便由编译器来验证变量的值是否是一个常量表达式。
+
+> 一般来说，如果你认定变量是一个常量表达式，那就把它声明成 `constexpr` 类型。
+
+### 类型别名
+
+```cpp
+typedef double wages;   // wages 是 double 的同义词
+typedef wages base, *p; // base 是 double 的同义词，p 是 double* 的同义词
+```
+
+C++11 新标准规定了一种新的方法，别名声明
+
+```cpp
+using wages = double;   // wages 是 double 的同义词
+```
+
+使用类型别名+const：
+
+```cpp
+typedef char *pstring;
+const pstring cstr = 0; // cstr 是指向 char 的常量指针
+const char *astr = 0;   // astr 是指向常量 char 的指针
+```
+
+### auto
+
+C++11 引入 auto 让编译器通过初始值来推算变量的类型。
+
+auto 的类型推导基本和模板的类型推导一致。[具体规则](https://cntransgroup.github.io/EffectiveModernCppChinese/1.DeducingTypes/item1.html)
+
+情景一：类型说明符是一个指针或引用但不是通用引用
+
+> 这种情况，auto 就是去掉初始值的 `&` 或 `*` 修饰符，保留 `const` 
+
+```cpp
+int a = 27;
+auto &x = a; // auto 是 int 类型，a 是 int& 类型
+const int b = 27;
+auto &y = b; // auto 是 const int 类型，b 是 const int& 类型
+```
+
+情景二：类型说明符一个通用引用
+
+> 对于左值，添加 `&` 修饰符；对于右值，去掉 `&&` 修饰符
+
+```cpp
+auto&& uref1 = x;               //x是int左值，
+                                //所以uref1类型为int&
+auto&& uref2 = cx;              //cx是const int左值，
+                                //所以uref2类型为const int&
+auto&& uref3 = 27;              //27是int右值，
+                                //所以uref3类型为int&&
+
+```
+
+情景三：类型说明符既不是指针也不是引用
+
+> 就是对初始值的值拷贝，去掉 `const`
+
+```cpp
+auto x = 27;        // auto 是 int
+const auto y = x;   // auto 是 int
+auto z = y;         // auto 是 int
+```
+
+### decltype 类型指示符
+
+`decltype` 的作用是选择并返回操作数的数据类型。decltype 的类型推导更加的符合直觉
+
+```cpp
+const int i = 0;                //decltype(i)是const int
+
+bool f(const Widget& w);        //decltype(w)是const Widget&
+                                //decltype(f)是bool(const Widget&)
+
+struct Point{
+    int x,y;                    //decltype(Point::x)是int
+};                              //decltype(Point::y)是int
+
+Widget w;                       //decltype(w)是Widget
+
+if (f(w))…                      //decltype(f(w))是bool
+
+template<typename T>            //std::vector的简化版本
+class vector{
+public:
+    …
+    T& operator[](std::size_t index);
+    …
+};
+
+vector<int> v;                  //decltype(v)是vector<int>
+…
+if (v[0] == 0)…                 //decltype(v[0])是int&
+```
+
+在 C++11 中，decltype 最主要的用途就是用于声明函数模板，而这个函数返回类型依赖于形参类型。
+
+```cpp
+template<typename Container, typename Index> 
+auto authAndAccess(Container& c, Index i)      
+    ->decltype(c[i])
+{
+    authenticateUser();
+    return c[i];
+}
+```
+
+推导规则：
+
+- decltype 总是不加修改的产生变量或者表达式的类型。
+- 对于 T 类型的*不是单纯的变量名的左值表达式*，decltype 总是产出T的引用即 T&。 
+- C++14 支持 `decltype(auto)`，就像auto一样，推导出类型，但是它**使用 decltype 的规则进行推导**。
+
+!> 尽量不要用 `decltype(auto)` 推导不是单纯变量名的左值表达式
+
+```cpp
+decltype(auto) f1()
+{
+    int x = 0;
+    …
+    return x;                            //decltype(x）是int，所以f1返回int
+}
+
+decltype(auto) f2()
+{
+    int x = 0;
+    return (x);                          //decltype((x))是int&，所以f2返回int&, 临时变量，很危险
+}
+```
 
 ### 类
+
+## 控制语句
+
+### 循环
+
+- `while(condition) { statement }`
+- `do { statement } while(condition)`
+- `for(initial statement;condition;after statement) { statement }`
+
+### 判断
+
+- `if (condition) { statement} else if (anoter condition) { statement } else { statement }`
+
+## 注释
+
+- 单行注释: `//`
+- 多行注释: `/*   */` 
 
 ## 模块化
 
