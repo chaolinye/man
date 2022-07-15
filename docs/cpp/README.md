@@ -1,6 +1,70 @@
 # C++ 语言特性
 
-## 类型和变量
+## 变量
+
+C++ 中的每个变量都有其数据类型，数据类型决定着变量所占内存空间的大小和布局方式、该空间能存储的值的范围，以及变量能参与的运算。
+
+> 对C++程序员来说，“变量（variable）”和“对象（object）”一般可以互换使用。**对象是指一块能存储数据并具有某种类型的内存空间**
+
+变量定义的基本形式是：首先是类型说明符（type specifier），随后紧跟由一个或多个变量名组成的列表，其中变量名以逗号分隔，最后以分号结束
+
+> 初始化不是赋值，初始化的含义是创建变量时赋予其一个初始值，而赋值的含义是把对象的当前值擦除，而以一个新值来替代。
+
+### 变量的初始化
+
+变量四种初始化形式
+
+```cpp
+// 初始化
+int units_sold(0);
+int units_sold = 0;
+// 列表初始化，c++ 11 开始支持
+int units_sold{0}
+int units_sold = {0}
+```
+
+> 如果使用列表初始化且初始值存在丢失信息的风险，则编译器将报错；而普通方式可能会丢失精度
+
+如果定义变量时没有指定初值，则变量被`默认初始化（default initialized）`，此时变量被赋予了“默认值”。默认值到底是什么由变量类型决定
+
+> 一种例外情况是，定义在函数体内部的*内置类型*变量将**不被初始化**；但是*类类型*还是会初始化(默认构造函数)。
+
+> 未初始化的变量含有一个不确定的值，使用未初始化变量的值是一种错误的编程行为并且很难调试。
+
+变量初始化方式的区别可参考 [区别使用()和{}创建对象](https://cntransgroup.github.io/EffectiveModernCppChinese/3.MovingToModernCpp/item7.html)
+
+- 括号初始化是最广泛使用的初始化语法，它防止**变窄转换**，并且对于 C++ 最令人头疼的解析有天生的免疫性
+- 在构造函数重载决议中，括号初始化尽最大可能与 `std::initializer_list` 参数匹配，即便其他构造函数看起来是更好的选择
+- 对于数值类型的 `std::vector` 来说使用花括号初始化和小括号初始化会造成巨大的不同
+- 在模板类选择使用小括号初始化或使用花括号初始化创建对象是一个挑战。
+
+### 声明和定义
+
+C++语言支持分离式编译（separate compilation）机制，该机制允许将程序分割为若干个文件，每个文件可被独立编译。
+
+为了支持分离式编译，C++语言将声明和定义区分开来。
+
+声明（declaration）使得名字为程序所知，一个文件如果想使用别处定义的名字则必须包含对那个名字的声明。而定义（definition）负责创建与名字关联的实体。
+
+c++ 中的声明
+
+```cpp
+extern int x;                       //对象声明
+
+class Widget;                       //类声明
+
+bool func(const Widget& w);         //函数声明
+
+enum class Color;                   //限域enum声明
+```
+
+> 变量能且只能被定义一次，但是可以被多次声明。
+
+> 变量的定义必须出现在且只能出现在一个文件中，而其他用到该变量的文件必须对其进行声明，却绝对不能重复定义。
+
+> 定义在文件第一级的名字（变量、函数、类型）等属于全局作用域，整个进程可见。
+
+## 类型
 
 ### 内置类型
 
@@ -60,58 +124,6 @@ std::cout << "a really, really long string literal "
 
 `true` 和 `false` 是布尔类型的字面值：`nullptr` 是指针字面值
 
-### 变量
-
-C++ 中的每个变量都有其数据类型，数据类型决定着变量所占内存空间的大小和布局方式、该空间能存储的值的范围，以及变量能参与的运算。
-
-> 对C++程序员来说，“变量（variable）”和“对象（object）”一般可以互换使用。**对象是指一块能存储数据并具有某种类型的内存空间**
-
-变量定义的基本形式是：首先是类型说明符（type specifier），随后紧跟由一个或多个变量名组成的列表，其中变量名以逗号分隔，最后以分号结束
-
-> 初始化不是赋值，初始化的含义是创建变量时赋予其一个初始值，而赋值的含义是把对象的当前值擦除，而以一个新值来替代。
-
-变量四种初始化形式
-
-```cpp
-// 初始化
-int units_sold(0);
-int units_sold = 0;
-// 列表初始化，c++ 11 开始支持
-int units_sold{0}
-int units_sold = {0}
-```
-
-> 如果使用列表初始化且初始值存在丢失信息的风险，则编译器将报错；而普通方式可能会丢失精度
-
-如果定义变量时没有指定初值，则变量被`默认初始化（default initialized）`，此时变量被赋予了“默认值”。默认值到底是什么由变量类型决定
-
-> 一种例外情况是，定义在函数体内部的*内置类型*变量将**不被初始化**；但是*类类型*还是会初始化(默认构造函数)。
-
-> 未初始化的变量含有一个不确定的值，使用未初始化变量的值是一种错误的编程行为并且很难调试。
-
-C++语言支持分离式编译（separate compilation）机制，该机制允许将程序分割为若干个文件，每个文件可被独立编译。
-
-为了支持分离式编译，C++语言将声明和定义区分开来。
-
-声明（declaration）使得名字为程序所知，一个文件如果想使用别处定义的名字则必须包含对那个名字的声明。而定义（definition）负责创建与名字关联的实体。
-
-c++ 中的声明
-
-```cpp
-extern int x;                       //对象声明
-
-class Widget;                       //类声明
-
-bool func(const Widget& w);         //函数声明
-
-enum class Color;                   //限域enum声明
-```
-
-> 变量能且只能被定义一次，但是可以被多次声明。
-
-> 变量的定义必须出现在且只能出现在一个文件中，而其他用到该变量的文件必须对其进行声明，却绝对不能重复定义。
-
-> 定义在文件第一级的名字（变量、函数、类型）等属于全局作用域，整个进程可见。
 
 ### 复合类型
 
@@ -348,6 +360,73 @@ c++ 可以使用 `struct` 和 class 关键字定义类
 
 !> 类定义末尾的分号必不可少
 
+## 数据结构
+
+### string
+
+标准库类型 string 表示可变长的字符序列，使用 string 类型必须首先包含 `string` 头文件。
+
+```cpp
+#include <string>
+using std::string;
+
+string s1;              // 默认初始化，空字符串
+string s2 = s1;         // s2 是 s1 的副本
+string s3 = "hiya";     // s3 是该字符串字面值的副本
+string s4(10, 'c')      // s4 的内容是 cccccccccc
+```
+
+![](../images/cpp_string_method.png ":size=50%")
+
+> string::size() 返回的是 `string::size_t` 类型，是一个无符号类型，不要用 int 类型替代
+
+字符串拼接(+)：
+
+当把 string 对象和字符字面值及字符串字面值混在一条语句中使用时，必须确保每个加法运算符（+）的两侧的运算对象至少有一个是string：
+
+```cpp
+string a, b;
+string c = a + b;
+string d = "cc" + c;
+string e = "cc " + "dd"; // 错误, 字面值是 C 字符串，C 字符串不能用 + 号拼接
+string f = "cc " "dd";
+```
+
+字符的遍历
+
+```cpp
+string str("some string");
+// for each
+for(auto &c : str) {
+    cout << toupper(c) << endl;
+}
+
+// for
+for (decltype(str.size()) index = 0; index < s.size(); ++index) {
+    str[index] = toupper(str[index]);
+}
+```
+
+!> Java 中的 String 是不可变对象，而 C++ 中的 std::string 并不是
+
+字符的工具库 `cctype`
+
+![](../images/cpp_char_cctype.png ":size=50%")
+
+### vector
+
+标准库类型 vector 表示对象的集合，其中所有对象的类型都相同。在 c++ 中常被成为 **容器**
+
+![](../images/cpp_vector_cstor.png ":size=50%")
+
+![](../images/cpp_vector_method.png ":size=50%")
+
+!> vector对象（以及string对象）的下标运算符可用于访问已存在的元素，而不能用于添加元素。
+
+!> 如果循环体内部包含有向 vector 对象添加元素的语句，则不能使用范围for循环。**范围 for 语句体内不应改变其所遍历序列的大小**
+
+> 对 Java 的 ArrayList 不一样。C++ 中 vector 的最佳实践**不要设置初始容量**，这样性能更优。C++标准要求 vector 应该能在运行时高效快速地添加元素。因此既然vector对象能高效地增长，那么在定义vector对象的时候设定其大小也就没什么必要了，事实上如果这么做性能可能更差
+
 ## 控制语句
 
 ### 循环
@@ -355,10 +434,13 @@ c++ 可以使用 `struct` 和 class 关键字定义类
 - `while(condition) { statement }`
 - `do { statement } while(condition)`
 - `for(initial statement;condition;after statement) { statement }`
+- `for(declaration : expression) { statement }`
 
 ### 判断
 
 - `if (condition) { statement} else if (anoter condition) { statement } else { statement }`
+
+## 表达式
 
 ## 注释
 
@@ -366,6 +448,46 @@ c++ 可以使用 `struct` 和 class 关键字定义类
 - 多行注释: `/*   */` 
 
 ## 模块化
+
+### 命名空间
+
+C++ 使用命令空间来避免变量污染和冲突。
+
+```cpp
+namespace abc {
+    int a = 0;
+}
+
+// 多层命名空间
+namespace abc {
+    namespace def {
+        int a = 0;
+    }
+}
+
+// C++17 的多层命名空间新语法
+namespace abc::def {
+    int a = 0;
+}
+```
+
+使用命名空间
+
+```cpp
+// 直接调用
+std::cout << abc::def::a << std::endl;
+
+// 更严谨的写法(避免第一级命名空间和当前命名空间变量冲突)
+std::cout << ::abc::def::a << std::endl;
+
+// 使用 using 简化命名空间中某个名称，类似于 java 中的 import
+using abc::def::a;
+std::cout << a << std::endl;
+
+// 使用 using namespace 简化命名空间中所有命名，容易产生冲突，不建议使用
+using namespace abc::def;
+std::cout << a << std::endl;
+```
 
 ### 头文件
 
@@ -421,8 +543,12 @@ int main() {
 }
 ```
 
+## 模板和泛型
+
+
 
 ## References
 
 - [Effective Modern C++](https://cntransgroup.github.io/EffectiveModernCppChinese/Introduction)
 - [学会查看类型推导结果](https://cntransgroup.github.io/EffectiveModernCppChinese/1.DeducingTypes/item4.html)
+- [GCC STL 源码](https://github.com/gcc-mirror/gcc/tree/master/libstdc++-v3/src)
