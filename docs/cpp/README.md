@@ -27,7 +27,7 @@ int units_sold = {0}
 
 如果定义变量时没有指定初值，则变量被`默认初始化（default initialized）`，此时变量被赋予了“默认值”。默认值到底是什么由变量类型决定
 
-> 一种例外情况是，定义在函数体内部的*内置类型*变量将**不被初始化**；但是*类类型*还是会初始化(默认构造函数)。
+!> 定义在块内的*内置类型*和*复合类型*变量将**不被初始化**；但是*类类型*还是会初始化(默认构造函数)。
 
 > 未初始化的变量含有一个不确定的值，使用未初始化变量的值是一种错误的编程行为并且很难调试。
 
@@ -49,7 +49,7 @@ C++语言支持分离式编译（separate compilation）机制，该机制允许
 c++ 中的声明
 
 ```cpp
-extern int x;                       //对象声明
+extern int x;                       //变量声明
 
 class Widget;                       //类声明
 
@@ -350,15 +350,418 @@ decltype(auto) f2()
 }
 ```
 
-### 类
+## 表达式
 
-c++ 可以使用 `struct` 和 class 关键字定义类
+### 算术运算符
+
+![](../images/cpp_number_operator.png ":size=50%")
+
+### 逻辑运算符
+
+![](../images/cpp_logic_operator.png ":size=50%")
+
+### 位运算符
+
+![](../images/cpp_bit_operator.png ":size=50%")
+
+!> 关于符号位如何处理没有明确的规定，所以强烈建议仅将位运算符用于处理无符号类型。
+
+### 赋值运算符和复合赋值运算符
+
+### 递增和递减运算符
+
+!> 除非必须，否则不用递增递减运算符的后置版本。因为前置版本性能更优
+
+后置递增运算符的优先级高于解引用运算符，因此`＊pbeg++`等价于`＊（pbeg++）`
+
+### 成员访问运算符
+
+包括点运算符和箭头运算符
+
+表达式 `ptr->mem` 等价于 `(*ptr).mem：`
+
+### 条件运算符
+
+`cond ? expr1 : expr2;`
+
+### sizeof 运算符
+
+`sizeof (type)` 或者 `sizeof expr` (返回表达式结果类型的大小)
+
+```cpp
+Sales_data data, *p;
+sizeof(Sales_data); // 存储 Sales_data 类型的对象所占的空间大小
+sizeof data;        // data 的类型的大小，即 sizeof(Sales_data)
+sizeof p;           // 指针所占的空间的大小 
+sizeof *p;          // p 所指类型的空间大小，即 sizeof(Sales_data)
+sizeof data.revenue;    // Sales_data 的 revenues 成员对应类型的大小
+sizeof Sales_data::revenue; // 另一种获取 revenue 大小的方式
+```
+
+> sizeof 的运算对象中解引用一个无效指针仍然是一种安全的行为，因为指针实际上并没有被真正使用。sizeof 不需要真的解引用指针也能知道它所指对象的类型。
+
+> 注意，sizeof运算不会把数组转换成指针来处理。
+
+> 对 string 对象或 vector 对象执行sizeof运算只返回该类型固定部分的大小，不会计算对象中的元素占用了多少空间。
+
+### 逗号运算符
+
+对于逗号运算符来说，首先对左侧的表达式求值，然后将求值结果丢弃掉。逗号运算符真正的结果是右侧表达式的值
+
+### 类型转换
+
+在下面这些情况下，编译器会自动地转换运算对象的类型：
+
+- 在大多数表达式中，比 int 类型小的整型值首先提升为较大的整数类型。
+- 在条件中，非布尔值转换成布尔类型。
+- 初始化过程中，初始值转换成变量的类型；
+- 在赋值语句中，右侧运算对象转换成左侧运算对象的类型。
+- 如果算术运算或关系运算的运算对象有多种类型，需要转换成同一种类型。
+
+显式转换
+
+`cast-name<type>(expression)`
+
+cast-name 是 `static_cast`、`dynamic_cast`、`const_cast` 和 `reinterpret_cast` 中的一种
+
+### 运算符优先级
+
+![](../images/cpp_operator_compare.png ":size=50%")
+
+![](../images/cpp_operator_compare2.png ":size=50%")
+
+## 语句
+
+### 条件语句
+
+- `if (condition) { statement} else if (anoter condition) { statement } else { statement }`
+
+- `switch(ch) { case ival: statement; case ival2: statement; break; default: statement;}`
+
+> case标签必须是整型常量表达式
+
+### 迭代语句
+
+- `while(condition) { statement }`
+- `do { statement } while(condition)`
+- `for(initial statement;condition;after statement) { statement }`
+- `for(declaration : expression) { statement }`
+
+> 范围 for 语句中的 `expression` 表示的必须是一个序列，比如用花括号括起来的**初始值列表、数组或者 vector 或 string** 等类型的对象，这些类型的共同特点是拥有能返回迭代器的 begin 和 end 成员。
+
+### 跳转语句
+
+break
+
+continue
+
+goto
+
+> 不要在程序中使用goto语句，因为它使得程序既难理解又难修改。
+
+### try 和 throw 语句
+
+```cpp
+try {
+    // programe-statements
+} catch (exception-declaration) {
+    // handler-statements
+} catch (exception-declaration) {
+    // handler-statements
+}
+```
+
+> 和 Java 异常不一样，c++ 没有受检异常，都是 Runtime 异常；另外 c++ 可以 throw 任何对象，当前还是推荐使用标准库（`stdexcpt`）的异常类
+
+![](../images/cpp_stdexcept.png ":size=50%")
+
+## 函数
+
+> 尽管实参与形参存在对应关系，但是并没有规定实参的求值顺序
+
+> 大多数类型都能用作函数的返回类型。一种特殊的返回类型是 `void`，它表示函数不返回任何值。**函数的返回类型不能是数组类型或函数类型**，但可以是指向数组或函数的指针。
+
+### 局部静态对象
+
+函数中可以使用 static 定义局部静态对象（local static object），这种对象在程序的执行路径第一次经过对象定义语句时初始化，并且直到程序终止才被销毁，在此期间即使对象所在的函数结束执行也不会对它有影响。
+
+> 内置类型的局部静态变量默认初始化为0。
+
+```cpp
+size_t count_calls() {
+    static size_t ctr = 0; // 调用结束后，这个值仍然有效
+    return ++ctr;
+}
+int main() {
+    for (size_t i = 0; i != 10; ++i) {
+        cout << count_calls() << endl;
+    }
+    return 0;
+}
+```
+
+### 参数传递
+
+C++ 函数的参数传递有两种形式: `值传递` 和 `引用传递`
+
+> 熟悉 C 的程序员常常使用指针类型的形参访问函数外部的对象。在 C++ 语言中，建议使用引用类型的形参替代指针
+
+> 如果函数无须改变引用形参的值，最好将其声明为常量引用。使用引用而非常量引用也会极大地限制函数所能接受的实参类型
+
+可变形参的两种实现方式: `initializer_list` 形参和省略符形参 
+
+!> 省略符形参应该仅仅用于 C 和 C++ 通用的类型。特别应该注意的是，**大多数类类型的对象在传递给省略符形参时都无法正确拷贝**。
+
+### 函数返回
+
+> 不要返回局部对象的引用或指针
+
+返回数组类型指针的函数声明的方式： 
+
+- `int (*func(int))[10]`
+
+- 尾置返回类型: `auto func(int) -> int (*) [10]`
+
+### 函数重载
+
+> 在 C++ 语言中，名字查找发生在类型检查之前。所以局部一个方法，可以覆盖外部多个重载方法
+
+### 默认实参
+
+> 一旦某个形参被赋予了默认值，它后面的所有形参都必须有默认值。
+
+> 通常，应该在函数声明中指定默认实参，并将该声明放在合适的头文件中。
+
+### 内联函数
+
+> 内联说明只是向编译器发出的一个请求，编译器可以选择忽略这个请求。
+
+### constexpr 函数
+
+constexpr函数是指能用于常量表达式的函数。
+
+> 函数的返回类型及所有形参的类型都得是字面值类型，而且函数体中必须有且只有一条return语句：
+
+> 执行该初始化任务时，编译器把对constexpr函数的调用替换成其结果值。为了能在编译过程中随时展开，constexpr函数被隐式地指定为内联函数。
+
+### 函数指针
+
+```cpp
+// pf 指向一个函数
+bool (*pf)(const string&, const string&);
+```
+
+> 可以直接使用指向函数的指针调用该函数，无须提前解引用指针：
+
+> 当我们把函数名作为一个值使用时，该函数自动地转换成指针
+
+## 类
+
+c++ 可以使用 `struct` 和 `class` 关键字定义类
 
 > 使用 `struct` 主要的目的是兼容 c 语言
 
 > 两者的唯一区别是 `struct` 的成员默认是 `public`，而 `class` 的成员默认是 `private`
 
 !> 类定义末尾的分号必不可少
+
+> 成员函数的声明必须在类的内部，它的定义则既可以在类的内部也可以在类的外部。
+
+> 定义在类内部的函数是隐式的inline函数
+
+> 成员函数通过一个名为 this(指针) 的额外的隐式参数来访问调用它的那个对象。
+
+### const 成员函数
+
+使用 const 的成员函数被称作常量成员函数（const member function）。
+
+```cpp
+std:string isbn() const {
+    return this->bookNo;
+}
+```
+
+> 常量对象，以及常量对象的引用或指针都只能调用常量成员函数。不能在一个常量对象上调用普通的成员函数
+
+### 类作用域
+
+编译器分两步处理类：首先编译成员的声明，然后才轮到成员函数体（如果有的话）。因此，成员函数体可以随意使用类中的其他成员而无须在意这些成员出现的次序。
+
+类外部定义的成员的名字必须包含它所属的类名
+
+```cpp
+double Sales_data::avg_price() const {
+    if (units_sold) {
+        return revenuke/units_sold;
+    } else {
+        return 0;
+    }
+}
+```
+
+### 构造函数
+
+如果我们的类没有显式地定义构造函数，那么编译器就会为我们隐式地定义一个默认构造函数。编译器创建的构造函数又被称为合成的默认构造函数。
+
+调用默认构造函数的正确姿势：
+
+```cpp
+Sales_data obj();   // 错误：声明了一个函数而非对象
+Sales_data obj2;    // 正确：obj2 是一个对象而非函数
+```
+
+这个合成的默认构造函数将按照如下规则初始化类的数据成员：
+
+- 如果存在类内的初始值，用它来初始化成员。
+- 否则，默认初始化该成员
+
+> 只有当类没有声明任何构造函数时，编译器才会自动地生成默认构造函数。
+
+如果类包含有内置类型或者复合类型的成员，则只有当这些成员全都被赋予了类内的初始值时，这个类才适合于使用合成的默认构造函数。
+
+> 由于定义在块中的内置类型或复合类型（比如数组和指针）的对象被默认初始化，则它们的值将是未定义的
+
+> 如果类中包含一个其他类类型的成员且这个成员的类型没有默认构造函数，那么编译器将无法初始化该成员。
+
+在 C++11 新标准中，如果我们需要默认的行为，那么可以通过在参数列表后面写上 `= default` 来要求编译器生成构造函数。
+
+```cpp
+struct Sales_data {
+    Sales_data() = default;
+    // 使用构造函数初始值列表
+    Sales_data(const std::string &s): bookNo(s) {}
+}
+```
+
+C++ 使用`构造函数初始值列表`的覆盖类内初始值，没有出现在构造函数初始值列表中的成员将通过相应的类内初始值（如果存在的话）初始化，或者执行默认初始化。
+
+> 初始值列表用于类成员变量的初始化，性能更优；构造函数内也可以给类成员变量赋值，复杂的场景可能需要。
+
+> 如果成员是 const、引用，或者属于某种未提供默认构造函数的类类型，我们必须通过构造函数初始值列表为这些成员提供初值。
+
+委托构造函数
+
+
+```cpp
+class Sales_data {
+    public:
+        Sales_data(std::string s, unsigned cnt, double price):
+            bookNo(s), units_sold(cnt), revenue(cnt * price) {}
+        // 其余构造函数全都委托给另一个构造函数
+        Sales_data(): Sales_data("", 0, 0) {}
+        Sales_data(std::string s): Sales_data(s, 0, 0) {}
+}
+```
+
+转换构造函数（converting constructor）能通过一个实参调用的构造函数定义了一条从构造函数的参数类型向类类型隐式转换的规则。
+
+> 可以通过将构造函数声明为 `explicit` 阻止隐式替换。`explicit` 只允许出现在类内的构造函数声明处
+
+> 当用 explicit 关键字声明构造函数时，它将只能以直接初始化的形式使用
+
+### 访问控制与封装
+
+访问说明符
+
+```cpp
+class Sales_data {
+    // 友元声明
+    friend Sales_data add (const Sales_data&, const Sales_data&);
+    public:         // 添加了访问说明符
+        Sales_data() = default;
+        std::string isbn const { return bookNo; }
+    private:
+        double avg_price() const {
+            return units_sold ? revenue / units_sold : 0;
+        }
+}
+```
+
+类可以允许其他类或者函数访问它的非公有成员，方法是令其他类或者函数成为它的友元（friend）。如果类想把一个函数作为它的友元，只需要增加一条以`friend` 关键字开始的函数声明语句即可
+
+友元声明只能出现在类定义的内部，但是在类内出现的具体位置不限。友元不是类的成员也不受它所在区域访问控制级别的约束
+
+> 一般来说，最好在类定义开始或结束前的位置集中声明友元。
+
+如果一个类指定了友元类，则友元类的成员函数可以访问此类包括非公有成员在内的所有成员
+
+> 必须要注意的一点是，友元关系不存在传递性。
+
+!> 友元声明的作用是影响访问权限，它本身并非普通意义上的声明。
+
+### 类的特别成员
+
+#### 类内类型别名
+
+除了定义数据和函数成员之外，类还可以自定义某种类型在类中的别名
+
+```cpp
+class Screen {
+    public:
+        // 使用类型别名等价地声明一个类型名字
+        using pos = std::string::size_type;
+
+}
+```
+
+> 用来定义类型的成员必须先定义后使用，这一点与普通成员有所区别
+
+#### inline 函数
+
+定义在类内部的成员函数是自动 inline 的，定义在类外面需要显示添加 inline
+
+> 和我们在头文件中定义inline函数的原因一样（参见6.5.2节，第214页），inline成员函数也应该与相应的类定义在同一个头文件中
+
+#### 可变数据成员
+
+类的 const 函数可以修改可变数据成员(用 `mutable` 修饰)
+
+> 一个可变数据成员（mutable data member）永远不会是 const，即使它是 const 对象的成员。
+
+```cpp
+class Screen {
+    public: 
+        void some_member() const;
+    private:
+        mutable size_t access_ctr;   // 可变数据成员
+};
+
+void Screen::some_member() const {
+    ++access_ctr;                   
+}
+```
+
+### 类的作用域
+
+每个类都会定义它自己的作用域。在类的作用域之外，普通的数据和函数成员只能由对象、引用或者指针使用成员访问运算符来访问
+
+> 函数的返回类型通常出现在函数名之前。因此当成员函数定义在类的外部时，返回类型中使用的名字都位于类的作用域之外。
+
+```cpp
+class Window_mgr {
+    public: 
+        ScreenIndex addScreen(const Screen&);
+}
+
+// 返回类型在作用域之外，需要加作用域访问符
+Window_mgr::ScreenIndex Window_mgr::addScreen(const Screen &s) {
+    screens.push.back(s);
+    return screens.size() - 1;
+}
+```
+
+一般来说，内层作用域可以重新定义外层作用域中的名字，即使该名字已经在内层作用域中使用过。然而在类中，如果成员使用了外层作用域中的某个名字，而该名字代表一种类型，则类不能在之后重新定义该名字
+
+> 类型名的定义通常出现在类的开始处，这样就能确保所有使用该类型的成员都出现在类名的定义之后。
+
+### 类的静态成员
+
+```cpp
+class Screen {
+public:
+    static const char bkground;
+}
+```
 
 ## 数据结构
 
@@ -427,20 +830,79 @@ for (decltype(str.size()) index = 0; index < s.size(); ++index) {
 
 > 对 Java 的 ArrayList 不一样。C++ 中 vector 的最佳实践**不要设置初始容量**，这样性能更优。C++标准要求 vector 应该能在运行时高效快速地添加元素。因此既然vector对象能高效地增长，那么在定义vector对象的时候设定其大小也就没什么必要了，事实上如果这么做性能可能更差
 
-## 控制语句
+### 迭代器
 
-### 循环
+![](../images/cpp_iterator.png ":size=50%")
 
-- `while(condition) { statement }`
-- `do { statement } while(condition)`
-- `for(initial statement;condition;after statement) { statement }`
-- `for(declaration : expression) { statement }`
+```cpp
+string s = "abc";
+for (auto it = s.begin(); it != s.end(); ++it) {
+    *it = toupper(*it);
+}
+```
 
-### 判断
+!> 凡是使用了迭代器的循环体，都不要向迭代器所属的容器添加元素。
 
-- `if (condition) { statement} else if (anoter condition) { statement } else { statement }`
+再无须写操作的时候，优先使用 `const_iterator`
 
-## 表达式
+```cpp
+vector<int> v;
+auto it = v.begin(); // 类型是 vector<int>::iterator
+auto cit = v.cbegin(); // 类型是 vector<int>::const_iterator
+```
+
+### 数组
+
+数组的定义要么有维度，要么用花括号初始化
+
+> 维度必须是常量表达式
+
+```cpp
+int arr[10];
+int a2[] = {0, 1, 2};
+// 字符数组
+char a3[] = "C++";
+```
+
+!> 数组不支持拷贝和赋值
+
+数组的遍历
+
+```cpp
+for (auto &i : scores) {
+    cout << i << " ";
+}
+cout << endl;
+
+// 迭代器遍历
+for (auto it = std::begin(scores); it != std::end(scores); ++it) {
+    cout << *it << " ";
+}
+cout << endl;
+```
+
+数组还有一个特性：在很多用到数组名字的地方，编译器都会自动地将其替换为一个指向数组首元素的指针
+
+要获取数组的类型，最好是用 decltype
+
+```cpp
+int ia[] = {0, 1, 2}
+auto ia2(ia);   // ia2 是一个整型指针，指向 ia 的第一个元素
+
+decltype(ia) ia3 = {4, 5, 6} // ia3 是含有 3 个整数的数组
+```
+
+!> 现代的C++程序应当尽量使用 vector 和迭代器，避免使用内置数组和指针；应该尽量使用 string，避免使用 C 风格的基于数组的字符串。
+
+### 多维数组
+
+```cpp
+int ia[3][4]; // 大小为 3 的数组，每个元素是含有 4 个整数的数组
+
+int ia[3][4] = {{0,1,2,3}, {4,5,6,7}, {8,9,10,11}};
+```
+
+!> 要使用范围for语句处理多维数组，除了最内层的循环外，其他所有循环的控制变量都应该是引用类型。
 
 ## 注释
 
@@ -516,6 +978,14 @@ std::cout << a << std::endl;
 #pragma once
 // 头文件内容
 ```
+
+### 编译器预定义变量
+
+- `__func__`: 函数内使用，它是const char的一个静态数组，用于存放函数的名字。
+- `__FILE__`: 存放文件名的字符串字面值。
+- `__LINE__`: 存放当前行号的整型字面值。
+- `__TIME__`: 存放文件编译时间的字符串字面值。
+- `__DATE__`: 存放文件编译日期的字符串字面值
 
 ## IO
 
