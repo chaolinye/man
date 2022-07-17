@@ -430,6 +430,43 @@ cast-name 是 `static_cast`、`dynamic_cast`、`const_cast` 和 `reinterpret_cas
 
 ![](../images/cpp_operator_compare2.png ":size=50%")
 
+### lambda 表达式
+
+[文档](https://www.apiref.com/cpp-zh/cpp/language/lambda.html)
+
+c++ 中的可调用对象有四种：函数、函数指针、重载了函数调用运算符的类以及 lambda 表达式
+
+lambda 表达式的形式: `[capture list](parameter list) -> return type { function body }`
+
+可以忽略参数列表和返回类型，但必须永远包含捕获列表和函数体
+
+```cpp
+auto f = [] {return 42;};
+
+cout << f() << endl;
+```
+
+当定义一个 lambd a时，编译器生成一个与 lambda 对应的新的（未命名的）类类型。
+
+> 如果 lambda 的函数体包含任何单一 return 语句之外的内容，且未指定返回类型，则返回 `void`。有其它语句会导致编译器无法推导出返回类型
+
+> 一个 lambda 只有在其捕获列表中捕获一个它所在函数中的局部变量，才能在函数体中使用该变量。本质上 lambda 是一个类，捕获列表可以理解是构造函数入参
+
+> 捕获列表只用于局部非static变量，lambda 可以直接使用局部 static 变量和在它所在函数之外声明的名字。
+
+> 当以引用方式捕获一个变量时，必须保证在lambda执行时变量是存在的。
+
+![](../images/cpp_lambda_capture.png ":size=50%")
+
+使用函数和[标准库bind函数](https://www.apiref.com/cpp-zh/cpp/utility/functional/bind.html)可以替换带有捕获列表的 lambda 表达式
+
+```cpp
+using std::placeholders::_1;
+// check6 是一个可调用对象，接受一个 string 类型的参数
+// 并用此 string 和值 6 来调用 check_size
+auto check6 = bind(check_size, _1, 6);
+```
+
 ## 语句
 
 ### 条件语句
@@ -763,9 +800,98 @@ public:
 }
 ```
 
+### 拷贝控制
+
+类如何控制该类型对象拷贝、赋值、移动或销毁时做什么。类通过一些特殊的成员函数控制这些操作，包括：
+
+- 拷贝构造函数
+    如果一个构造函数的第一个参数是自身类类型的引用，且任何额外参数都有默认值，则此构造函数是拷贝构造函数。
+
+    ```cpp
+    class Foo {
+    public:
+        Foo();      //默认构造函数
+        Foo(const Foo&)； // 拷贝构造函数
+    }
+    ```
+
+    > 拷贝构造函数在几种情况下都会被隐式地使用。因此，拷贝构造函数通常不应该是 explicit 的
+
+    编译器合成的拷贝构造函数：对类类型的成员，会使用其拷贝构造函数来拷贝；内置类型的成员则直接拷贝。虽然不能直接拷贝一个数组，但合成拷贝构造函数会逐元素地拷贝一个数组类型的成员。如果数组元素是类类型，则使用元素的拷贝构造函数来进行拷贝。
+
+    ```cpp
+    string dots(10, '.');               // 直接初始化
+    string s(dots);                     // 直接初始化
+    string s2 = dots;                   // 拷贝初始化
+    string null_book = "9-999-99999-9"; // 拷贝初始化
+    string nines = string(100, '9');    // 拷贝初始化
+    ```
+
+    拷贝初始化不仅在我们用 = 定义变量时会发生，在下列情况下也会发生
+        - 将一个对象作为实参传递给一个非引用类型的形参
+        - 从一个返回类型为非引用类型的函数返回一个对象
+        - 用花括号列表初始化一个数组中的元素或一个聚合类中的成员
+
+- 拷贝赋值运算符
+
+    ```cpp
+    class Foo {
+    public:
+        Foo& operator=(const Foo&); // 赋值运算符
+    }
+    ```
+
+    > 赋值运算符通常应该返回一个指向其左侧运算对象的引用。
+
+- 移动构造函数
+- 移动赋值运算符
+- 析构函数
+    在一个析构函数中，首先执行函数体，然后销毁成员。成员按初始化顺序的逆序销毁。
+    
+    内置类型没有析构函数，因此销毁内置类型成员什么也不需要做。
+
+    > 隐式销毁一个内置指针类型的成员不会 delete 它所指向的对象
+
+    析构函数执行的时机：
+    - 变量在离开其作用域时被销毁。
+    - 当一个对象被销毁时，其成员被销毁。
+    - 容器（无论是标准库容器还是数组）被销毁时，其元素被销毁。
+    - 对于动态分配的对象，当对指向它的指针应用 delete 运算符时被销毁
+    - 对于临时对象，当创建它的完整表达式结束时被销毁。
+
+    !> 当指向一个对象的引用或指针离开作用域时，析构函数不会执行。
+
+
+> 如果一个类需要自定义析构函数，几乎可以肯定它也需要自定义拷贝赋值运算符和拷贝构造函数。
+
+> 如果一个类需要一个拷贝构造函数，几乎可以肯定它也需要一个拷贝赋值运算符
+
+可以使用 `=default` 使用编译器合成的拷贝控制函数
+
+也可以使用 `=delete` 禁止拷贝控制函数
+
+> 析构函数不能是删除的成员
+
+> 希望阻止拷贝的类应该使用=delete来定义它们自己的拷贝构造函数和拷贝赋值运算符，而不应该将它们声明为private的(老的方式)。
+
+
+
+
+### 重载运算符
+
+重载运算符本质上是函数，其名字由 `operator` 关键字后接表示要定义的运算符的符号组成
+
+
+
+### 类型转换
+
+### 继承与多态
+
 ## 数据结构
 
 ### string
+
+[文档](https://www.apiref.com/cpp-zh/cpp/string/basic_string.html)
 
 标准库类型 string 表示可变长的字符序列，使用 string 类型必须首先包含 `string` 头文件。
 
@@ -830,7 +956,15 @@ for (decltype(str.size()) index = 0; index < s.size(); ++index) {
 
 > 对 Java 的 ArrayList 不一样。C++ 中 vector 的最佳实践**不要设置初始容量**，这样性能更优。C++标准要求 vector 应该能在运行时高效快速地添加元素。因此既然vector对象能高效地增长，那么在定义vector对象的时候设定其大小也就没什么必要了，事实上如果这么做性能可能更差
 
+![](../images/cpp_container_capcity_operate.png ":size=50%")
+
+> 每个vector实现都可以选择自己的内存分配策略。但是必须遵守的一条原则是：只有当迫不得已时才可以分配新的内存空间。
+
 ### 迭代器
+
+[文档](https://www.apiref.com/cpp-zh/cpp/iterator.html)
+
+![](../images/cpp_iterator_type.png ":size=50%")
 
 ![](../images/cpp_iterator.png ":size=50%")
 
@@ -850,6 +984,51 @@ vector<int> v;
 auto it = v.begin(); // 类型是 vector<int>::iterator
 auto cit = v.cbegin(); // 类型是 vector<int>::const_iterator
 ```
+
+> 如果在一个循环中插入/删除 deque、string 或 vector 中的元素，不要缓存 end 返回的迭代器。
+
+除了为每个容器定义的迭代器之外，标准库在头文件 `iterator` 中还定义了额外几种迭代器。这些迭代器包括以下几种。
+
+- 插入迭代器（insert iterator）：这些迭代器被绑定到一个容器上，可用来向容器插入元素。
+    - `back_inserter` 创建一个使用 push_back 的迭代器
+    - `front_inserter` 创建一个使用 push_front 的迭代器。
+    - `inserter` 创建一个使用 insert 的迭代器。此函数接受第二个参数，这个参数必须是一个指向给定容器的迭代器。元素将被插入到给定迭代器所表示的元素之前
+    ```cpp
+    list<int> lst = {1, 2, 3, 4};
+    list<int> lst2, list3;
+    
+    // 拷贝完成之后， lst2 包含 4 3 2 1
+    copy(lst.cbegin(), lst.cend(), front_inserter(lst2))
+    // 拷贝完成之后，lst3 包含 1 2 3 4
+    copy(lst.cbegin(), lst.cend(), inserter(lst3, lst3.begin()));
+    ```
+- 流迭代器（stream iterator）：这些迭代器被绑定到输入或输出流上，可用来遍历所关联的IO流。
+    > 虽然 iostream 类型不是容器，但标准库定义了可以用于这些 IO 类型对象的迭代器
+    ```cpp
+    istream_iterator<int> int_it(cin);  // 从 cin 读取 int
+    istream_iterator<int> int_eof;      // 尾后迭代器
+    ifstream in("afile");
+    istream_iteractor<string> str_it(in); // 从 "afile" 读取字符串
+
+    while (in_it != int_eof) {
+        vec.push(*in_iter++);
+    }
+    ```
+
+    ![](../images/cpp_istream_iterator.png ":size=50%")
+    ![](../images/cpp_ostream_iterator.png ":size=50%")
+    
+- 反向迭代器（reverse iterator）：这些迭代器向后而不是向前移动。除了 forward_list 之外的标准库容器都有反向迭代器。
+
+    ```cpp
+    vector<int> vec = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
+    // 从尾元素到首元素的反向迭代器
+    for (auto r_iter = vec.crbegin(); r_iter != vec.crend; ++r_iter)  {
+        cout << *r_iter << endl;
+    }
+    ```
+- 移动迭代器（move iterator）：这些专用的迭代器不是拷贝其中的元素，而是移动它们。
+
 
 ### 数组
 
@@ -903,6 +1082,63 @@ int ia[3][4] = {{0,1,2,3}, {4,5,6,7}, {8,9,10,11}};
 ```
 
 !> 要使用范围for语句处理多维数组，除了最内层的循环外，其他所有循环的控制变量都应该是引用类型。
+
+### 顺序容器
+
+一般来说，每个容器都定义在一个头文件中，文件名与类型名相同。
+
+![](../images/cpp_seq_container.png ":size=50%")
+
+> 现代C++程序应该使用标准库容器，而不是更原始的数据结构，如内置数组。
+
+> 通常，使用 vector 是最好的选择，除非你有很好的理由选择其他容器
+
+![](../images/cpp_container_operate.png ":size=50%")
+![](../images/cpp_container_operate2.png ":size=50%")
+
+![](../images/cpp_container_operate3.png ":size=50%")
+
+> 调用一个 `emplace` 成员函数时，则是将参数传递给元素类型的构造函数
+
+![](../images/cpp_container_operate4.png ":size=50%")
+
+![](../images/cpp_container_operate5.png ":size=50%")
+
+### 关联容器
+
+[文档](https://www.apiref.com/cpp-zh/cpp/container.html#.E5.85.B3.E8.81.94.E5.AE.B9.E5.99.A8)
+
+![](../images/cpp_map_container.png ":size=50%")
+
+> 
+
+```cpp
+map<string, size_t> word_count; // 空容器
+// 列表初始化
+set<string> exclude = {"the", "but", "and", "or", "an"};
+
+map<string, string> authors = { {"joyce", "james"}, {"Austen", "Jane"}};
+```
+
+![](../images/cpp_map_typedef.png ":size=50%")
+
+当从 `map` 中提取一个元素时，会得到一个 `pair` 类型的对象。简单来说，`pair` 是一个模板类型，保存两个名为 `first` 和 `second` 的（公有）数据成员。
+
+!> 一个 map 的 value_type 是一个 pair，可以改变 pair 的值，但不能改变关键字成员的值。
+
+![](../images/cpp_map_insert.png ":size=50%")
+
+![](../images/cpp_map_get.png ":size=50%")
+
+### 容器适配器
+
+[文档](https://www.apiref.com/cpp-zh/cpp/container.html#.E5.AE.B9.E5.99.A8.E9.80.82.E9.85.8D.E5.99.A8)
+
+除了顺序容器外，标准库还定义了三个顺序容器适配器：`stack`、`queue` 和 `priority_queue`
+
+一个容器适配器接受一种已有的容器类型，使其行为看起来像一种不同的类型
+
+### 
 
 ## 注释
 
@@ -1013,12 +1249,364 @@ int main() {
 }
 ```
 
+### IO 类
+
+iostream 定义了用于读写流的基本类型，fstream 定义了读写命名文件的类型，sstream 定义了读写内存 string 对象的类型。
+
+![](../images/cpp_io.png ":size=50%")
+
+!> IO 对象不支持拷贝或赋值
+
+#### IO 流状态
+
+标准库还定义了一组函数来查询这些标志位的状态。
+
+操作 `good` 在所有错误位均未置位的情况下返回 true，而 `bad`、`fail` 和 `eof` 则在对应错误位被置位时返回 true。此外，在 `badbit` 被置位时，`fail`也会返回 true。
+
+这意味着，**使用 `good` 或 `fail`是确定流的总体状态的正确方法**。实际上，我们将流当作条件使用的代码就等价于`!fail()`。而 eof 和 bad 操作只能表示特定的错误。
+
+while (cin >> word) {
+    // ok: 读操作成功
+}
+
+![](../images/cpp_io_status.png ":size=50%")
+
+![](../images/cpp_io_status2.png ":size=50%")
+
+> 一个流一旦发生错误，其上后续的 IO 操作都会失败
+
+#### 管理输出缓冲
+
+每个输出流都管理一个缓冲区，用来保存程序读写的数据。
+
+> 有了缓冲机制，操作系统就可以将程序的多个输出操作组合成单一的系统级写操作。由于设备的写操作可能很耗时，允许操作系统将多个输出操作组合为单一的设备写操作可以带来很大的性能提升
+
+!> 如果程序崩溃，输出缓冲区不会被刷新
+
+导致缓冲刷新（即，数据真正写到输出设备或文件）的原因有很多：·
+
+- 程序正常结束，作为 main 函数的 return 操作的一部分，缓冲刷新被执行。
+- 缓冲区满时，需要刷新缓冲，而后新的数据才能继续写入缓冲区。
+- 可以使用操纵符如 `endl` 来显式刷新缓冲区。
+    ```cpp
+    cout << "hi!" << endl;  // 加个换行符，并刷新缓冲区
+    cout << "hi!" << flush; // 不加任务字符，直接刷新缓冲区
+    cout << "hi!" << ends;  // 加个空字符，刷新缓冲区
+    ```
+- 在每个输出操作之后，我们可以用操纵符 `unitbuf` 设置流的内部状态，来清空缓冲区。
+    > 默认情况下，对 cerr 是设置 unitbuf 的，因此写到 cerr 的内容都是立即刷新的。
+    ```cpp
+    cout << unitbuf;    // 所有输出都立即刷新，无缓冲
+    cout << nounitbuf;  // 回到正常的缓冲方式
+    ```
+- 一个输出流可能被关联到另一个流。在这种情况下，当读写被关联的流时，关联到的流的缓冲区会被刷新。
+    > 默认情况下，cin 和 cerr 都关联到 cout。因此，读 cin 或写 cerr 都会导致 cout 的缓冲区被刷新。
+    > 交互式系统通常应该关联输入流和输出流。这意味着所有输出，包括用户提示信息，都会在读操作之前被打印出来。
+    ```cpp
+    cin.tie(&cout);             // 仅仅是用来展示，标准库已经将 cin 和 cout 关联在一起了
+    ostream *old_tie = cin.tie(nullptr);    // cin 不再与其它流关联
+    cin.tie(&cerr);             // 读取 cin 会刷新 cerr 而不是 cout
+    cin.tie(old_tie);           // 重建 cin 和 cout 的正常关联
+    ```
+
+### 文件输入输出
+
+![](../images/cpp_fstream.png ":size=50%")
+
+> 当一个 fstream 对象被销毁时，close 会自动被调用。
+
+```cpp
+string ifile = "/home/somebody/a.txt"
+ifstream io(ifile);
+ofstream out;
+out.open(ifile + ".copy")
+// 检查是否 open 成功
+if (out) {
+    // code
+}
+// 关闭文件
+in.close();
+// 打开另一个文件s
+in.open(ifile + "2");
+```
+
+### 文件模式
+
+![](../images/cpp_fstream_mode.png ":size=50%")
+
+指定文件模式有如下限制：
+
+- 只可以对 ofstream 或 fstream 对象设定 out 模式。
+- 只可以对 ifstream 或 fstream 对象设定 in 模式。
+- 只有当 out 也被设定时才可设定 trunc 模式。
+- 只要 trunc 没被设定，就可以设定 app 模式。在 app 模式下，即使没有显式指定 out 模式，文件也总是以输出方式被打开。
+- 默认情况下，即使没有指定 trunc ，以 out 模式打开的文件也会被截断。为了保留以 out 模式打开的文件的内容，我们必须同时指定 app 模式，这样只会将数据追加写到文件末尾；或者同时指定 in 模式，即打开文件同时进行读写操作
+- ate 和 binary 模式可用于任何类型的文件流对象，且可以与其他任何文件模式组合使用。
+
+> 保留被 ofstream 打开的文件中已有数据的唯一方法是显式指定 app 或 in 模式。
+
+```cpp
+ofstream out;
+out.open("scratchpad"); // 模式隐含设置为输出和截断
+out.close();
+out.open("precious", ofstream::app); // 模式为输出和追加
+out.close();
+```
+
+> 在每次打开文件时，都要设置文件模式，可能是显式地设置，也可能是隐式地设置。当程序未指定模式时，就使用默认值。
+
+### string 流
+
+![](../images/cpp_stringstream.png ":size=50%")
+
+## 算法库
+
+[文档](https://www.apiref.com/cpp-zh/cpp/algorithm.html)
+
+大多数算法都定义在头文件 `algorithm` 中。标准库还在头文件 `numeric` 中定义了一组数值泛型算法。
+
+一般情况下，这些算法并不直接操作容器，而是遍历由两个迭代器指定的一个元素范围来进行操作
+
+> 算法永远不会改变底层容器的大小。算法可能改变容器中保存的元素的值，也可能在容器内移动元素，但永远不会直接添加或删除元素。
+
+> 那些只接受一个单一迭代器来表示第二个序列的算法，都假定第二个序列至少与第一个序列一样长。
+
+算法形参模式
+
+```cpp
+alg(beg, end, other args);
+alg(beg, end, dest, other args);
+alg(beg, end, beg2, other args);
+alg(beg, end, beg2, end2, other args);
+```
+
+常用算法
+
+- `find`
+
+    ```cpp
+    int val = 42;
+    auto result = find(vec.cbegin(), vec,cend(), val);
+    cout << "The Value " << val << (result == vec.cend() ? " is not present" : " is present") << endl;
+    ```
+
+- `fill`
+
+    ```cpp
+    fill(vec.begin(), vec.end(), 0);    // 将每个元素重置为 0
+    fill(vec.begin(), vec.begin() + vec.size() / 2, 10);    // 将容器的一个子序列设置为 10
+    ```
+
+- `accumulate`
+
+    ```cpp
+    // 对 vec 中的元素求和，和的初值是 0
+    int sum = accumulate(vec.cbegin(), vec.cend(), 0);
+    // 连接字符串
+    string sum = accumulate(v.cbegin, vec.cend(), string(""));
+    ```
+
+- `copy`
+
+    ```cpp
+    int a1[] = {0,1,2,3,4};
+    int a2[sizeof(a1)/sizeof(*a1)];
+    auto ret = copy(begin(a1), end(a1), a2);
+    ```
+
+- `replace`
+
+    ```cpp
+    // 将所有值为 0 的元素改为 42
+    replace(ilst.begin(), ilst.end(), 0, 42);
+    ```
+
+- `sort`
+
+    ```cpp
+    sort(words.begin(), words.end());
+    ```
+
+- `unique`
+
+    ```cpp
+    // 排序并去重
+    sort(words.begin(), words.end());
+    unique(words.begin(), words.end());
+    ```
+
+- `for_each`
+
+    ```cpp
+    for_each(words.begin(), words.end(), [&os, c](const string&s) { os << s << c;});
+    ```
+
+## 动态内存
+
+[文档](https://www.apiref.com/cpp-zh/cpp/memory.html)
+
+程序使用动态内存出于以下三种原因之一：
+
+1. 程序不知道自己需要使用多少对象
+2. 程序不知道所需对象的准确类型
+3. 程序需要在多个对象间共享数据
+
+> 使用动态内存的一个常见原因是允许多个对象共享相同的状态。
+
+> 静态内存用来保存局部 static 对象、类 static 数据成员以及定义在任何函数之外的变量。static 对象在使用之前分配，在程序结束时销毁。
+
+> 栈内存用来保存定义在函数内的非 static 对象。分配在静态或栈内存中的对象由编译器自动创建和销毁。对于栈对象，仅在其定义的程序块运行时才存在；
+
+堆内存： 存储动态分配的对象(在程序运行时分配的对象)
+
+> 动态对象的生存期由程序来控制，也就是说，当动态对象不再使用时，我们的代码必须显式地销毁它们。
+
+> 正确地管理动态内存是非常棘手的。
+
+### 直接管理内存
+
+在 C++ 中，动态内存的管理是通过一对运算符来完成的：
+
+- `new`: 在动态内存中为对象分配空间并返回一个指向该对象的指针，我们可以选择对对象进行初始化；
+- `delete`: 接受一个动态对象的指针，销毁该对象，并释放与之关联的内存。
+
+> 忘记 delete 是内存泄漏的主要原因
+
+> 尽量使用智能指针来管理内存，不要轻易直接管理内存
+
+```cpp
+string *ps = new string;
+int *pi = new int(1024);
+
+delete ps;
+delete pi;
+
+```
+
+> 在delete之后，指针就变成了人们所说的空悬指针（dangling pointer），即，指向一块曾经保存数据对象但现在已经无效的内存的指针
+
+### 智能指针
+
+为了更容易（同时也更安全）地使用动态内存，新的标准库提供了两种智能指针（smart pointer）类型来管理动态对象。智能指针的行为类似常规指针，重要的区别是它负责自动释放所指向的对象。
+
+- `shared_ptr`: 允许多个指针指向同一个对象；
+- `unique_ptr`: “独占”所指向的对象
+- `weak_ptr`: 弱引用，指向shared_ptr所管理的对象
+
+#### shared_ptr
+
+![](../images/cpp_smartptr_operate.png ":size=50%")
+![](../images/cpp_smartptr_operate2.png ":size=50%")
+
+最安全的分配和使用动态内存的方法是调用一个名为make_shared的标准库函数。此函数在动态内存中分配一个对象并初始化它，返回指向此对象的shared_ptr
+
+```cpp
+shared_ptr<int> p = make_shared<int>(42);   // p 指向的对象只有 p 一个引用者
+auto q(p);  // p 和 q 指向相同对象，此对象有两个引用者
+```
+
+> shared_ptr 的析构函数会递减它所指向的对象的引用计数。如果引用计数变为 0，shared_ptr 的析构函数就会销毁对象，并释放它占用的内存。
+
+把内置指针转换成智能指针
+
+```cpp
+shared_ptr<int> p2(new int(1024));
+```
+
+![](../images/cpp_share_ptr_operate.png ":size=50%")
+![](../images/cpp_share_ptr_operate2.png ":size=50%")
+
+智能指针使用规范
+
+- 不使用相同的内置指针值初始化（或reset）多个智能指针。
+- 不 delete get（）返回的指针。
+- 不使用 get（）初始化或 reset 另一个智能指针。
+- 如果你使用 get（）返回的指针，记住当最后一个对应的智能指针销毁后，你的指针就变为无效了。
+- 如果你使用智能指针管理的资源不是 new 分配的内存，记住传递给它一个删除器
+    ```cpp
+    void end_connection(connection *p) {
+        disconnect(*p);
+    }
+    void f(destination &d) {
+        connection c = connect(&d);
+        shared_ptr<connection> p(&c, end_connection);
+        // 当 f 退出时， connection 会被正确关闭
+    }
+    ```
+
+#### unique_ptr
+
+当我们定义一个 `unique_ptr` 时，需要将其绑定到一个 new 返回的指针上。类似 shared_ptr，初始化 unique_ptr 必须采用直接初始化形式
+
+```cpp
+unique_ptr<int> p1(new int(42));
+// 所有权移交给 p2
+unqiue_ptr<int> p2(p1.release());
+// 又移回给 p1
+p1.reset(p2.release());
+```
+
+![](../images/cpp_uniqueptr_operate.png ":size=50%")
+
+> unique_ptr 不支持普通的拷贝或赋值操作
+
+> 不能拷贝 unique_ptr 的规则有一个例外：我们可以拷贝或赋值一个将要被销毁的 unique_ptr。最常见的例子是从函数返回一个 unique_ptr
+
+#### weak_ptr
+
+weak_ptr是一种不控制所指向对象生存期的智能指针，它指向由一个shared_ptr管理的对象。
+
+![](../images/cpp_weakptr_operate.png ":size=50%")
+
+```cpp
+auto p = make_shared<int>(42);
+weak_ptr<int> wp(p);
+```
+
+### 动态数组
+
+> 大多数应用应该使用标准库容器而不是动态分配的数组。使用容器更为简单、更不容易出现内存管理错误并且可能有更好的性能。
+
+```cpp
+// 方括号中的大小必须是整型，但不必是常量
+int *pia = new int[get_size()];
+
+delete []pia;
+```
+
+> 动态数组返回的指针并不是数组类型，只是元素类型指针，因此不能对动态数组调用begin或end
+
+!> delete 一定要记得带上 []
+
+可以使用 unique_ptr 管理动态数组
+
+```cpp
+unique_ptr<int[]> up(new int[10]);
+up.release();   // 释放数组
+```
+
+与 unique_ptr 不同，shared_ptr 不直接支持管理动态数组。如果希望使用 shared_ptr 管理一个动态数组，必须提供自己定义的删除器：
+
+```cpp
+shared_ptr<int> sp(new int[10], [](int *p) { delete [] p;})
+sp.reset(); // 释放数组
+```
+
+### 内存分配和对象构造分离
+
+new有一些灵活性上的局限，其中一方面表现在它将内存分配和对象构造组合在了一起。类似的，delete将对象析构和内存释放组合在了一起。
+
+标准库allocator类定义在头文件memory中，它帮助我们将内存分配和对象构造分离开来。
+
+![](../images/cpp_allocator.png ":size=50%")
+
+> 为了使用allocate返回的内存，我们必须用construct构造对象。使用未构造的内存，其行为是未定义的
+
 ## 模板和泛型
-
-
 
 ## References
 
 - [Effective Modern C++](https://cntransgroup.github.io/EffectiveModernCppChinese/Introduction)
 - [学会查看类型推导结果](https://cntransgroup.github.io/EffectiveModernCppChinese/1.DeducingTypes/item4.html)
 - [GCC STL 源码](https://github.com/gcc-mirror/gcc/tree/master/libstdc++-v3/src)
+- [C++ 参考手册](https://www.apiref.com/cpp-zh/cpp.html)
