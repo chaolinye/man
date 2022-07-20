@@ -1938,6 +1938,85 @@ template int compare(const int&, const int&);   // 实例化定义
 
 模板实参推断请参考：[理解模板类型推导](https://cntransgroup.github.io/EffectiveModernCppChinese/1.DeducingTypes/item1.html)
 
+## 常用标准库
+
+### tuple 类型
+
+[文档](https://www.apiref.com/cpp-zh/cpp/utility/tuple.html)
+
+`tuple` 是类似 `pair` 的模板。每个 `pair` 的成员类型都不相同，但每个 `pair` 都恰好有两个成员。不同 `tuple` 类型的成员类型也不相同，但一个tuple可以有任意数量的成员。
+
+可以将 tuple 看作一个“快速而随意”的数据结构
+
+> tuple 的一个常见用途是从一个函数返回多个值。
+
+```cpp
+std::tuple<double, char, std::string> get_student(int id)
+{
+    if (id == 0) return std::make_tuple(3.8, 'A', "Lisa Simpson");
+    if (id == 1) return std::make_tuple(2.9, 'C', "Milhouse Van Houten");
+    if (id == 2) return std::make_tuple(1.7, 'D', "Ralph Wiggum");
+    throw std::invalid_argument("id");
+}
+ 
+int main()
+{
+    auto student0 = get_student(0);
+    std::cout << "ID: 0, "
+              << "GPA: " << std::get<0>(student0) << ", "
+              << "grade: " << std::get<1>(student0) << ", "
+              << "name: " << std::get<2>(student0) << '\n';
+ 
+    double gpa1;
+    char grade1;
+    std::string name1;
+    std::tie(gpa1, grade1, name1) = get_student(1);
+    std::cout << "ID: 1, "
+              << "GPA: " << gpa1 << ", "
+              << "grade: " << grade1 << ", "
+              << "name: " << name1 << '\n';
+ 
+    // C++17 结构化绑定：
+    auto [ gpa2, grade2, name2 ] = get_student(2);
+    std::cout << "ID: 2, "
+              << "GPA: " << gpa2 << ", "
+              << "grade: " << grade2 << ", "
+              << "name: " << name2 << '\n';
+}
+```
+
+### bitset 类型
+
+[文档](https://www.apiref.com/cpp-zh/cpp/utility/bitset.html)
+
+### 正则表达式
+
+[文档](https://www.apiref.com/cpp-zh/cpp/regex.html)
+
+### 随机数
+
+[文档](https://www.apiref.com/cpp-zh/cpp/numeric/random.html)
+
+> C++程序不应该使用库函数rand，而应使用default_random_engine类和恰当的分布类对象
+
+> 当我们说随机数发生器时，是指分布对象和引擎对象的组合。
+
+```cpp
+// 生成 0 到 9 之间（包含）均匀分布的随机数
+uniform_int_distribution<unsigned> u(0, 9);
+default_random_engine e(time(0));    // 生成无符号随机整数
+for (size_t i = 0; i < 10; ++i) {
+    cout << u(e) << " ";
+}
+cout << endl;
+```
+
+由于引擎返回相同的随机数序列，所以我们必须在循环外声明引擎对象。否则，每步循环都会创建一个新引擎，从而每步循环都会生成相同的值。类似的，分布对象也要保持状态，因此也应该在循环外定义。
+
+### 线程
+
+[文档](https://www.apiref.com/cpp-zh/cpp/thread.html)
+
 ## References
 
 - [Effective Modern C++](https://cntransgroup.github.io/EffectiveModernCppChinese/Introduction)
