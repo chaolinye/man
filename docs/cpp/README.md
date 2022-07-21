@@ -2074,6 +2074,46 @@ cout << endl;
 
 [文档](https://www.apiref.com/cpp-zh/cpp/thread.html)
 
+```cpp
+#include <iostream>
+#include <thread>
+#include <mutex>
+#include <stdlib.h>
+
+int cnt = 20;
+std::mutex m;
+void t1() {
+    while (cnt > 0) {
+        std::lock_guard<std::mutex> lockGuard(m);
+        if (cnt > 0) {
+            --cnt;
+            std::cout << cnt << std::endl;
+        }
+    }
+}
+
+void t2() {
+    while (cnt > 0) {
+        std::lock_guard<std::mutex> lockGuard(m);
+        if (cnt > 0) {
+            --cnt;
+            std::cout << cnt << std::endl;
+        }
+    }
+}
+
+int main() {
+    std::thread th1(t1);
+    std::thread th2(t2);
+
+    th1.join();
+    th2.join();
+
+    std::cout << "here is the main()" << std::endl;
+    return 0;
+}
+```
+
 ## References
 
 - [Effective Modern C++](https://cntransgroup.github.io/EffectiveModernCppChinese/Introduction)
