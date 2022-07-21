@@ -1619,7 +1619,13 @@ out.close();
 
 ![](../images/cpp_stringstream.png ":size=50%")
 
-###
+### 格式化输入与输出
+
+> 当操纵符改变流的格式状态时，通常改变后的状态对所有后续IO都生效。
+
+![](../images/cpp_io_format.png ":size=50%")
+![](../images/cpp_io_format2.png ":size=50%")
+![](../images/cpp_io_format3.png ":size=50%")
 
 ## 算法库
 
