@@ -1619,6 +1619,8 @@ out.close();
 
 ![](../images/cpp_stringstream.png ":size=50%")
 
+###
+
 ## 算法库
 
 [文档](https://www.apiref.com/cpp-zh/cpp/algorithm.html)
@@ -1989,9 +1991,64 @@ int main()
 
 [文档](https://www.apiref.com/cpp-zh/cpp/utility/bitset.html)
 
+![](../images/cpp_bitset.png ":size=50%")
+
+![](../images/cpp_bitset_method.png ":size=50%")
+
+```cpp
+bitset<32> bitvec(1U);
+bool is_set = bitvec.any();
+bool is_not_set = bitvec.none();
+bool all_set = bitvec.all();
+size_t onBits = bitvec.count();
+size_t sz = bitvec.size();
+bitvec.flip();
+bitvec.reset();
+bitvec.set();
+```
+
 ### 正则表达式
 
 [文档](https://www.apiref.com/cpp-zh/cpp/regex.html)
+
+![](../images/cpp_regex.png ":size=50%")
+
+![](../images/cpp_regex2.png ":size=50%")
+
+![](../images/cpp_regex_iterator.png ":size=50%")
+
+![](../images/cpp_regex_iterator2.png ":size=50%")
+
+```cpp
+// 查找不再字符 c 之后的字符串 ei
+string pattern("[^c]ei");
+pattern = "[[:alpha:]]*" + pattern + "[[:alpha:]]*";
+regex r(pattern， regex::icase);
+smatch results;
+string test_str = "receipt freind theif receive";
+if (regex_search(test_str, results, r)) {
+    cout << results.str() << endl;  // 输出 freind
+} 
+
+// 使用 sregex_iterator 输出所有匹配
+for (sregex_iterator it(test_str.beign(), test_str.end(), r), end_it; it != end_it; ++it) {
+    cout << it->str() << endl;
+}
+```
+
+> 函数regex_search在输入序列中只要找到一个匹配子串就会停止查找
+
+![](../images/cpp_sub_match.png ":size=50%")
+![](../images/cpp_regex_replace.png ":size=50%")
+
+```cpp
+string phone = "(\\()?(\\d{3})(\\))?([-. ])?(\\d{3})([-. ]?)(\\d{4}))";
+string fmt = "$2.$5.$7"; // 将号码格式改为 ddd.ddd.dddd
+regex r(phone);
+string number = "(908) 555-1800";
+cout << regex_replace(number, r, fmt) << endl;
+```
+
 
 ### 随机数
 
