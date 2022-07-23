@@ -130,12 +130,134 @@ g++ -o main main.o hello.o
 # 运行执行文件
 ./main
 ```
-## Makefile
+
+## make
+
+[make 官方文档](https://www.gnu.org/software/make/manual/make.html)
+
+Make 是 Linux 平台上最常用的构建工具，诞生于 1977 年，主要用于C语言的项目。但是实际上 ，任何只要某个文件有变化，就要重新构建的项目，都可以用 Make 构建。
+
+[Make 命令教程](https://www.ruanyifeng.com/blog/2015/02/make.html)
+
+> Java 中的 Ant 就是模仿 Make 来做的（Ant 解决了 Makefile 格式编写容易出错以及无法跨平台使用的问题）
+
+下载 make 
+
+```bash
+# centos
+yum install -y make
+# ubuntu
+apt-get install make
+```
+
+一个编译 C 语言的 Makefile
+
+```makefile
+edit : main.o kbd.o command.o display.o 
+    cc -o edit main.o kbd.o command.o display.o
+
+main.o : main.c defs.h
+    cc -c main.c
+kbd.o : kbd.c defs.h command.h
+    cc -c kbd.c
+command.o : command.c defs.h command.h
+    cc -c command.c
+display.o : display.c defs.h
+    cc -c display.c
+
+clean :
+     rm edit main.o kbd.o command.o display.o
+
+.PHONY: edit clean
+```
 
 ## cmake
+
+不同平台 Make 工具的 Makefile 的格式千差万别，得写多份 Makefile 工程性很差
+
+CMake 就是为了解决这个问题而设计的：
+
+允许开发者编写一种平台无关的 `CMakeList.txt` 文件来定制整个编译流程，然后再根据目标用户的平台进一步生成所需的本地化 Makefile 和工程文件.
+
+在 linux 平台下使用 CMake 生成 Makefile 并编译的流程如下：
+
+1. 编写 CMake 配置文件 CMakeLists.txt 。
+2. 执行命令 `cmake PATH` 或者 ccmake PATH 生成 Makefile（ccmake 和 cmake 的区别在于前者提供了一个交互式的界面）。其中， PATH 是 CMakeLists.txt 所在的目录。
+3. 使用 `make` 命令进行编译。
+
+[CMake 入门实战](https://www.hahack.com/codes/cmake/)
+
+C++ 编译示例
+
+- 编译单个源文件的 CMakeLists.txt
+
+    ```cmake
+    # CMake 最低版本号要求
+    cmake_minimum_required (VERSION 2.8)
+
+    # 项目信息
+    project (Demo1)
+
+    # 指定生成目标
+    add_executable(Demo main.cc)
+    ```
+
+- 同一目录，多个源文件
+
+    ```cpp
+    # CMake 最低版本号要求
+    cmake_minimum_required (VERSION 2.8)
+
+    # 项目信息
+    project (Demo2)
+
+    # 查找当前目录下的所有源文件
+    # 并将名称保存到 DIR_SRCS 变量
+    aux_source_directory(. DIR_SRCS)
+
+    # 指定生成目标
+    add_executable(Demo ${DIR_SRCS})
+    ```
+
+- 多个目录，多个源文件
+
+    根目录的 CMakeLists.txt
+
+    ```cpp
+    # CMake 最低版本号要求
+    cmake_minimum_required (VERSION 2.8)
+
+    # 项目信息
+    project (Demo3)
+
+    # 查找当前目录下的所有源文件
+    # 并将名称保存到 DIR_SRCS 变量
+    aux_source_directory(. DIR_SRCS)
+
+    # 添加 math 子目录
+    add_subdirectory(math)
+
+    # 指定生成目标 
+    add_executable(Demo main.cc)
+
+    # 添加链接库
+    target_link_libraries(Demo MathFunctions)
+    ```
+
+    子目录的 CMakeLists.txt
+
+    ```cpp
+    # 查找当前目录下的所有源文件
+    # 并将名称保存到 DIR_LIB_SRCS 变量
+    aux_source_directory(. DIR_LIB_SRCS)
+
+    # 生成链接库
+    add_library (MathFunctions ${DIR_LIB_SRCS})
+    ```
 
 ## blade
 
 ## References 
 
 - [gcc和g++是什么关系？](https://www.zhihu.com/question/20940822)
+
