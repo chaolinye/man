@@ -173,6 +173,8 @@ clean :
 
 ## cmake
 
+> CMake 是事实上的 C++ 构建工具标准
+
 不同平台 Make 工具的 Makefile 的格式千差万别，得写多份 Makefile 工程性很差
 
 CMake 就是为了解决这个问题而设计的：
@@ -257,7 +259,15 @@ C++ 编译示例
 
 ## blade
 
+[官方文档](https://github.com/chen3feng/blade-build/blob/master/doc/zh_CN/README.md)
+
+blade 是腾讯模仿 Google blaze 的构建系统
+
+> Google blaze 的开源版本是 bazel，但功能并不如 blaze 好用
+
 ## References 
 
 - [gcc和g++是什么关系？](https://www.zhihu.com/question/20940822)
+- [Blade——一个腾讯开源的C++工程构建利器](https://juejin.cn/post/6996646512390307870)
+- [寻找 Google Blaze](https://zhuanlan.zhihu.com/p/55452964)
 
