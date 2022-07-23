@@ -1449,6 +1449,8 @@ std::cout << a << std::endl;
 
 ### 头文件
 
+[文档](https://gcc.gnu.org/onlinedocs/cpp/Header-Files.html#Header-Files)
+
 > 头文件的后缀没有规定，通常使用 `.h`
 
 > `#include` 标准库的头文件应该用尖括号 `<>` 包围，对于不属于标准库的头文件，则用双引号`" "`包围。
@@ -1458,8 +1460,6 @@ std::cout << a << std::endl;
 为了避免头文件被多次 #include，可以使用预处理功能中头文件保护符 `#ifndef/#endif` + `#define` 来实现。
 
 >  整个程序中的预处理变量包括头文件保护符必须唯一，通常的做法是基于头文件中类的名字来构建保护符的名字，以确保其唯一性。为了避免与程序中的其他实体发生名字冲突，一般把预处理变量的名字全部大写。
-
-
 
 ```cpp
 #ifndef SALES_DATA_H
@@ -1474,6 +1474,29 @@ std::cout << a << std::endl;
 #pragma once
 // 头文件内容
 ```
+
+### #include 查询路径
+
+[gcc include 文档](https://gcc.gnu.org/onlinedocs/cpp/Include-Syntax.html)
+
+`#include ""`
+
+1. 包含该 `#include` 指令的文件所在目录
+2. 如果存在多层嵌套 `#include` 的情况，则反着来，比如 file1 include file2, file2 Include file3, 寻找 file3 的时候先在 file2 目录下找，找不到再往上到 file1 所在目录找，依次类推
+3. 寻找编译器指定的标准库路径, 默认是 `/usr/include` 或者 `/usr/local/include`，可通过编译选项`-I`加入自定义的路径，
+    ```bash
+    # 查看 gcc include 查询路径
+    cpp -v /dev/null -o /dev/null
+    # 添加自定义库路径
+    cpp -v /dev/null -o /dev/null -I/root
+    ```
+4. 也可以通过 `INCLUDE` 环境变量添加自定义库路径
+
+`#include <>`
+
+1. 寻找编译器指定的标准库路径, 默认是 `/usr/include` 或者 `/usr/local/include`，可通过编译选项`-I`加入自定义的路径，
+2. 也可以通过 `INCLUDE` 环境变量添加自定义库路径
+ 
 
 ### 编译器预定义变量
 

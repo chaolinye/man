@@ -130,7 +130,6 @@ g++ -o main main.o hello.o
 # 运行执行文件
 ./main
 ```
-
 ## Makefile
 
 ## cmake
