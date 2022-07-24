@@ -265,6 +265,27 @@ blade 是腾讯模仿 Google blaze 的构建系统
 
 > Google blaze 的开源版本是 bazel，但功能并不如 blaze 好用
 
+> blade 主要用 python 实现
+
+```python
+# 生成库
+cc_library(
+  name = 'say',
+  srcs = 'say.cc',
+  hdrs = ['say.h'],
+  visibility = ['PUBLIC'],
+)
+
+# 生成可执行文件
+cc_binary(
+  name = 'hello',
+  srcs = [
+    'hello.cc',
+  ],
+  deps = [':say']
+)
+```
+
 ## References 
 
 - [gcc和g++是什么关系？](https://www.zhihu.com/question/20940822)
