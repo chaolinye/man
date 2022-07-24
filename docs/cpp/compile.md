@@ -173,6 +173,8 @@ clean :
 
 ## cmake
 
+[cmake 官方文档](https://cmake.org/cmake/help/latest/)
+
 > CMake 是事实上的 C++ 构建工具标准
 
 不同平台 Make 工具的 Makefile 的格式千差万别，得写多份 Makefile 工程性很差
@@ -186,6 +188,12 @@ CMake 就是为了解决这个问题而设计的：
 1. 编写 CMake 配置文件 CMakeLists.txt 。
 2. 执行命令 `cmake PATH` 或者 ccmake PATH 生成 Makefile（ccmake 和 cmake 的区别在于前者提供了一个交互式的界面）。其中， PATH 是 CMakeLists.txt 所在的目录。
 3. 使用 `make` 命令进行编译。
+
+安装 cmake
+
+```bash
+yum install -y cmake
+```
 
 [CMake 入门实战](https://www.hahack.com/codes/cmake/)
 
@@ -265,7 +273,27 @@ blade 是腾讯模仿 Google blaze 的构建系统
 
 > Google blaze 的开源版本是 bazel，但功能并不如 blaze 好用
 
-> blade 主要用 python 实现
+> blade 主要用 python 实现，构建依赖于 [Ninja](https://ninja-build.org/)（make 的替代物）
+
+[安装](https://github.com/chen3feng/blade-build/blob/master/doc/zh_CN/install.md)
+
+```bash
+# 安装依赖 python
+yum install -y python2
+cd /usr/bin && ln -s python2 python && cd -
+
+# 安装 Ninja(https://github.com/ninja-build/ninja/wiki)
+git clone --depth 1 -b release https://github.com/ninja-build/ninja.git && cd ninja
+./configure.py --bootstrap
+cd /usr/bin && ln -s $OLDPWD/ninja ninja && cd -
+
+# 安装 blade
+git clone --depth 1 https://github.com/chen3feng/blade-build.git && cd blade-build
+./install
+blade --version
+```
+
+一个 blade 的 BUILD 例子
 
 ```python
 # 生成库
