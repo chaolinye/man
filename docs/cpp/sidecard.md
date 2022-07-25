@@ -3,3 +3,4 @@
 - [C++ 虚函数原理](./cpp-virutal.md)
 - [C++ 常用三方库](./cpp-open-lib.md)
 - [C++ 单元测试](./cpp-test.md)
+- [GDB 调试](./gdb.md)

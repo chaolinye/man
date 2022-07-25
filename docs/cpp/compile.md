@@ -131,6 +131,42 @@ g++ -o main main.o hello.o
 ./main
 ```
 
+## LLVM 和 Clang
+
+传统的编译器通常分为三个部分，前端(frontEnd)，优化器(Optimizer)和后端(backEnd)。
+
+在编译过程中，前端主要负责词法和语法分析，将源代码转化为抽象语法树；
+
+优化器则是在前端的基础上，对得到的中间代码进行优化，使代码更加高效；
+
+后端则是将已经优化的中间代码转化为针对各自平台的机器代码。
+
+> 通过解耦成三个部分，降低了编译器的复杂性，可以让三个部分独立发展。
+
+GCC 自身包含完整的编译器三部分，而且打包成了一个执行文件。这也导致了模块化差的原因。
+
+### LLVM
+
+LLVM (Low Level Virtual Machine，底层虚拟机) 提供了与编译器相关的支持，能够进行程序语言的编译期优化、链接优化、在线编译优化、代码生成。简而言之，可以作为多种编译器的后台来使用。
+
+最初的搭配是 GCC（前端部分）+ LLVM
+
+### Clang
+
+Clang 是苹果推出的编译器前端， 结合 LLVM，可以完全替代掉 GCC
+
+Glang 的优势
+
+- 内容占用小
+- 诊断信息可读性强
+- 兼容性好： Clang 从一开始就被设计为一个API，允许它被源代码分析工具和 IDE 集成。GCC 被构建成一个单一的静态编译器，这使得它非常难以被作为 API 并集成到其他工具中。
+
+GCC 的优势：
+
+- 支持更多平台
+- 更流行，广泛使用，支持完备
+
+
 ## make
 
 [make 官方文档](https://www.gnu.org/software/make/manual/make.html)
@@ -317,6 +353,6 @@ cc_binary(
 ## References 
 
 - [gcc和g++是什么关系？](https://www.zhihu.com/question/20940822)
+- [详解三大编译器：gcc、llvm 和 clang](https://developer.51cto.com/article/630677.html)
 - [Blade——一个腾讯开源的C++工程构建利器](https://juejin.cn/post/6996646512390307870)
 - [寻找 Google Blaze](https://zhuanlan.zhihu.com/p/55452964)
-
