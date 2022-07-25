@@ -43,9 +43,6 @@ ulimit -c 10 #设置最大生成大小为10kb
 
 ## gdb 调试
 
-[GDB调试指南](https://www.yanbinghu.com/2019/04/20/41283.html)
-[GDB官方文档](https://sourceware.org/gdb/documentation/)
-
 ### 启动调试
 
 ```bash
@@ -236,3 +233,4 @@ $ addr2line -e cmdTest 40053b
 
 - [linux常用命令--开发调试篇](https://www.yanbinghu.com/2018/09/26/61877.html)
 - [GDB调试指南](https://www.yanbinghu.com/2019/04/20/41283.html)
+- [GDB官方文档](https://sourceware.org/gdb/documentation/)
