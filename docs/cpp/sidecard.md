@@ -1,4 +1,5 @@
 - [C++ 语言特性](./README.md)
+- [Effective Modern C++](./effective-modern-cpp.md)
 - [C++ 的编译和构建](./compile.md)
 - [C++ 虚函数原理](./cpp-virutal.md)
 - [C++ 常用三方库](./cpp-open-lib.md)
