@@ -180,5 +180,45 @@ C++ 是一个多重范型编程语言：过程形式、面向对象形式、函�
 
 ### Item 32: 确定你的 public 继承塑模出 is-a 关系
 
+- "pubic 继承" 意味 `is-a`。适用于 base classes 身上的每一件事情一定也适用于 derived classes 身上，因为每一个 derived class 对象也都是一个 base class 对象。
 
+### Item 33: 避免遮掩继承而来的名称
 
+- derived classes 内的名称会遮掩 base classes 内的名称。在 public 继承下从来没有人希望如此
+- 为了让被遮掩的名称再见天日，可使用 using 声明式或转交函数（forwarding functions）
+
+### Item 34：区分接口继承和实现继承
+
+- 接口继承和实现继承不同。在 public 继承之下，derived classed 总是继承 base class 的接口。
+- pure virtual 函数只具体指定接口继承。
+- 简朴的（非纯）impure virtual 函数具体指定接口继承及缺省实现继承
+- non-virtual 函数具体指定接口继承以及强制性实现继承
+
+### Item 35：考虑 virtual 函数以外的其他选择
+
+- virtual 函数的替代方案包括 NVI 手法及 Strategy 设计模式的多种形式。NVI 手法自身是一个特殊形式的 Template Method 设计模式
+- 将机能从成员函数移到 class 外部函数，带来的一个缺点是，非成员函数无法访问 class 的 non-public 成员
+- tr1::function 对象的行为就像一般函数指针。这样的对象可接纳"与给定之目标签名式（target signature）兼容"的所有可调用物
+
+### Item 36: 绝不重新定义继承而来的 non-virtual 函数
+
+### Item 37：绝不重新定义继承而来的缺省参数值
+
+- 绝对不要重新定义一个继承而来的缺省参数值，因为缺省参数值都是静态绑定，而 virtual 函数——你唯一应该覆写的东西却是动态绑定
+- 如果不想维护基类和派生类的缺省参数的一致性，可以使用 NVI 手法，通过在 wrapper 接口中定义缺省参数，virtual 函数则不需要缺省参数了
+
+### Item 38: 通过复合塑模出 has-a 或 is-implemented-in-terms-of
+
+- 复合（composition）的意义和 public 继承完全不同
+- 在应用域（application domain），复合意味 has-a （有一个）。在实现域（implementation domain），复合意味 is-implemented-in-terms-of （根据某物实现出）
+
+### Item 39: 明智而审慎地使用 private 继承
+
+- Private 继承意味着 is-implemented-in-terms-of（根据某物实现出）。它通常比复合（composition）的级别低。但是当 derived class 需要访问 protected base class 的成员，或需要重新定义继承而来的 virtual 函数时，这么设计是合理的
+- 和复合（composition）不同，private 继承可以造成 empty base 最优化。这对致力于 "对象尺寸最小化" 的程序库开发者而言，可能很中还要
+
+### Item 40: 明智而审慎地使用多重继承
+
+- 多重继承比单一继承复杂。它可能导致新的歧义性，以及对 virtual 继承的需要。
+- virtual 继承会增加大小、速度、初始化（及赋值）复杂度等等成本。如果 virtual base classed 不带任何数据，将是最具使用价值的情况
+- 多重继承的确有正当用途。其中一个情节涉及 "public继承某个 Interface class" 和 "private 继承某个协助实现的 class"的两相组合
