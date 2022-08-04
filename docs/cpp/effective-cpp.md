@@ -176,7 +176,7 @@ C++ 是一个多重范型编程语言：过程形式、面向对象形式、函�
 - 支持 "编译依存性最小化" 的一般构想使：相依于声明式，不要相依于定义式。基于此构想的两个手段式 `Handle classes` 和 `Interface classes`
 - 程序库头文件应该以 "完全且仅有声明式"（full and declaration-only forms）的形式存在。这种做法不论是否涉及 templates 都适用
 
-# 继承与面向对象设计
+## 继承与面向对象设计
 
 ### Item 32: 确定你的 public 继承塑模出 is-a 关系
 
