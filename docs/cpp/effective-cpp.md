@@ -222,3 +222,50 @@ C++ 是一个多重范型编程语言：过程形式、面向对象形式、函�
 - 多重继承比单一继承复杂。它可能导致新的歧义性，以及对 virtual 继承的需要。
 - virtual 继承会增加大小、速度、初始化（及赋值）复杂度等等成本。如果 virtual base classed 不带任何数据，将是最具使用价值的情况
 - 多重继承的确有正当用途。其中一个情节涉及 "public继承某个 Interface class" 和 "private 继承某个协助实现的 class"的两相组合
+
+## 模板与泛型编程
+
+### Item 41: 了解隐式接口和编译器多态
+
+- classes 和 templates 都支持接口（interfaces）和多态（polymorphism）。
+- 对 classes 而言接口是显式的（explicit），以函数签名为中心。多态则是通过 virtual 函数发生于运行期。
+- 对 template 参数而言，接口时隐式的（implicit），奠基于有效表达式。多态则是通过 template 具现化和函数重载解析，发生于编译期
+
+### Item 42: 了解 typename 的双重意义
+
+- 声明 template 参数时，前缀关键字 class 和 typename 可互换
+- 请使用关键字 typename 标识**嵌套从属类型名称**；但不得在 base class lists（基类列）或 member initialization list（成员初值列
+）内以它作为 base class 修饰符
+
+> template 内出现的名称如果相依于某个 template 参数，称之为从属名称。如果从属名称在 class 内呈嵌套状，我们称它为嵌套从属名称。
+
+### Item 43: 学习处理模板化基类的名称
+
+- 可在 derived class templates 内通过 "this->" 指设 base class templates 内的成员名称，或藉由一个明白写出的 "base class 资格修饰符"
+
+### Item 44: 将与参数无关的代码抽离 templates
+
+- Templates 生成多个 classes 和多个函数，所有任何 template 代码都不该与某个造成膨胀的 template 参数产生相依关系
+- 因非类型模板参数（non-type template parameters）而造成的代码膨胀，往往可消除，做法是以函数参数或 class 成员变量替换 template 参数。
+- 因类型参数（type parameters）而造成的代码膨胀，往往可降低，做法是让带有完全相同二进制表述的具现类型共享实现代码
+
+### Item 45: 运用成员函数模板接受所有兼容类型
+
+- 请使用 member function templates（成员函数模板）生成 "可接受所有兼容类型" 的函数
+- 如果你声明 member templates 用于 "泛化 copy 构造" 或 "泛化 assignment 操作"，你还是需要声明正常的 copy 构造函数和 copy assignment 操作符
+
+### Item 46: 需要类型转换时请为模板定义非成员函数
+
+- 当我们编写一个 class template，而它所提供之 "与此 template 相关的" 函数支持 "所有参数之隐式类型转换" 时，请将那些函数定义为 "class template 内部的 friend 函数"
+
+### Item 47: 请使用 traits classes 表现类型信息
+
+- Traits classes 使得 "类型相关信息" 在编译期可用。它们以 templates 和 "templates 特化" 完成实现
+- 整合重载技术（overloading）后，traits classes 有可能在编译器对类型执行 if...else 测试
+
+### Item 48: 认识 template 元编程
+
+- Template metaprogramming （TMP，模板元编程）可将工作由运行期移往编译器，因而得以实现早期错误侦测和更高的执行效率。
+- TMP 可被用来生成 "基于政策选择组合" 的客户定制代码，也可用来避免生成对某些特殊类型并不适合的代码。
+
+
