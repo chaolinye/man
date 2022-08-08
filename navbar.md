@@ -6,6 +6,7 @@
     - [Go](/docs/go/)
     - [JavaScript](/docs/javascript/)
     - [C++](/docs/cpp/)
+    - [Python](/docs/python/)
     - [数据结构与算法](/docs/algorithm/)
 
 - 框架
