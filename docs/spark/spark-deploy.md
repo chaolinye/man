@@ -84,15 +84,39 @@ services:
 
     <build>
         <plugins>
-            <plugin>
+            <<plugin>
                 <artifactId>maven-assembly-plugin</artifactId>
                 <version>3.0.0</version>
-                <configuration>
-                    <descriptorRefs>
-                        <descriptorRef>jar-with-dependencies</descriptorRef>
-                    </descriptorRefs>
-                </configuration>
+                <executions>
+                    <!-- 把依赖打入 jar 包，这样 spark-submit 时就不用通过 jars 选项来指定依赖的额外 jar 了 -->
+                    <execution>
+                        <id>assembly</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                        <configuration>
+                            <descriptorRefs>
+                                <descriptorRef>jar-with-dependencies</descriptorRef>
+                            </descriptorRefs>
+                        </configuration>
+                    </execution>
+                    <!-- 尝试同时使用 jar-with-dependencies 和自定义 descriptors，让 assembly 更加灵活 -->
+                    <execution>
+                        <id>assembly2</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                        <configuration>
+                            <descriptors>
+                                <descriptor>src/main/assembly/assembly.xml</descriptor>
+                            </descriptors>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
+        </plugins>
         </plugins>
     </build>
 </project>
@@ -146,6 +170,10 @@ docker exec -it spark-master sh -c 'spark-submit --class org.example.HelloWorld 
 > IDEA 本地调试可以使用，可以把 master 设置为 local
 
 > 使用 spark-submit 可以兼容所有集群方式
+
+## Launching Spark on YARN
+
+
 
 ## References
 
