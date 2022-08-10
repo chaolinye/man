@@ -1,5 +1,10 @@
 # Python 语言特性
 
+## 代码风格
+
+- 变量名采用  `小写单词` +  `_`
+- 缩进使用四个空格
+
 ## 变量和常量
 
 ```python
@@ -19,6 +24,41 @@ MESSAGE = 'Hello  Constant'
 
 ```python
 x, y, z = 0, 0, 0
+```
+
+## 表达式
+
+### 算术表达式
+
+在 Python 中，用两个星号 `**` 表示乘方运算
+
+### 关系表达式
+
+- `==`: 等于
+- `!=`: 不等于
+- `in`: 某个元素是否存在于列表中 
+- `not`: 某个元素是否不存在于列表中 
+
+### 逻辑表达式
+
+- `and`: 与
+- `or`: 或
+- `not`: 否
+
+## 语句
+
+### if 语句
+
+> python 的 if 语句不需要括号，而是用冒号和缩进来表达
+
+```python
+age = 12
+if age < 4:
+    price = 0
+elif age < 18:
+    price = 25
+else:
+    price = 40
 ```
 
 ## 注释
@@ -94,4 +134,117 @@ universe_age = 14_000_000_000
 
 > 分组只是方便阅读，同时只有Python 3.6和更高的版本支持数字书写分组
 
-### 
+### 序列类型- list，tuple，range
+
+[文档](https://docs.python.org/zh-cn/3/library/stdtypes.html#sequence-types-list-tuple-range)
+
+可以用多种方式构建列表：
+
+- 使用一对方括号来表示空列表: `[]`
+
+- 使用方括号，其中的项以逗号分隔: `[a]`, `[a, b, c]`
+
+- 使用列表推导式: `[x for x in iterable]`
+
+- 使用类型的构造器: `list()` 或 `list(iterable)`
+
+```python
+# 定义 list
+bicycles = ['trek', 'cannondale', 'redline', 'specialized']
+
+# 通过索引访问元素
+print(bicycles[1])
+# 访问最后一个元素
+print(bicycles[-1])
+
+# 通过索引修改元素
+bicycles[0]  = 'ducai'
+
+# 添加元素
+bicycles.append("honda")
+# 插入元素
+bicycles.insert(0, "ducati")
+
+# 使用 del 删除元素
+del bicycles[0]
+# 使用 pop 删除且返回元素
+bicycles.pop(0)
+# 删除最末尾的元素
+bicycles.pop()
+# 根据值删除元素，只删除第一个匹配的元素
+bicycles.remove('redline')
+
+# 列表排序
+## 改变原对象
+bicycles.sort()
+bicycles.sort(reverse=True)
+## 返回新对象
+sorted(bicycles)
+sorted(bicycles, reverse=True)
+
+# reverse 列表
+bicycles.reverse()
+
+# 获取 list 长度
+len(bicycles)
+
+# 遍历 list
+for item in bicycles:
+    print(item)
+
+# 切片，左闭右开
+print(bicycles[0:3])
+print(bicycles[:3])
+## 使用切片复制 list
+new_bicycles = bicycles[:]
+
+# 判断某个元素是否存在列表中
+if 'redline' in bicycles:
+    print("has redline")
+```
+
+Python 函数 `range()` 让你能够轻松地生成一系列数。
+
+```python
+# 打印 1-4
+for value in range(1, 5):
+    print(value)
+
+# range 转 list
+numbers = list(range(1, 6))
+# 数字 list 的统计计算
+print(max(numbers))
+print(min(numbers))
+print(sum(numbers))
+```
+
+python 支持 **列表解析** 语法
+
+```python
+squares = [value ** 2 for value in range(1, 11)]
+```
+
+tuple 元组，即不可变的列表
+
+可以用多种方式构建元组：
+
+- 使用一对圆括号来表示空元组: `()`
+
+- 使用一个后缀的逗号来表示单元组: `a,` 或 `(a,)`
+
+- 使用以逗号分隔的多个项: `a, b, c` or `(a, b, c)`
+
+- 使用内置的 tuple(): `tuple()` 或 `tuple(iterable)`
+
+!> 元组定义核心是逗号，小括号可以没有
+
+```python
+dimensions = [200, 50]
+for dimension in dimensions:
+    print(dimension)
+```
+
+> 虽然不能修改元组的元素，但可以给存储元组的变量赋值。
+
+
+
