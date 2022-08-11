@@ -5,6 +5,29 @@
 - 变量名采用  `小写单词` +  `_`
 - 缩进使用四个空格
 
+> Python 中的代码块并不是用 `{}` 表示，而是用 `:` 加 缩进来表达
+
+> Python 中省略了 `()` 的表示
+
+> Python 句尾也不需要 `;` 
+
+## 输入输出
+
+```python
+# 标准输出
+print(message)
+# 标准输入，识别回车键
+num_str = input('input a number')
+num = int(num_str)
+```
+
+> 如果调用print()中的字符串很长，可以在合适的位置分行。只需要在每行末尾都加上引号，同时对于除第一行外的其他各行，都在行首加上引号并缩进。
+
+```python
+print('long long long long'
+    ' long message')
+```
+
 ## 变量和常量
 
 ```python
@@ -32,7 +55,7 @@ x, y, z = 0, 0, 0
 
 在 Python 中，用两个星号 `**` 表示乘方运算
 
-### 关系表达式
+### 布尔表达式
 
 - `==`: 等于
 - `!=`: 不等于
@@ -61,9 +84,47 @@ else:
     price = 40
 ```
 
+空的 list 和 None 也会被视为 False，可以用在 if 语句
+
+```python
+empty_list = []
+if empty_list:
+    print("list is empty")
+
+null_obj = None
+
+if null_obj:
+    print('null object')
+```
+
+### 循环语句
+
+```python
+current_number = 1
+while current_number <= 10:
+    current_number += 1
+    if current_number == 3:
+        continue
+    if current_number == 5:
+        break
+    print(current_number)
+```
+
 ## 注释
 
 在Python中，注释用井号 `#`标识。井号后面的内容都会被Python解释器忽略
+
+另外，python 使用多行字符串 `""" comment """` 进行文档注释，可以通过工具生成文档
+
+```python
+"""文件说明，在文件的首行开始"""
+import AModule
+
+class NewClass:
+    """ 类说明，在类定义的内部第一行 """
+    def aFun():
+        """ 函数说明，在函数定义的内部第一行 """s
+```
 
 ## 常见数据类型
 
@@ -245,6 +306,64 @@ for dimension in dimensions:
 ```
 
 > 虽然不能修改元组的元素，但可以给存储元组的变量赋值。
+
+### 字典 - dict
+
+[文档](https://docs.python.org/zh-cn/3/library/stdtypes.html#mapping-types-dict)
+
+```python
+# 使用花括号创建 dict
+alien = {'color': 'green', 'points': 5}
+# 多行模式, 注意最后的 } 也要缩进
+alien = {
+    'color': 'green',
+    'points': 5
+    }
+
+# 读取 dict 的值
+## [] 读取没有的值，会报异常，类似于 list 的下标读取
+print(alien['color'])
+# get 读取没有的值，会返回 None
+print(alien.get('points'))
+
+# 添加键值对
+alien['x_position'] = 0
+alien['y_position'] = 25
+
+# 删除键值对
+del alien['points']
+
+# 遍历字典
+## 默认是遍历key
+for key in alien:
+    print(alien[key])
+## 显式遍历 key
+for key in alien.keys():
+    print(alien[key])
+## 遍历 value
+for value in alien.values():
+    print(value)
+## 遍历键值对
+for key,value in alien.items():
+    print(key)
+    print(value)
+## 有序的遍历
+for key in sorted(alien.keys()):
+    print(alien[key])
+```
+
+> 在Python 3.7中，字典中元素的排列顺序与定义时相同。如果将字典打印出来或遍历其元素，将发现元素的排列顺序与添加顺序相同。
+
+### 集合类型 - set
+
+[文档](https://docs.python.org/zh-cn/3/library/stdtypes.html#set-types-set-frozenset)
+
+```python
+# 定义 set，会自动去重
+languages = {'python', 'ruby', 'python', 'c'}
+```
+
+
 
 
 
