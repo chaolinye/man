@@ -2,7 +2,9 @@
 
 ## 代码风格
 
-- 变量名采用  `小写单词` +  `_`
+- 变量名和函数名采用  `小写单词` +  `_`
+- 类名采用驼峰式
+- 常量采用  `全大写单词` +  `_`
 - 缩进使用四个空格
 
 > Python 中的代码块并不是用 `{}` 表示，而是用 `:` 加 缩进来表达
@@ -47,6 +49,48 @@ MESSAGE = 'Hello  Constant'
 
 ```python
 x, y, z = 0, 0, 0
+```
+
+python 变量的作用域:
+
+> [Python中令人头疼的变量作用域问题，终于弄清楚了](https://zhuanlan.zhihu.com/p/374039805)
+
+- 全局变量
+
+    > 定义在 .py 文件内的，且函数、类之外的变量，视为全局变量。
+
+- 局部变量
+
+    > 定义在函数内部的变量、定义在函数声明中的形式参数，视为局部变量。
+
+- 自由变量
+
+    > 定义在函数中，嵌套函数外，且被嵌套函数引用的变量，视为自由变量。
+
+- 内建变量
+
+    > 定义在builtin中的变量，视为内置变量。
+
+> 在函数内对全局变量使用赋值运算符会被视为局部变量的定义，如果要在函数内对全局变量真正赋值，需要使用 `global` 语句声明
+
+```python
+a = '1'
+def func():
+    # 声明该函数内的 a 是全局变量
+    global a
+    # 修改全局变量
+    a = '2'
+```
+
+同样，在嵌套函数内对自由变量使用赋值运算符也会被视为重新定义了嵌套函数内的一个局部变量，这时可以使用 `nonlocal` 语句声明
+
+```python
+def outter():
+    a = '1'
+    def inner():
+        nonlocal a
+        # 修改自由变量
+        a = '2'
 ```
 
 ## 表达式
@@ -110,6 +154,8 @@ while current_number <= 10:
     print(current_number)
 ```
 
+
+
 ## 注释
 
 在Python中，注释用井号 `#`标识。井号后面的内容都会被Python解释器忽略
@@ -125,6 +171,76 @@ class NewClass:
     def aFun():
         """ 函数说明，在函数定义的内部第一行 """s
 ```
+
+## 函数
+
+```python
+def hello(name):
+    msg = f'hello {name}'
+    return msg
+```
+
+位置实参和关键实参
+
+```python
+def func(a, b):
+    print(a)
+    print(b)
+
+# 位置实参
+func(1, 2)
+# 关键字实参
+func(a=1, b=2)
+func(b=2, a=1)
+```
+
+默认形参
+
+```python
+def func(a, b=2, c=3):
+    print(a)
+    print(b)
+    print(c)
+
+# 位置实参 + 默认形参
+func(1)
+func(1, 2, 5)
+# 位置实参 + 关键字实参 + 默认形参
+func(1, c=5)
+```
+
+> 代码风格：默认形参和关键字实参的 `=` 两边不用留空格
+
+> 关键字实参结合默认形参才能发挥其效果，相对于位置实参，关键字实参可以指定后面的默认形参的值，而不用指点该默认形参前面的默认形参
+
+任意数量形参
+
+```python
+def func(a, *args):
+    print(a)
+    for arg in args:
+        print(b)
+# 位置实参
+func(1, 2, 3)
+```
+
+> args 在函数内部是个 tuples
+
+任意数量关键字参数
+
+```python
+def func(a, **kwargs):
+    print(a)
+    for key, value in kwargs.items:
+        print(key, value)
+
+# 关键字实参
+func(1, b=2, c=3)
+```
+
+> kwargs 在函数内部是个 map
+
+> 很多 python 程序经常会看到形参名**kwargs，它用于收集任意数量的关键字实参。
 
 ## 常见数据类型
 
@@ -363,7 +479,102 @@ for key in sorted(alien.keys()):
 languages = {'python', 'ruby', 'python', 'c'}
 ```
 
+## 类
 
+```python
+class Dog:
+    """类的说明"""
+
+    def __init__(self, name, age):
+        """构造方法"""
+        self.name = name
+        self.age = age
+
+    def sit(self):
+        """方法说明"""
+        print(f"{self.name} is now sitting")
+
+my_dog = Dog('Willie', 6)
+print(my_dog.name)
+my_dog.age += 1
+my_dog.sit()
+```
+
+> python 类的每个成员方法都需要定义第一个参数 `self`（名字可改）来传入类的实例对象，其它语言一般都是隐式传入，而 python 的设计理论是`显式总是比隐式好`
+
+> 成员属性都是在 `__init__` 构造方法中定义
+
+> python 类成员没有访问控制修饰符
+
+类的继承：
+
+```python
+class Car:      
+    """一次模拟汽车的简单尝试。"""      
+    def __init__(self, make, model, year):          
+        self.make = make          
+        self.model = model          
+        self.year = year          
+        self.odometer_reading = 0      
+        
+    def get_descriptive_name(self):          
+        long_name = f"{self.year} {self.make} {self.model}"          
+        return long_name.title()      
+        
+    def read_odometer(self):          
+        print(f"This car has {self.odometer_reading} miles on it.")     
+        
+    def update_odometer(self, mileage):          
+        if mileage >= self.odometer_reading:              
+            self.odometer_reading = mileage          
+        else:              
+            print("You can't roll back an odometer!")      
+            
+    def increment_odometer(self, miles):          
+        self.odometer_reading += miles
+
+# 继承
+class ElectricCar(Car):      
+    """电动汽车的独特之处。"""    
+    def __init__(self, make, model, year):          
+        """初始化父类的属性。"""        
+        super().__init__(make, model, year)
+        my_tesla = ElectricCar('tesla', 'model s', 2019)  
+        print(my_tesla.get_descriptive_name())
+```
+
+> 子类 `__init__` 方法用 `super().__init__` 调用父类的方法
+
+> 由于是动态语言，python 对象都是运行态类型，不需要多态特性
+
+## 模块
+
+[文档](https://docs.python.org/zh-cn/3/reference/import.html)
+
+python 将每个 `.py` 文件视为一个模块
+
+> 类似于 Javascript
+
+```python
+# 导入模块
+import moudle_name
+module_name.func()
+
+# 导入模块并使用别名（更容易书写和避免冲突）
+import module_name as m
+m.func()
+
+# 导入模块中的函数、变量、类等，并使用别名
+from module_name import func, a_var, AClass as AC
+func()
+print(a_var)
+obj = AC()
+
+# 导入模块中的所有函数，变量等
+from module_name import *
+func()
+print(a_var)
+```
 
 
 
