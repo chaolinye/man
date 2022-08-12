@@ -13,7 +13,9 @@
 
 > Python 句尾也不需要 `;` 
 
-## 输入输出
+## IO
+
+### 标准输入输出
 
 ```python
 # 标准输出
@@ -29,6 +31,57 @@ num = int(num_str)
 print('long long long long'
     ' long message')
 ```
+
+### 序列化
+
+json 序列化
+
+```python
+import json
+
+number = [1,2,3]
+filename = 'numbers.json'
+with open(filename, 'w') as f:
+    json.dump(numbers, f)
+```
+
+json 反序列化
+
+```python
+import json
+
+filename = 'numbers.json'
+with open(filename) as f:
+    numbers = json.load(f)
+
+print(numbers)
+```
+
+### 文件
+
+```python
+# 读取整个文件
+with open('pi_digits.txt') as file_object:    
+    contents = file_object.read()
+    print(contents)
+
+# 一行一行读取
+with open(filename) as file_object:
+    for line in file_object:          
+        print(line)
+
+with open(filename) as file_object:
+    lines = file_object.readlines()
+    for line in lines:
+        print(line)
+
+# 写入文件，
+filename = 'programming.txt'
+with open(filename, 'w') as file_object:
+    file_object.write("I love programming.")
+```
+
+> 文件打开模式: 读取模式（'r'）、写入模式（'w'）、附加模式（'a'）或读写模式（'r+'）
 
 ## 变量和常量
 
@@ -51,9 +104,19 @@ MESSAGE = 'Hello  Constant'
 x, y, z = 0, 0, 0
 ```
 
+解构赋值（基于list和tuple）
+
+```python
+abc = [1, 2]
+a, b = abc
+
+efg = [3, 4]
+e, f = efg
+```
+
 python 变量的作用域:
 
-> [Python中令人头疼的变量作用域问题，终于弄清楚了](https://zhuanlan.zhihu.com/p/374039805)
+[文档](https://docs.python.org/zh-cn/3/tutorial/classes.html#python-scopes-and-namespaces)
 
 - 全局变量
 
@@ -70,6 +133,12 @@ python 变量的作用域:
 - 内建变量
 
     > 定义在builtin中的变量，视为内置变量。
+
+    ```python
+    import builtins
+    # 添加内置变量
+    builtins.b = 'builtins'
+    ```
 
 > 在函数内对全局变量使用赋值运算符会被视为局部变量的定义，如果要在函数内对全局变量真正赋值，需要使用 `global` 语句声明
 
@@ -111,6 +180,23 @@ def outter():
 - `and`: 与
 - `or`: 或
 - `not`: 否
+
+### lambda 表达式
+
+格式: `lambda a, b: a+b`
+
+```python
+def make_incrementor(n):
+    return lambda x: x + n
+f = make_incrementor(42)
+f(0) # 42
+f(1) # 43
+
+# 作为实参
+pairs = [(1, 'one'), (2, 'two'), (3, 'three'), (4, 'four')]
+pairs.sort(key=lambda pair: pair[1])
+pairs   # [(4, 'four'), (1, 'one'), (3, 'three'), (2, 'two')]
+```
 
 ## 语句
 
@@ -154,6 +240,32 @@ while current_number <= 10:
     print(current_number)
 ```
 
+### match 语句（switch 语句）
+
+```python
+def http_error(status):
+    match status:
+        case 400:
+            return "Bad request"
+        case 404:
+            return "Not found"
+        case 418:
+            return "I'm a teapot"
+        case _:
+            return "Something's wrong with the internet"
+```
+
+### pass 语句
+
+pass 语句不执行任何操作
+
+```python
+while Ture:
+    pass    # Busy-wait for keyboard interrupt(Ctrl+C)
+
+def initlog(*args):
+    pass    # Remember to implement this!
+```
 
 
 ## 注释
@@ -549,7 +661,7 @@ class ElectricCar(Car):
 
 ## 模块
 
-[文档](https://docs.python.org/zh-cn/3/reference/import.html)
+[文档](https://docs.python.org/zh-cn/3/tutorial/modules.html#)
 
 python 将每个 `.py` 文件视为一个模块
 
@@ -576,5 +688,219 @@ func()
 print(a_var)
 ```
 
+> 模块包含可执行语句及函数定义。这些语句用于初始化模块，且仅在 import 语句 第一次遇到模块名时执行
+
+> JavaScript 是 `import xxx from module_name`, 而 python 是 `from module_name import xxx`
+
+在模块内部，通过全局变量 `__name__` 可以获取模块名（即字符串）
+
+```python
+# 入口模块的 __name__ 为 "__main__"，因此可以用来识别入口模块
+if __name__ == "__main__":
+    import sys
+    fib(int(sys.argv[1]))
+```
+
+模块的搜索路径
+
+- 内置模块
+
+    ```python
+    # 查看内置模块列表
+    import sys
+    sys.builtin_module_names
+    ```
+- `sys.path` 的值（目录列表）
+    - 输入脚本的目录
+    - PYTHONPATH （目录列表，与 shell 变量 PATH 的语法一样）
+    - 依赖于安装的默认值（按照惯例包括一个 site-packages 目录，由 site 模块处理）
+
+    > python 程序可以更改 `sys.path` 的值
+
+可以使用 `dir()` 函数查看模块定义的名称(用来看文档？)
+
+```python
+import sys
+dir(sys)
+```
+
+包是一种用“点式模块名”构造 Python 模块命名空间的方法。
+
+```
+sound/                          Top-level package
+      __init__.py               Initialize the sound package
+      formats/                  Subpackage for file format conversions
+              __init__.py
+              wavread.py
+              wavwrite.py
+              aiffread.py
+              aiffwrite.py
+              auread.py
+              auwrite.py
+              ...
+      effects/                  Subpackage for sound effects
+              __init__.py
+              echo.py
+              surround.py
+              reverse.py
+              ...
+```
+
+!> Python 只把含 __init__.py 文件的目录当成包。最简情况下，__init__.py 只是一个空文件，但该文件也可以执行包的初始化代码
+
+```python
+# 从包中导入单个模块
+import sound.effects.echo
+sound.effects.echo.echofilter(input, output, delay=0.7, atten=4)
+
+# 另一个写法，让使用更加的简单
+from sound.effects import echo
+echo.echofilter(input, output, delay=0.7, atten=4)
+
+# 直接 import 函数
+from sound.effects.echo import echofilter
+echofilter(input, output, delay=0.7, atten=4)
+
+# 导入所有子模块
+from sound.effects import *
+```
+
+import 语句使用如下惯例：如果包的 `__init__.py` 代码定义了列表 `__all__`，运行 from package import * 时，它就是用于导入的模块名列表。发布包的新版本时，包的作者应更新此列表。
+
+```python
+__all__ = ["echo", "surround", "reverse"]
+```
+
+包中含有多个子包时（与示例中的 sound 包一样），可以使用相对路径导入引用兄弟包中的子模块
+
+```python
+from . import echo
+from .. import formats
+from ..filters import equalizer
+```
+
+!> 相对导入基于当前模块名。因为主模块名是 "__main__" ，所以 Python 程序的主模块必须始终使用绝对导入。
+
+## 包管理
+
+[文档](https://docs.python.org/zh-cn/3/tutorial/venv.html)
+
+使用 `venv` 实现不同 python 程序要求不同的 python 版本和依赖的库版本
+
+```bash
+# 创建虚拟环境，该目录使用独立的 python 版本和库
+python -m venv hello-world
+# 激活虚拟环境
+source hello-world/tutorial-env/bin/activate
+# windows
+hello-world\Scripts\activate.bat
+```
+
+> `python file` 执行文件， `python -m module_name` 执行模块
+
+使用 pip 管理包
+
+```bash
+# 下载最新版本
+python -m pip install novas
+# 下载特定版本
+python -m pip install requests==2.6.0
+
+# 显式安装的所有软件包
+pip list
+# 显式特定包的信息
+pip show requests
+# 生成的已安装包列表到 requirements.txt，该文件等同于 javascript 的 package.json
+pip freeze > requirements.txt
+# 根据 requirements.txt 文件下载依赖
+python -m pip install -r requirements.txt
+```
+
+> pip 默认是下载到全局安装目录的 lib 子目录下，而且没有版本号区分，因此在实际的项目中都要结合 `venv` 和 `pip` 来做依赖管理
+
+[分发自己的包](https://packaging.python.org/en/latest/tutorials/packaging-projects/#packaging-python-projects)
+
+修改 PyPI(Python Package Index) 镜像：
+
+> 默认是 `https://pypi.org/`
+
+[阿里 PyPI 镜像](https://developer.aliyun.com/mirror/pypi?spm=a2c6h.13651102.0.0.3e221b11Gp9FWy)
+
+修改 `~/.pip/pip.conf`
+
+```conf
+[global]
+index-url = https://mirrors.aliyun.com/pypi/simple/
+
+[install]
+trusted-host=mirrors.aliyun.com
+```
+
+## 异常处理
+
+[文档](https://docs.python.org/zh-cn/3/tutorial/errors.html)
+[内置异常](https://docs.python.org/zh-cn/3/library/exceptions.html#bltin-exceptions)
+
+使用 `try` `except` `finally` 处理异常
+
+```python
+import sys
+
+try:
+    f = open('myfile.txt')
+    s = f.readline()
+    i = int(s.strip())
+except OSError as err:
+    print("OS error: {0}".format(err))
+except ValueError:
+    print("Could not convert data to an integer.")
+except BaseException as err:
+    print(f"Unexpected {err=}, {type(err)=}")
+    raise
+finally:
+    print('run alway')
+```
+
+使用 `raise` 抛出异常
+
+```python
+try:
+    raise NameError('HiThere')
+except NameError:
+    print('An exception flew by!')
+    raise
+```
+
+> raise 唯一的参数就是要触发的异常。这个参数必须是异常实例或异常类（派生自 Exception 类）。如果传递的是异常类，将通过调用没有参数的构造函数来隐式实例化
+
+## 单元测试
+
+[文档](https://docs.python.org/zh-cn/3/library/unittest.html)
+[Mock 文档](https://docs.python.org/zh-cn/3/library/unittest.mock.html)
+
+```python
+import unittest  
+from name_function import get_formatted_name
+
+class NamesTestCase(unittest.TestCase):
+    def setUp(self):
+        pass
+
+    """测试name_function.py。"""      
+    def test_first_last_name(self):          
+        """能够正确地处理像Janis Joplin这样的姓名吗？"""        
+        formatted_name = get_formatted_name('janis', 'joplin')
+        # 断言    
+        self.assertEqual(formatted_name, 'Janis Joplin') 
+
+if __name__ == '__main__':      
+    unittest.main()
+```
+
+> python 的 `unittest` 单元测试写法类似于 Java 的 Unit3 结构
 
 
+## Reference
+
+- [Python 官方教程](https://docs.python.org/zh-cn/3/tutorial/index.html)
+- [Python中令人头疼的变量作用域问题，终于弄清楚了](https://zhuanlan.zhihu.com/p/374039805)
