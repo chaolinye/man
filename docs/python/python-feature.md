@@ -15,6 +15,17 @@
 
 ## IO
 
+### 获取命令行参数
+
+[文档](命令行参数)
+
+```bash
+python demo.py one two three
+>>> import sys
+>>> print(sys.argv)
+['demo.py', 'one', 'two', 'three']
+```
+
 ### 标准输入输出
 
 ```python
@@ -82,6 +93,10 @@ with open(filename, 'w') as file_object:
 ```
 
 > 文件打开模式: 读取模式（'r'）、写入模式（'w'）、附加模式（'a'）或读写模式（'r+'）
+
+### 网络
+
+[文档](https://docs.python.org/zh-cn/3/library/internet.html)
 
 ## 变量和常量
 
@@ -794,6 +809,9 @@ python -m venv hello-world
 source hello-world/tutorial-env/bin/activate
 # windows
 hello-world\Scripts\activate.bat
+
+# 关闭虚拟环境
+deactivate
 ```
 
 > `python file` 执行文件， `python -m module_name` 执行模块
