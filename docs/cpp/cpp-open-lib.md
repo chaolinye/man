@@ -51,6 +51,14 @@ g++ matlab_eigen.cpp -o matlab_eigen -leng -lmx
 
 [Boost](https://www.boost.org/) 是 C++ 最有名的第三库，也是 C++ 准标准库。
 
+## 命令行参数解析
+
+[google flags](https://github.com/gflags/gflags)
+
+## 倒排表
+
+[RoaringBitmap](https://github.com/RoaringBitmap/CRoaring)
+
 ## References
 
 - [awesome-cpp](https://github.com/fffaraz/awesome-cpp)
