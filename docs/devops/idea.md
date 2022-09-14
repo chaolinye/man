@@ -35,7 +35,7 @@
 
 先写代码，然后通过 F2 找到报错的地方，通过 Alt + Enter 创建类或者方法
 
-### live template
+### Postfix Completion + live template 流程地编码
 
 | 关键字  | 用法  |
 | :--: | :--: |
@@ -49,6 +49,7 @@
 | ifn | if null 判断 |
 | ifnn | if not null 判断 |
 
+> 更多 Postfix Completion 在 `File | Settings | Editor | General | Postfix Completion` 查看
 > 更多 Live Template 请在 IDEA 的 Settings 查看
 
 ## 容器构建 Jetbrain WEB 版 IDE
@@ -106,3 +107,4 @@ chown -R projector-user:projector /home/projector-user/code
 ## References
 
 - [IDEA Keyboard](https://resources.jetbrains.com/storage/products/intellij-idea/docs/IntelliJIDEA_ReferenceCard.pdf)
+- [IDEA Postfix Completion](https://www.jetbrains.com/help/idea/settings-postfix-completion.html)
