@@ -150,3 +150,4 @@ g++ matlab_eigen.cpp -o matlab_eigen -leng -lmx
 
 - [awesome-cpp](https://github.com/fffaraz/awesome-cpp)
 - [gcc/g++使用第三方库时添加头文件路径和库文件路径的方法](https://blog.csdn.net/arackethis/article/details/43342655)
+- [开源 C++ 库列表](https://qingcms.gitee.io/cppreference/20210212/zh/cpp/links/libs.html)

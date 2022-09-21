@@ -383,6 +383,18 @@ cc_binary(
 )
 ```
 
+## 包管理
+
+- [build2](https://build2.org/): 一个开源的 (MIT)、跨平台的构建工具链，旨在为开发和打包 C/C++ 项目时提供如 Rust Cargo 一样的便利性。
+- [cget](https://cget.readthedocs.io/en/latest/):	Cmake 包检索工具，可用于下载并安装 Cmake 包。
+- [cmodule](https://github.com/scapix-com/cmodule):	非侵入式 CMake 依赖管理。
+- [conan](https://conan.io/):	去中心化、开源 (MIT) 的 C/C++ 包管理器。
+- [CPM.cmake](https://github.com/TheLartians/CPM.cmake):	一段可以为 CMake 加入依赖管理功能的 CMake 脚本。它是作为 CMake 的 FetchContent 模块的一个简单包装构建的。该模块加入了版本控制、缓存、简单 API 等功能。
+- [hunter](https://hunter.readthedocs.io/en/latest/):	一个 CMake 驱动的跨平台包管理器，服务于 C/C++ 项目。
+- [spack](https://spack.io/)	一个超级计算机、Linux、macOS 平台的包管理器。它使得安装科学软件变得简单。非绑定于某一特定语言。
+- [teaport](https://bitbucket.org/benman/teaport): 一个受 cocoapods 启发的依赖管理器。
+- [vcpkg](https://docs.microsoft.com/en-us/cpp/vcpkg): 一个 Windows、Linux、macOS 平台的 C++ 包管理器。
+
 ## References 
 
 - [gcc和g++是什么关系？](https://www.zhihu.com/question/20940822)

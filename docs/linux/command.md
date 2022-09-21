@@ -5,6 +5,7 @@
     ```bash
     # 查看内核版本
     cat /proc/version
+    uname -a
 
     # 查看发行版本
     cat /etc/os-release
