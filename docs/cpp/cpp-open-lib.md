@@ -49,7 +49,7 @@ g++ matlab_eigen.cpp -o matlab_eigen -leng -lmx
 
 ## CMake 引用三方库
 
-[C++工程：总结 CMake 添加第三方库依赖方式git submodule、 find_library、FetchContent、CPM等](https://www.jianshu.com/p/f181b5bd0a63https://www.jianshu.com/p/f181b5bd0a63)
+[C++工程：总结 CMake 添加第三方库依赖方式git submodule、 find_library、FetchContent、CPM等](https://www.jianshu.com/p/f181b5bd0a63)
 
 - 直接代码依赖
 
