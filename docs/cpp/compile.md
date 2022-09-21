@@ -233,7 +233,9 @@ yum install -y cmake
 
 [CMake 入门实战](https://www.hahack.com/codes/cmake/)
 
-C++ 编译示例
+### C++ CMakeList 示例
+
+[CMake 指南](https://cmake.org/cmake/help/latest/guide/tutorial/index.html)
 
 - 编译单个源文件的 CMakeLists.txt
 
@@ -300,6 +302,37 @@ C++ 编译示例
     # 生成链接库
     add_library (MathFunctions ${DIR_LIB_SRCS})
     ```
+
+### 常用编译命令
+
+> 编译三方库也是这样
+
+```bash
+# 创建并进入构建目录
+mkdir build && cd $_
+# 生成 make/ninja 等构建器的配置文件
+cmake ..
+
+# 构建
+cmake --build .
+
+# 安装。默认安装目录 /usr/local/
+cmake --install .
+
+# 运行测试
+ctest -VV
+```
+
+Clion 的默认编译命令参考:
+
+```bash
+# -D 指定变量，CMAKE_BUILD_TYPE=Debug（编译出带调试符号的目标），CMAKE_MAKE_PROGRAM（指定编译程序）
+# -S 指定源码目录，-B 指定目标二进制目录, -G 指定构建器
+cmake -DCMAKE_BUILD_TYPE=Debug -S . -B build -DCMAKE_MAKE_PROGRAM=/projector/ide/bin/ninja/linux/ninja -G Ninja
+
+cmake --build build/
+
+```
 
 ## blade
 
