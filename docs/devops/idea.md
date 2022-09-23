@@ -76,6 +76,8 @@ chown -R projector-user:projector /home/projector-user/code
 # 用浏览器访问 https://localhost:8887
 ```
 
+[projector 在微软拼音输入下 right shift 显示奇怪字符的问题](https://youtrack.jetbrains.com/issue/PRJ-711/Right-shift-enters-a-special-character-on-Windows-with-Microsoft-Pinyin-Input)
+
 ## 常用操作
 
 ### 查找冗余代码
