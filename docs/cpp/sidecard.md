@@ -8,3 +8,6 @@
 - [C++ 单元测试](./cpp-test.md)
 - [GDB 调试](./gdb.md)
 - [C++ 编程指南](./cpp-guide.md)
+- [C++ 移动语义](./cpp-move.md)
+- [C++ 模板元编程](./cpp-template.md)
+- [C++ 宏编程](./cpp-macro.md)
