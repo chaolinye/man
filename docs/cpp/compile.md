@@ -131,6 +131,24 @@ g++ -o main main.o hello.o
 ./main
 ```
 
+### 链接器的顺序依赖
+
+GCC 中的 LD 链接库时是从左到右只遍历一遍，如果某个库依赖的定义还不存在时，会记录下来，在后续的库里寻找；但是如果某个库没有被前面的库依赖，会直接抛弃。
+
+根据上述规则，如果 A 库依赖 B 库，那么链接库时应该先写 A 库，再写 B 库。
+
+因为顺序导致的问题案例：
+
+背景：使用 blade 构建工具，再构建工具的配置文件中定义了 A 依赖 B 依赖 C。但是由于代码设计混乱，其实 C 代码中也有依赖 A，但是为了避免循环依赖，不能配置 C 依赖 A；
+
+问题现象：在正常的构建中，从 A 开始构建，没有问题；但是在写 B 的单元测试时，配置依赖 B 和 A，出现了 C 的代码中找不到 A 的定义的问题
+
+问题分析：blade 自动识别三个库的依赖顺序，依赖顺序写成了 `B的 Test -> A -> B -> C`，由于 B 的单元测试代码中并没有依赖 A，A 就被直接抛弃了，等链接 C 时，由于没有 A 的定义导致报错
+
+短期解决方案：在 B 的单元测试代码中引用 A 的代码。
+
+长期解决方案：梳理好循环依赖的问题
+
 ## LLVM 和 Clang
 
 传统的编译器通常分为三个部分，前端(frontEnd)，优化器(Optimizer)和后端(backEnd)。
@@ -401,3 +419,5 @@ cc_binary(
 - [详解三大编译器：gcc、llvm 和 clang](https://developer.51cto.com/article/630677.html)
 - [Blade——一个腾讯开源的C++工程构建利器](https://juejin.cn/post/6996646512390307870)
 - [寻找 Google Blaze](https://zhuanlan.zhihu.com/p/55452964)
+- [Linux系统下 连接器ld链接顺序的总结](https://m.xp.cn/b.php/70857.html)
+- [GCC LD 对依赖库的输入顺序敏感](https://zhiqiang.org/coding/order-is-important-in-gcc-ld.html)
