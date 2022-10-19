@@ -110,7 +110,99 @@ Unix 的两种终端：
 
 ## GUI
 
+GUI 相对于文本界面(也称命令行界面，CLI)的优势之一：一次可以看到多个程序，程序之间的切换也很方便
 
+X Window 是一个为使用图形数据的程序提供服务的系统。在 Unix 世界中 ， X Window 在 3 个方面非常重要。
+
+> 通常称 X Window 为 X，最重要的发行版是 X11
+
+1. 它是儿乎所有 GUI 的基础 。
+2. X Window 允许在远程计算机上运行程序，井在自己的计算机上显示完整的图形输出．
+3. X Window 使得使用各式各样的硬件成为可能。此外，还可以同时使用不止一台显示器。
+
+X Window 被设计成 GUI 和硬件之间的标准化界面，本身并不提供图形界面，提供实际 GUI 的是 *窗口管理器（Window manager）*。
+
+但是窗口管理器也就提供基本的图形界面，但也就提供最基础的功能，用户体验并不好，所以又出现更上层的桌面环境(Desktop Environment)，也称桌面管理器
+
+Unix GUI 的抽象层次
+
+![](../images/unix-gui.png)
+
+Linux 系统最流行的两种桌面环境: `KDE`（Kool Desktop Environment） 和 `Gnome`(GNU Network Object Model Environment)
+
+> KDE 的窗口管理器是 `kwm` , Gnome 的窗口管理器是 `Metacity`
+
+> KDE 先出现，但是 GNU 觉得许可证不够自由，因此又创建了 Gnome
+
+> KDE 更美观；Gnome 更简单。
+
+> Gnome 用户喜欢控制事情如何运转， 而 KDE 用户喜欢控制事情的外观
+
+## Unix 基础知识 2
+
+### 多任务
+
+Unix中的执行单元是进程。
+
+> 进程就是装载到内存中准备运行的程序，以及程序的数据与跟踪程序状态所需的信息
+
+Unix 的多任务并行是通过多个进程轮流使用处理器一段极短的时间来实现的，这一段极短的时间称为时间片(time slice) 。典型的时间片通常是 10 毫秒。
+
+> 时间片的长短往往是动态的
+
+### GUI
+
+GUI 的菜单项的文本单词中往往会有一个字母有下划线，使用 ALT(accelerator) 加速键和这个字母可以快速选择菜单。
+
+### 运行级别
+
+典型的 Linux 运行级别：
+
+| 运行级别 | 描述 |
+| :--: | :--: |
+| 0 | 停机（关机）|
+| 1 | 单用户模式：命令行 |
+| 2 | 非标准化 |
+| 3 | 多用户模式: 命令行 |
+| 4 | 非标准化 |
+| 5 | 多用户模式: GUI |
+| 6 | 重新启动 |
+
+在大多数情况下， Linux 默认引导至运行级别 3 或者运行级别 5
+
+系统维护时，系统管理员将重启 Unix 系统到运行级别 1（单用户模式，也就是所谓系统维护模式）
+
+修改默认运行级别：修改 `/etc/inittab` 中的 `initdefault` 的值
+
+临时修改 init
+
+```bash
+sudo init 6 # 等同于运行 reboot 命令，重启
+sudo init 0 # 等同于运行 shutdowm now 命令，关机
+```
+
+> 这是老的服务管理 init 程序才能用的方法，新的服务管理程序 systemd 可以参考 [系统服务](http://localhost:3000/#/docs/linux/system-service?id=%e7%ae%a1%e7%90%86-target-unit) 章节
+
+### 切换超级用户
+
+su(substitute userid)命令允许您变换到另一个用户标识. 
+sudo(substitdute the userid and do something)命令允许您以另一个用户标识的名义执行一条单独的命令．
+
+> sudo 输入一次口令后，在一定时间内不必再次输入， 大多数系统的默认时间是 5 分钟
+
+> 需要用户标识位于 /etc/sudoers 中才能使用 sudo 命令
+
+### 系统启动或者停止时发生什么事情?
+
+查看系统消息
+
+```bash
+dmesg | less
+```
+
+## Unix 键盘的使用
+
+CLI 的使用方式有若干种。当使用自己的计算机时，可以使用虚拟控制台或者终端窗口（包括 Konsole 程序）。当使用远程主机时，可以通过 ssh 程序连接， ssh 程序将充当终端仿真器
 
 
 
