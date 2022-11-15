@@ -11,4 +11,6 @@
 - [C++ 移动语义](./cpp-move.md)
 - [C++ 模板元编程](./cpp-template.md)
 - [C++ 宏编程](./cpp-macro.md)
+- [C++ 并发编程](./cpp-concurrent.md)
+- [C++ 对象模型](./cpp-objectmodel.md)
 - [FAQ](./faq.md)
