@@ -102,9 +102,14 @@ Conversion 运算符就是最常被引用的例子。
 
     为了让这个机制生效，编译器必须为每个派生类对象的 vptr 设定初值，放置适当的 vtbl 地址。对于 class 定义的每个构造器，编译器会安插一些码来做这个事
 
-3. 存在 virtual Base Class
+4. 存在 virtual Base Class
 
     对于 virtual Base Class 只能有一份实体，因此往往需要用指针指向这份实体，这个指针编译器需要在构造器中安插代码来初始化
+
+
+以上四种情况合成的默认构造器，被 C++ 标准称为 `implicit nontrivial default constructor`(隐式的有用的默认构造器)。
+
+至于没有存在那四种情况而又没有声明任何 constructor 的 class，C++ 标准说它拥有的是 `implicit trivial default constructor`（隐式的无用的默认构造器），**实际上这种构造器并不会被合成出来**。
 
 
 ### Copy Constructor 的建构操作
@@ -498,6 +503,254 @@ float Point3d:*p2 = &Point3d::x;
 取址 static data member 得到的是真实的地址
 
 ## Function 语意学
+
+### Member 的各种调用方式
+
+#### Nonstatic Member Functions
+
+C++ 的设计准则之一就是： nonstatic member function 至少必须和一般的 nonmember function 有相同的效率
+
+编译器内部会将 “member 函数实体” 转换为对等的 “nonmember 函数实体”
+
+转化步骤：
+
+1. 改写函数的 signature 安插一个额外的参数，即 this 指针。如果该 member function 是 const，则生成的 this 指针是个指向 const 对象的指针，即 `const T *this`
+2. 将函数体内每个“对 nonstatic data member 的存取操作”改成经由 this 指针来存取
+3. 将 member function 重新写成一个外部函数，对函数名称进行“mangling”处理，使它在程序中称为独一无二的词汇。现在这个函数已经被转换好了，而其每一个调用操作也都必须转换。例如：`obj.fun();` 变成了 `fun__7Point3dFv(&obj);`
+
+名称的特殊处理：Name mangling
+
+一般而言，member 的名称会加上 class 名称；
+
+由于 function 存在重载的可能，member function 还会加上参数列表
+
+比如 `void Point::x(float newX);` 会被转换成 `void Point::x__5PointFf(float newx)` (5 代表类名的长度，F 代表 Function)
+
+> 由于重载的存在，nonmember function 也会被 name mangling（加上参数列表），可以通过声明 `extern "C"`, 压抑 nonmber function 的 mangling
+
+#### Virtual Member Function
+
+如果 `Point3d::normalize()` 是一个 virtual member function，那么以下的调用：
+
+```cpp
+ptr->normalize();
+```
+
+会被转化为:
+
+```cpp
+(* ptr->vptr[1])(ptr);
+```
+
+但是对于以下调用
+
+```cpp
+obj.normalize();
+```
+
+不需要通过 vptr 来调用，“经由一个 class object 调用一个 virtual function”，这种操作被编译器按 nonstatic member function一样加以决议：
+
+```cpp
+normalize__7Point3dFv(&obj);
+```
+
+#### Static Member Function
+
+如果 `Point3d::normalize()` 是一个 virtual member function，以下两个调用：
+
+```cpp
+obj.normalize();
+ptr->normalize();
+```
+
+会被转换成:
+
+```cpp
+// SF 代表 Static Function
+normalize__7Point3dSFv();
+normalize__7Point3dSFv();
+```
+
+> 和 nonstatic member function 相比，不会添加 this 参数
+
+在 C++ 引入 static member functions 之前，调用不需要 this 参数的 member function，会经常见到以下的写法
+
+```cpp
+((Point3d*)0)->normalize();
+```
+
+如果取一个 static member function 的地址，获得的将是其在内存中的位置，也就是真实的地址。
+
+由于 static member function 没有 this 指针，所以其地址的类型并不是一个 “指向 class member function 的指针”，而是一个“nonmember 函数指针”。也就是说：
+
+```cpp
+&Point3d::normalize();
+```
+
+得到的指针类型是 `void (*)()`, 而不是 `void (Point3d::*)()`
+
+
+### Virtual Member Function 的布局
+
+virtual member function 的布局方案：
+
+![](../images/cpp-objectmodel-vtbl1.png ":size=50%")
+
+![](../images/cpp-objectmodel-vtbl2.png ":size=50%")
+
+派生类对象传给后继 base class 指针时，需要调整指针的值为后继 base class 子对象的起始地址。即
+
+```cpp
+Base2 *pbase2 = new Derived;
+```
+
+转化为
+
+```cpp
+Derived *temp = new Derived;
+Base2 *pbase2 = temp ? temp + sizeof(Base1): 0;
+```
+
+> 有 n 个 base clase 的 derived class 至多会有 n 个 virtual table
+
+对于后继 base class 指针调用析构函数时，传入的 this 指针代表的地址要转成派生类的初始地址，主要有两种实现方案：
+
+1. vtbl 中不仅仅存储函数地址，还存储 this 的 offset。这种做法的缺点是 vtbl 每个 slot 的空间都需要增大
+
+    即 `(*pbase2->vptr[1](pbase2))` 改变为 `(*pbase2->vptr[1].faddr)(pbase2 + pbase2->vptr[1].offset)`
+
+2. 后继 base class 的 vtbl 的析构函数 slot 指向一段 chunk 代码，这段 chunk 代码会先调整好 this 的值，然后调用派生类的析构函数
+
+![](../images/cpp-objectmodel-vtbl3.png ":size=50%")
+
+### 函数的效能
+
+![](../images/cpp-objectmodel-fun-perf.png ":size=50%")
+
+### 指向 Member Function 的指针
+
+取一个 nonstatic member function 地址，如果是 nonvirtual 得到的结果是它在内存中真正的地址；如果是 virtual 得到的结果只是 vtbl 中的索引值。
+
+```cpp
+float (Point::*pmf)() = &Point::z;
+Point *ptr = new Point3d;
+(ptr->*pmf)();
+```
+
+如果是 virtual，最后一行会被转化成： `(* ptr->vptr[(int)pmf])(ptr)`;
+
+但是对于 pmf 这个指针既可以接受 nonvirtual member function 的取址也可以接受 virtual member function 的取址，到底是哪个，编译期并不知道。
+
+因此一般会定义以下的结构作为指向 member function 指针类型的结构
+
+```cpp
+struct __mptr {
+    // this 指针的 offset
+    int delta;
+    // vtbl 索引值
+    int index;
+    union {
+        // 真实地址
+        ptrtofunc faddr;
+        // 后继 base class 或者 virtual base class 的 vptr 位置
+        int v_offset;
+    }
+}
+```
+
+对于单一继承并存在 virtual function 的情况，`(ptr->*pmf)();` 会转化成
+
+```cpp
+(pmf.index < 0>)
+    ? // no-virtual invocation
+    (*pmf.faddr)(ptr)
+    : // virtual invocation
+    (* ptr->vptr[pmf.index](ptr));
+```
+
+对于多重继承并存在 virtual function 的情况，会转化为:
+
+```cpp
+pmf.index < 0
+    ? (*pmf.faddr)(ptr + pmf.delta)
+    : (*ptr->__vptr_Point[pmf.index].faddr)(ptr + ptr->__vptr_Point[pmf.index].delta)
+```
+
+
+![](../images/cpp-objectmodel-funptr-perf.png ":size=50%")
+
+### inline Function
+
+关键词 `inline`(或 class declaration 中的 member function 或 friend function 的定义)只是一项请求。
+
+编译器会通过计算函数内的 assignments、function calls、virtual function calls 等操作的次数，每个表达式种类有一个权重，inline 函数的复杂度就以这些操作的总和来决定是否真正 inline。
+
+> 判断标准大概是如果函数体的执行损耗远大于函数调用和返回机制的损耗，则不 inline。即 inline 会带来较明显的性能提升（百分比），才会 inline
+
+处理一个 inline 函数有两个阶段：
+
+1. 计算函数复杂度，以及其建构，判断是否可以 inline
+2. 真正的 inline 函数时在调用的地方进行扩展操作的。这会带来参数的求值操作以及临时性对象的管理。
+
+一般而言，面对“会带来副作用的实际参数”，通常需要引入临时性对象。
+
+```cpp
+inline int min(int i , int j) {
+    return i < j ? i : j;
+}
+
+void main() {
+    int minVal;
+    int val1 = 1024;
+    int val2 = 2040;
+
+    minVal = min(val1, val2);
+    minVal = min(1024, 2048);
+    minVal = min(foo(), bar() + 1);
+}
+```
+
+inline 后，最后三句会转化为:
+
+```cpp
+minVal = val1 < val2 ? val1 : val2;
+// 常量表达式，编译期就可以计算好
+minVal = 1024;
+// 参数存在副作用，引入临时性队形
+int t1;
+int t2;
+minVal = (t1 = foo()), (t2 = bar() + 1), t1 < t2 ? t1 : t2;
+```
+
+如果加入局部变量:
+
+```cpp
+inline int min(int i , int j) {
+    int minval = i < j ? i : j;
+    return minval;
+}
+
+void main() {
+    int minVal;
+    int val1 = 1024;
+    int val2 = 2040;
+
+    minVal = min(val1, val2);
+}
+```
+
+会转化为：
+
+```cpp
+// 将 inline 函数的局部变量除以 “mangling” 操作
+int __min_lv_minval;
+minval = (__min_lv_minval = val1 < val2 ? val1 : val2), __min_lv_minval
+```
+
+参数带有副作用，或是以一个单一表达式做多重调用，或是在 inline 函数中有多个局部变量，都会产生临时性对象。
+
+如果 inline 函数中调用了这样一个多临时性对象的 inline 函数，可能会使外面这个表面上看起来平凡的 inline 却因其连锁复杂度而没办法扩展开来。
+
 
 ## 构造、析构、拷贝 语意学
 
