@@ -111,6 +111,8 @@ Conversion 运算符就是最常被引用的例子。
 
 至于没有存在那四种情况而又没有声明任何 constructor 的 class，C++ 标准说它拥有的是 `implicit trivial default constructor`（隐式的无用的默认构造器），**实际上这种构造器并不会被合成出来**。
 
+> 同样 trivial 的析构函数、拷贝函数都不会被产生和调用，没有拷贝函数会采用位拷贝的方式。
+
 
 ### Copy Constructor 的建构操作
 
@@ -751,12 +753,255 @@ minval = (__min_lv_minval = val1 < val2 ? val1 : val2), __min_lv_minval
 
 如果 inline 函数中调用了这样一个多临时性对象的 inline 函数，可能会使外面这个表面上看起来平凡的 inline 却因其连锁复杂度而没办法扩展开来。
 
-
 ## 构造、析构、拷贝 语意学
+
+不要把 virtual destructor 声明为 pure
+
+一般而言，把所有的成员函数都声明为 virtual function，然后再靠编译器的优化操作把非必要的 virtual invocation 去除，并不是好的设计观念。
+
+> virtual 调用会阻止 inline 扩展
+
+一个 virtual function 如果是 const，会导致其派生类 overrided 时也不能修改派生类中的 data member，限制太大，这种情况一般建议不适用 const。
+
+### 无继承情况下的对象构造
+
+```cpp
+typedef struct
+{
+    float x, y, z;
+} Point;
+
+Point global;
+
+Point foobar()
+{
+    Point local;
+    Point *heap = new Point;
+    *heap = local;
+    // ... stuff
+    delete heap;
+    return local;
+}
+```
+
+C++ 中的 global 对象会被初始化
+
+local 对象由于其 constructor 和 destructor 都是 trivial 的，并不会被产生和调用，因此是未初始化的，使用其值会有问题。
+
+指针对象也就是会被转换为对 new 运算符的调用(`Point *heap = __new(sizeof(Point));`)，也不会调用 constructor;
+delete 也会被转换为 `__delete(head);`,也不会调用 destructor
+
+### 继承体系下的对象构造
+
+在继承的情况下，如果有 virtual function，会产生额外的负担：
+
+- 每个 class object 多负担一个 vptr
+- 定义的 constructor 被附加了一些码，以便将 vptr 初始化
+- 拷贝函数也不能是 trivial 的了，即无法使用位拷贝
+
+编译器对 contructor 的扩充操作：
+
+```cpp
+constructor() {
+    // 调用 virtual base class 的构造器，如果在成员初始化列表中有传参，也要把参数传过去
+    // 调用所有 base class 的构造器，按声明顺序来，成员初始化列表若有参则传参
+    // 初始化 vptr(s)
+    // 对初始化列表中的 data member 或者有默认构造器的 data member，按声明顺序进行初始化，有参传参
+    // 用户写在构造器中的代码最后执行
+}
+```
+
+> 由于 base class 的构造器执行早于 vptr 的初始化，所以在 base class 中调用 virtual function，访问到的是 base class 中的那个。
+> 为了避免歧义，建议在 base class 中通过 `Base::fun()` 的方式明确调用本 class 的方法
+
+
+对于析构函数的扩充操作，基本是和构造函数的执行顺序倒着来
 
 ## 执行期语意学
 
+### 对象的构造和析构
+
+对于对象的构造和析构，编译器会自动插入相应的调用构造和析构函数的码。而且析构函数的调用码会安插到每个离开点。
+
+对于全局对象: 
+
+C++ 程序中的所有的 global objects 都在编译时期被放置到程序的 data segment 中，如果明确指定给它一个常量表达式的值，编译时期 object 就会被设置该值，否则就是 0。至于非常量表达式的值以及构造函数，则是在程序启动时才会实施。
+
+那么程序启动和退出的时候如何知道所有的 global object 进行初始化或者析构呢？
+
+最简单的方式是各个 object files，编译时把文件中所有 global objects 的初始化放到 `__sti()` 函数，析构放到 ` __std()`, 链接时通过 nm 查询各个 object files 找到这两个函数，在合成的 __main 和 exit 函数中调用
+
+对于局部静态对象：
+
+局部静态对象也是放置到程序的 data segment 中，但是它的初始化是在第一调用时。会额外使用一个标识（也放在 data segment 中）来表示这个对象是否已经初始化，这样来保证只要初始化一次。
+
+局部静态对象的析构也是在程序退出的时候，而且要保证析构的顺序和初始化的顺序相反。
+
+> 可以通过保持一个执行期链表来记录初始化的顺序，以便实现按反顺序析构
+
+对象数组：
+
+对于内建类型的数组定义，只需配置足够的内存即可。
+
+对于有定义默认构造函数的 class object 数组，还是逐个进行初始化。为了初始化方便，编译器定义了相应的函数
+
+```cpp
+void * vec_new(
+    void *array,        // 数组起始地址
+    size_t elem_size,   // 每个 class object 的大小
+    int elem_count,     // 数组中的元素数目
+    void (*constructor)(void*),
+    void (*destructor)(void*, char)
+)
+
+Point knots[10];
+
+vec_new(&knots, sizeof(Point), 10, &Point::Point, 0)
+```
+
+对于已经设置了初值的元素，vec_new 不再必要
+
+```cpp
+Point knots[10] = {
+    Point(),
+    Point(1.0, 1.0, 0.5),
+    -1.0
+}
+```
+
+会转化为
+
+```cpp
+Point* knots = (Point*)__new(10 * sizeof(Point));
+
+Point::Point(&knots[0]);
+Point::Point(&knots[1], 1.0, 1.0, 0.5);
+Point::Point(&knots[2], -1.0, 0.0, 0.0);
+
+vec_new(&knots+3， sizeof(Point), 7, &Point::Point, 0);
+```
+
+同样的，还有 `vec_delete`
+
+```cpp
+void * vec_delete(
+    void *array,        // 数组起始地址
+    size_t elem_size,   // 每个 class object 的大小
+    int elem_count,     // 数组中的元素数目
+    void (*destructor)(void*, char)
+)
+```
+
+### new 和 delete 运算符
+
+new 运算符其实由两个步骤完成
+
+```cpp
+Point3d *origin = new Point3d;
+delete origin;
+```
+
+会被转化为
+
+```cpp
+Point3d *origin;
+if (origin = __new(sizeof(Point3d))) {
+    origin = Point3d::Point3d(origin);
+}
+
+if (origin != 0) {
+    __delete(origin);
+}
+```
+
+new 运算符实际上总是以标准的 C `malloc()` 完成。delete 运算符以 C `free()` 完成
+
+对于数组的 delete，需要知道数组的大小，有两种实现方案，`vec_new` 返回内存区块配置一个额外的 word 放置，用一个全局的结构存放指针和大小。
+
+另外，最好避免以一个 base class 指针指向一个 derived class objects 组成的数组。
+
+### 临时性对象
+
+临时性对象的被摧毁，应该是对完整表达式求值过程中的最后一个步骤。该完整表达式造成临时对象的产生。
+
+凡含有表达式执行结果的临时性对象，应该存留到 object 的初始化操作完成为止。
+
+如果一个临时性对象被绑定于一个 reference，对象将残留，直到 reference 的生命结束
+
 ## 站在对象模型的尖端
+
+### Template
+
+只有使用的 member functions 才会被实体化。
+
+所有与类型有关的检验，如果牵涉到 template 参数，都必须延迟到真正的具现操作发生，才得为之。
+
+### 异常处理
+
+当一个 exception 发生是，编译系统必须完成以下事情：
+
+1. 检验发生 throw 操作的函数
+2. 决定 throw 操作是否发生在 try 区段中
+3. 若是，编译系统必须把 exception type 拿来和每个 catch 子句比较
+4. 如果比较吻合，流程控制应该交给 catch 子句中
+5. 如果 throw 的发生并不在 try 区段中，或没有一个catch 子句吻合，那么系统必须（a）摧毁所有active local objects，（b）从堆栈中将当前的函数“unwind”掉，（c）进行到程序堆栈中的下一个函数中去，然后重复上述步骤 2~5
+
+每个函数会产生一个 exception 表格，它描述与函数相关的各区域、任何必要的善后码（cleanup code，被local class object destructors 调用），以及 catch 子句的位置（如果某个区域是在 try 区段中）
+
+当一个 exception 被丢出时，exception object 会被产生出来并通常放置在相同形式的 exception 数据堆栈中。从 throw 端传染给 catch 子句的是 exception object 的地址、类型描述器，已经可能会有的 exception object 描述器。
+
+> 异常处理机制很影响 C++ 的性能。
+
+### 执行期类型识别
+
+正是由于异常的出现，编译器必须提供某种查询 exception objects 的方法，以知道其实际类型，这直接导致了 RTTI 的出现。
+
+除此以外，保证安全 downcast（向下转型）也是 RTTI 的重要使用场景，
+
+不过这种情况只能使用于多态类（有 vtbl 的）
+
+安全 downcast 需要知道指针所指派生类的类型信息，为了减少负担，这种类型信息一般放在 vtbl 中，这样就能复用 vptr 了，对每个 class object 不会有额外的负担，但是这样也限制了安全 downcast 只能用于有 vptr 的多态类。
+
+如果 downcast 是安全的，这个运算符会传回适当转型过的指针。如果 downcast 不是安全的，这个运算符会传回 0
+
+```cpp
+typedef type *ptype;
+typedef fct *pfct;
+
+simplify_conv_op(ptype pt)
+{
+    if (pfct pf = dynamic_cast<pfct>(pt)) {
+        //... process pf
+    }
+    else {
+        ...
+    }
+}
+```
+
+> 当然 `dynamic_cast` 的性能是比不上的 `static_cast` 的，但是比较安全
+
+downcast 也可以用于 reference，但是不安全时不能返回 0 给 reference，因此不安全时会抛出异常 `bad_cast exception`
+
+对于 reference 更好的做法是使用 `typeid`
+
+```cpp
+simplify_conv_op(const type rt)
+{
+    if (typeid(rt) = typeid(fct)) {
+        fct &rf = static_cast<fct&>(rt);
+        //...
+    }
+    else {
+        ...
+    }
+}
+```
+
+typeif 运算符返回一个 const reference,类型为 `type_info`
+
+虽然 RTTI 只适用于多态类，但是通过 `typeid` 也可以获取其它类型的 type_info 对象，只是这时候的 type_info object 是静态取得的，而非执行期取得。一般的实现策略是在需要时才产生 type_info object，而非程序一开头就产生。
+
 
 ## Reference
 
