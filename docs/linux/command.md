@@ -1,5 +1,16 @@
 # Linux
 
+- 查看文件和进程的关联
+
+    ```bash
+    # lsof(list open files)
+    # 查看某个文件被哪些进程在读写
+    lsof filename
+
+    # 查看某个进程打开了哪些文件
+    lsof -p pid
+    ```
+
 - 查看 Linux 版本
 
     ```bash
