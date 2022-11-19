@@ -14,13 +14,13 @@ C++11 标准的一个最重要的新特性就是对多线程的支持。新标�
 
 多进程并发的优点是更容易编写安全的并发代码，隔离性更好；缺点是启动和管理进程的开销比较大，进程间通信也比较复杂、速度也比较慢。
 
-![](../images/cpp-conc-multiprocess.png ":size=50%")
+![](../images/cpp-conc-multiprocess.png)
 
 多线性并发的优点是启动和通信的开销比多进程的要小，缺点是通过共享内存的方式来通信很容易出并发问题。
 
 > 多线程是主流语言包括 C++ 更青睐的并发方法
 
-![](../images/cpp-conc-multithread.png ":size=50%")
+![](../images/cpp-conc-multithread.png)
 
 为什么使用并发？
 
@@ -1166,23 +1166,578 @@ void process_data(data_source &source, data_sink &sink) {
 
 ## C++ 内存模型和原子类型
 
+C++11 标准中，有一个十分重要的特性：**新的多线程感知内存模型**
+
+如果没有内存模型准确地定义基本构建块的工作方式，那么上面所介绍的所有设施都无法正常工作。
+
+C++是一个系统级别的编程语言，标准委员会的目标之一就是不需要比 C++还要底层的高级语言。因此需要的时候允许“接触硬件”。原子类型和操作正好允许这样做，它们为低层次同步操作提供的设施通常只需要 1~2 个 CPU 指令。
+
 ### 内存模型基础
+
+内存模型包含两个方面：基本结构（structural）方面（它与事物在内存中的布局有关，即对象模型）和并发方面。
+
+C++程序中的所有数据都是由对象（objects）组成的。C++标准将一个对象定义为“一个存储区域”（a region ofstorage）
+
+无论对象的类型是什么，它都存储在一个或多个内存位置中。
+
+每一个变量都是一个对象，包括作为其他对象成员的变量。
+
+如果两个线程访问单独的内存位置，一切工作正常。另一方面，如果两个线程访问相同的内存位置，且任何一个线程正在修改数据，就可能出现竞争条件
+
+为了避免竞争条件，两个线程的访问之间必须要有一个强制顺序（happens before）。
+
+确保有序的一种方法是使用前面的互斥锁，另一种方法是在相同的或其他内存位置上使用原子操作的同步属性。
 
 ### C++ 中的原子操作和类型
 
+原子操作（atomic operation）是不可分割的操作。系统中**任何线程**都不可能**观察**到操作只完成一半；要么做了，要么没做。
+
+在 C++中，在大多数情况下，需要使用原子类型来获得原子操作。
+
+标准原子类型的头文件：`<atomic>`
+
+原子类型的实现中，除了 `std::atomic_flag` 一定是无锁的，其它原子类型到底用锁还是无锁实现，依赖于硬件，可以通过 `is_lock_free()` 成员函数来查看。
+
+> 如果原子操作本身使用内部互斥锁，那么期望的性能增益可能不会实现
+
+除了 `std::atomic_flag`，其它原子类型都是通过 `std::atomic<>` 类模板的特化来获得。同时也提高了常用原子类型的别名
+
+![](../images/cpp-conc-atomic.png)
+
+对于标准的 typedef T，对应的原子类型是相同的名字加上 atomic_前缀：`atomic_T`。这种情况也适用于内置类型，只是有符号的缩写为 s，无符号的缩写为 u，long long 的缩写为 llong。对于任何 T，比起使用代用名，通常 `std::atomic<T>` 更明了。
+
+标准原子类型不可复制或赋值, 但是支持从相应的内置类型赋值以及隐式转换成内置类型，以及直接的 `load()` 和 `store()` 成员函数、`exchange()`、`compare_exchange_weak()`和 `compare_exchange_strong()`。
+
+#### std::atomic_flag
+
+处于两种状态之一：设置状态或清除状态
+
+std::atomic_flag 类型的对象必须用 `ATOMIC_FLAG_INIT` 初始化.
+
+一旦初始化标志对象后，只有三件事可以做：销毁它(析构函数)、清除它(`clear()`)或设置它并查询之前的值(test_and_set)。
+
+有限的特性使得 std::atomic_flag 非常适合于做自旋互斥锁
+
+```cpp
+class spinlock_mutex
+{
+    std::atomic_flag flag;
+public:
+    spinlock_mutex(): flag(ATOMIC_FLAG_INIT) {}
+    void lock()
+    {
+        while(flag.test_and_set(std::memory_order_acquire));
+    }
+    void unlock()
+    {
+        flag.clear(std::memory_order_release);
+    }
+};
+```
+
+std::atomic_flag 非常局限，以至于它甚至不能用作一般的布尔标志，因为它**没有简单的非修改查询操作**。为此，你最好使用 `std::atomic<bool>`，
+
+#### 其它原子类型
+
+都支持的操作：
+
+- `load()`: 查询
+- `store()`: 修改
+- `exchange()`: 交换
+- `compare_exchange_weak()`: 比较交换。会多考虑时序的原因，即使原始值与预期值一致时，存储也可能会不成功，最可能发生在缺少“比较并交换”指令的机器上。所以通常必须在一个循环中使用
+    ```cpp
+    bool expected=false;
+    extern atomic<bool> b; // 在其他某个地方设置
+    while(!b.compare_exchange_weak(expected,true) && !expected);
+    ```
+- `compare_exchange_strong()`： 比较交换
+
+> 还有原子类型和对应的原生类型的转换
+
+指针和数字类型额外支持的操作：
+
+- `fetch_add()`: 等同于 += 或者 ++
+- `featch_sub()`：等同于 -= 或者 --
+
+> 支持等价的运算符
+
+数字类型支持的操作
+
+- `fetch_and()`: 等同于 &=
+- `fetch_or()`: 等同于 |=
+- `fetch_xor()`: 等同于 ^=
+
+> 支持等价的运算符
+
+但是对于各种原子类型的所有操作，也有等价的非成员函数。在大多数情况下，非成员函数以对应的成员函数命名，但是使用 `atomic_前缀`(例如，`std::atomic_load()`)。所有自由函数都将原子对象的指针作为第一个参数
+
+C++标准库也提供了自由函数，用于以原子方式访问 std::shared ptr<>的实例。这打破了原则：只有原子类型支持原子操作。当然最好还是使用原子类型 `std::experimental::atomic_shared_ptr<T>`。
+
+#### 用户数据类型原子类
+
+
+为了对某些用户自定义的类型 UDT 使用 `std::atomic<UDT>`，该类型必须有一个平凡的（trivial）拷贝赋值操作符.
+
+比较交换操作像使用 memcmp 一样进行按位比较，而不是使用任何可能为 UDT 定义的比较运算符。
+
+一般来说，编译器不能为 `std::atomic<UDT>` 生成无锁代码，因此它必须为所有操作使用一个内部锁。
+
+当然，如果你的 UDT 与 int 或 void*大小相同(或小于)，那么大多数常见平台都能够对 `std::atomic<UDT>` 使用原子指令。
+一些平台还能对两倍于 int 或 void*大小的用户自定义类型使用原子指令。这些平台通常支持所谓的双字比较和交换
+
+
 ### 同步操作和强制顺序
+
+标准原子类型不仅避免了与数据竞争相关的未定义行为；它们允许用户强制线程之间的操作顺序。这种强制的顺序是保护数据和同步操作，比如 std::mutex 和 std::future<>的基础。
+
+内存模型规定了 “先发生于”（`happens-before`）和“同步于”（`synchronizes-with`）。
+
+每个原子类型上的操作都有一个可选的内存顺序参数，它是 `std::memory_order` 枚举类型的某个值。共有六个值，代表三种模型
+
+- 序列一致顺序: `memory_order_seq_cst`（默认值）
+- 获得-释放顺序: `memory_order_consume`, `memory_order_acquire`, `memory_order_release` 和 `memory_order_acq_rel`
+    > C++17 标准明确建议你不要使用 `memory_order_consume`
+- 宽松顺序: `memory_order_relaxed`
+
+内存顺序和原子操作类型的配对：
+
+- `memory_order_seq_cst` 、 `memory_order_relaxed`、`memory_order_seq_cst` 能用于所有原子操作。
+- `memory_order_acquire` 、 `memory_order_consume` 能用于 `load()` 操作和 `读-改-写` 操作
+- `memory_order_release` 只能用于 `stroe()` 操作和 `读-改-写` 操作
+
+不同的内存顺序模型在不同的 CPU 架构下，成本是不一样的。
+
+不同内存顺序模型的有效性，允许专家利用更细粒度的顺序关系来提升性能，用于它们有优势的地方，同时允许使用默认的“序列一致”顺序 (相较于其他顺序，它比较简单的)用于非关键的情况。
+
+#### 序列一致顺序
+
+如果你的代码在一个线程中有一个操作先于另一个操作，那么该顺序在所有其他线程看来都是这样的。
+
+memory_order_seq_cst 的语义需要在所有标记为 memory_order_seq_cst 的操作上有一个**单一全序**
+
+```cpp
+#include <atomic>
+#include <thread>
+#include <assert.h>
+
+std::atomic<bool> x,y;
+std::atomic<int> z;
+
+void write_x()
+{
+    x.store(true,std::memory_order_seq_cst); // 1
+}
+void write_y()
+{
+    y.store(true,std::memory_order_seq_cst); // 2
+}
+void read_x_then_y()
+{
+    while(!x.load(std::memory_order_seq_cst));
+    if(y.load(std::memory_order_seq_cst)) // 3
+        ++z;
+}
+void read_y_then_x()
+{
+    while(!y.load(std::memory_order_seq_cst));
+    if(x.load(std::memory_order_seq_cst)) // 4
+        ++z;
+}
+int main()
+{
+    x=false;
+    y=false;
+    z=0;
+    std::thread a(write_x);
+    std::thread b(write_y);
+    std::thread c(read_x_then_y);
+    std::thread d(read_y_then_x);
+    a.join();
+    b.join();
+    c.join();
+    d.join();
+    assert(z.load()!=0); // 5
+}
+```
+
+由于 memory_order_seq_cst 保证全局的单一有序，那么 `read_x_then_y` 和 `read_y_then_x` 至少有一个能执行到 `++z`
+
+“序列一致”是最简单、直观的顺序，但也是最昂贵的内存顺序，因为它需要所有线程之间进行全局同步。在一个多处理器系统上，这可能需要在处理器之间进行大量并且耗时的通信。
+
+#### 宽松顺序
+
+原子类型上的操作以宽松顺序执行时，**不会参与任何“同步于”关系**。同一线程中对于同一变量的操作服从“先发生于”的关系，但是相对其他线程几乎对顺序没有任何要求。唯一的要求是从同一个线程访问单个的原子变量不能重排。
+
+> 即某个线程内的操作顺序，在其他每个线程看来都是不一样的
+
+```cpp
+#include <atomic>
+#include <thread>
+#include <assert.h>
+
+std::atomic<bool> x,y;
+std::atomic<int> z;
+
+void write_x_then_y()
+{
+    x.store(true,std::memory_order_relaxed); // 1
+    y.store(true,std::memory_order_relaxed); // 2
+}
+void read_y_then_x()
+{
+    while(!y.load(std::memory_order_relaxed)); // 3
+    if(x.load(std::memory_order_relaxed)) // 4
+        ++z;
+}
+int main()
+{
+    x=false;
+    y=false;
+    z=0;
+    std::thread a(write_x_then_y);
+    std::thread b(read_y_then_x);
+    a.join();
+    b.join();
+    // 可能报错
+    assert(z.load()!=0); // 5
+}
+```
+
+`x` 和 `y` 的 store 操作顺序在 `read_y_then_x` 中看来是不确定的，可能是 y 先，x 后，这时 ++z 就不会被执行，assert 报错
+
+#### 获取-释放顺序
+
+“获得-释放”顺序是“宽松”顺序的增强；这里仍然没有操作的全序，但是它确实引入了同步。
+
+> 即某个线程内的某个原子操作 B 使用“获得-释放”顺序，同时有个 A 操作在 B 前面，C 操作在 B 后面，可以保证其它线程观察到的 A、B、C 的先后顺序是相同的。
+
+这种顺序模型中，原子加载是获得(acquire)操作(memory_order_acquire)，原子存储是释放(memory_order_release)操作，原子读-改-写操作(例如 fetch_add() 或 exchange())可以是“获得”，“释放”，中的一个，或者两者都有(memory_order_acq_rel)。
+
+对于上面序列一致的例子，如果改成获取-释放顺序，由于 x 和 y 是不同线程进行操作的，无法保证在其他线程观察 X，y 的顺序，所以 assert 可能会失败。
+
+对于上面宽松顺序的例子，如果把 y 的 load 和 stroe 改成获取-释放顺序，就可以保证其它线程观察到的 x.stroe 一定是在 y.store 执行，assert 成功。
+
+#### 栅栏
+
+虽然，大多数同步关系，源自于对原子变量上的操作应用的内存顺序语义，但也可以通过使用`栅栏（fence）`引入额外的顺序约束。
+
+栅栏也通常叫做“内存屏障”（memory barriers）.因为它在代码中划了一条线，某些操作不能跨越它。
+
+> 栅栏的获得操作必然是 happens before 栅栏的释放操作。即在它前面的操作必然是 happens before 栅栏
+
+宽松顺序的例子也可以通过栅栏来解决
+
+```cpp
+void write_x_then_y()
+{
+    x.store(true,std::memory_order_relaxed); // 1
+    std::atomic_thread_fence(std::memory_order_release); // 2
+    y.store(true,std::memory_order_relaxed); // 3
+}
+void read_y_then_x()
+{
+    while(!y.load(std::memory_order_relaxed)); // 4
+        std::atomic_thread_fence(std::memory_order_acquire); // 5
+        if(x.load(std::memory_order_relaxed)) // 6
+          ++z;
+}
+```
+
+#### 排序非原子操作
+
+如果一个非原子操作“先序于”一个原子操作，并且这个原子操作“先发生于”另一个线程中的操作，那么这个非原子操作也会“先发生于”另一个线程中的那个操作。
+
+这也是 C++标准库中更高层次同步设施的基础，例如互斥锁和条件变量。
+
+更高层次同步设施也就带有 happens before 语义
 
 ## 设计基于锁的并发数据结构
 
+一个数据结构需要被多个线程访问，一种选择是使用独立的互斥锁以及外部加锁来保护数据，另一种选择是设计自身支持并发访问的数据结构。
+
+并发数据结构的设计思想：**如何最小化必须的串行操作**。
+
+思考的问题：
+
+- 如果线程通过一个特定的函数对数据结构进行访问，其他线程能安全调用哪些函数？
+- 是否可以限制锁的作用范围，以允许操作的某些部分在锁外执行？
+- 数据结构不同部分能否被不同的互斥锁保护？
+- 所有的操作需要同一级别的保护吗？
+- 是否可以对数据结构进行简单的修改，以增加并发访问的机会，并且不影响操作语义？
+
+设计基于锁的并发数据结构，都是为了确保在访问数据时锁住正确的互斥锁，并且持有锁的时间最短
+
+### 线程安全栈
+
+[代码](https://github.com/chaolinye/snippet/blob/master/threadsafe_stack.cc)
+
+### 线程安全队列
+
+[代码](https://github.com/chaolinye/snippet/blob/master/threadsafe_queue.cc)
+
+### 线程安全查找表
+
+[代码](https://github.com/chaolinye/snippet/blob/master/threadsafe_lookup_table.cc)
+
+### 线程安全链表
+
+[代码](https://github.com/chaolinye/snippet/blob/master/threadsafe_list.cc)
+
 ## 设计无锁并发数据结构
 
-## 设计并发代码
+使用互斥锁、条件变量，以及期望来同步数据的算法和数据结构叫做阻塞（blocking）数据结构和算法.
+
+不使用阻塞库的数据结构和算法被称为非阻塞的（nonblocking）。不过，并非所有的非阻塞数据结构都是无锁的，
+
+使用无锁结构的主要原因是将并发最大化,很容易变成本质上是自旋锁的实现
+
+实现无锁数据结构的指南:
+
+- 使用 `std::memory_order_seq_cst` 用于原型
+- 对无锁内存的回收方案
+    - 等待直到没有线程访问数据结构时，删除所有等待删除的对象。
+    - 使用风险指针来标识一个线程正在访问一个特定对象。
+    - 引用计数对象，直到没有未决的引用时才删除它们。
+- 小心 ABA 问题
+- 识别忙-等待循环并帮助其他线程
+
+[无锁堆栈](https://github.com/chaolinye/snippet/blob/master/lock_free_stack.cc)
+[无锁队列](https://github.com/chaolinye/snippet/blob/master/lock_free_queue.cc)
 
 ## 高级线程管理
 
+### 线程池
+
+线程池是一种线程共享思想。可以把并发执行的任务提交到一个线程池中，也就是把它们放到待处理工作队列。工作线程从队列中取出任务,然后执行，之后又循环到线程池中获取另一个任务
+
+构建线程池几个关键性的设计问题
+
+- 使用多少线程，
+- 最有效地给线程分配任务的方式
+- 是否需要等待一个任务完成。
+
+使用线程池的话，需要等待提交给线程池的任务完成，而不是工作线程本身完成。由于 std::packaged_task<>实例是不可拷贝的，只能
+移动，所以不能把 std::function<> 用作队列条目，因为 std::function<> 需要存储可拷贝构造的函数对象。取而代之，需要使用一个自定义函数包装器，用来处理只可移动的类型。这是个带有调用操作符的类型擦除类。
+
+简单版线程池：
+
+```cpp
+class function_wrapper {
+  struct impl_base {
+    virtual void call() = 0;
+    virtual ~impl_base() {}
+  };
+  std::unique_ptr<impl_base> impl;
+  template <typename F> struct impl_type : impl_base {
+    F f;
+    impl_type(F &&f_) : f(std::move(f_)) {}
+    void call() { f(); }
+  };
+
+public:
+  template <typename F>
+  function_wrapper(F &&f) : impl(new impl_type<F>(std::move(f))) {}
+  void operator()() { impl->call(); }
+  function_wrapper() = default;
+  function_wrapper(function_wrapper &&other) : impl(std::move(other.impl)) {}
+  function_wrapper &operator=(function_wrapper &&other) {
+    impl = std::move(other.impl);
+    return *this;
+  }
+  function_wrapper(const function_wrapper &) = delete;
+  function_wrapper(function_wrapper &) = delete;
+  function_wrapper &operator=(const function_wrapper &) = delete;
+};
+class thread_pool {
+  std::atomic_bool done;
+  thread_safe_queue<function_wrapper> work_queue; // 使用function_wrapper，而非 std::function
+  std::vector<std::thread> threads; // 2
+  join_threads joiner;              // 3
+
+  void worker_thread() {
+    while (!done) {
+      function_wrapper task; // 使用 function_wrapper，而非 std::function
+      if (work_queue.try_pop(task)) {
+        task();
+      } else {
+        std::this_thread::yield();
+      }
+    }
+  }
+
+public:
+  thread_pool() : done(false), joiner(threads) {
+    unsigned const thread_count = std::thread::hardware_concurrency();
+    / / 8 try {
+      for (unsigned i = 0; i < thread_count; ++i) {
+        threads.push_back(std::thread(&thread_pool::worker_thread, this)); // 9
+      }
+    } catch (...) {
+      done = true; // 10
+      throw;
+    }
+  }
+  ~thread_pool() {
+    done = true; // 11
+  }
+  template <typename FunctionType>
+  std::future<typename std::result_of<FunctionType()>::type> // 1
+  submit(FunctionType f) {
+    typedef typename std::result_of<FunctionType()>::type result_type; // 2
+    std::packaged_task<result_type()> task(std::move(f));              // 3
+    std::future<result_type> res(task.get_future());                   // 4
+    work_queue.push(std::move(task));                                  // 5
+    return res;                                                        // 6
+  }
+};
+```
+
+> `static thread_local` 可以创建线程相关的局部静态变量
+
+为了减少多线程对于工作队列的竞争，一种方法是每个线程使用独立的工作队列。每个线程会将新任务放在自己的队列上，并且只有当线程上的队列没有工作时，才去全局的工作队列中获取工作。另外，为了让没有工作的线程能从另一个队列满的线程中获取工作，就需要这个队列可以被窃取线程访问。
+
+支持任务窃取的线程池
+
+```cpp
+class thread_pool {
+  typedef function_wrapper task_type;
+  std::atomic_bool done;
+  thread_safe_queue<task_type> pool_work_queue;
+  std::vector<std::unique_ptr<work_stealing_queue>> queues; // 1
+  std::vector<std::thread> threads;
+  join_threads joiner;
+  static thread_local work_stealing_queue *local_work_queue; // 2
+  static thread_local unsigned my_index;
+  void worker_thread(unsigned my_index_) {
+    my_index = my_index_;
+    local_work_queue = queues[my_index].get(); // 3
+    while (!done) {
+      run_pending_task();
+    }
+  }
+  bool pop_task_from_local_queue(task_type &task) {
+    return local_work_queue && local_work_queue->try_pop(task);
+  }
+  bool pop_task_from_pool_queue(task_type &task) {
+    return pool_work_queue.try_pop(task);
+  }
+  bool pop_task_from_other_thread_queue(task_type &task) // 4
+  {
+    for (unsigned i = 0; i < queues.size(); ++i) {
+      unsigned const index = (my_index + i + 1) % queues.size(); // 5
+      if (queues[index]->try_steal(task)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+public:
+  thread_pool() : done(false), joiner(threads) {
+    unsigned const thread_count = std::thread::hardware_concurrency();
+    try {
+      for (unsigned i = 0; i < thread_count; ++i) {
+        queues.push_back(std::unique_ptr<work_stealing_queue>( // 6
+            new work_stealing_queue));
+        threads.push_back(std::thread(&thread_pool::worker_thread, this, i));
+      }
+    } catch (...) {
+      done = true;
+      throw;
+    }
+  }
+  ~thread_pool() { done = true; }
+  template <typename FunctionType>
+  std::future<typename std::result_of<FunctionType()>::type>
+  submit(FunctionType f) {
+    typedef typename std::result_of<FunctionType()>::type result_type;
+    std::packaged_task<result_type()> task(f);
+    std::future<result_type> res(task.get_future());
+    if (local_work_queue) {
+      local_work_queue->push(std::move(task));
+    } else {
+      pool_work_queue.push(std::move(task));
+    }
+    return res;
+  }
+  void run_pending_task() {
+    task_type task;
+    if (pop_task_from_local_queue(task) ||        // 7
+        pop_task_from_pool_queue(task) ||         // 8
+        pop_task_from_other_thread_queue(task)) { // 9
+      task();
+    } else {
+      std::this_thread::yield();
+    }
+  }
+};
+```
+
+### 中断线程池
+
+C++11 标准没有提供中断机制，只能自行实现。大概思路，封装线程支持设置中断标识，任务中检查中断标识，如果是 wait 之类的阻塞，可以使用超时+循环+检查中断标识的方式实现中断。
+
 ## 并行算法
 
+C++17 标准添加了并行算法（parallel algorithms）的概念到 C++标准库中.
+
+并行版本与“普通”单线程版本具有相同的签名，除了添加了一个新的第一个参数，该参数指定要使用的执行策略（execution policy）。例如：
+
+```cpp
+std::vector<int> my_data;
+std::sort(std::execution::par, my_data.begin(), my_data.end());
+
+std::vector<int> v(1000);
+int count=0;
+std::for_each(std::execution::par,v.begin(),v.end(),
+[&](int& x){ x=++count; });
+```
+
+三种执行策略：
+
+- std::execution::seq
+    
+    在调用函数的线程上执行所有操作
+
+- std::execution::par
+
+    在给定线程上执行的操作必须以确定的顺序执行，不能交错执行，
+
+    > 在使用没有执行策略的标准库算法的大多数情况下，你都可以使用并行执行策略。
+
+- std::execution::par_unseq
+
+    使用并行非顺序策略调用的算法，可以在任意线程上执行算法步骤，这些线程彼此间是无序的。在第一个操作完成之前，第二个操作就在同一个线程上启动了
+
+    这意味着操作只能操作相关的元素，或者基于该元素可以访问的任何数据，并且不能修改线程之间或元素之间共享的任何状态。
+
+> 除非你的实现提供了更适合你的非标准策略，否则 std::execution::par 是最常用的策略。
+
 ## 测试和调试多线程应用程序
+
+### 并发相关的 bug 类型
+
+与并发相关的 bug 可以分为两类：
+
+- 不必要的阻塞
+    - 死锁
+    - 活锁
+    - 阻塞在 I/0 或外部输入上
+- 竞争条件
+    - 数据竞争
+    - 破坏的不变量
+    - 生命周期问题
+
+### 定位并发相关 bug 的技术
+
+- 评审代码
+    - 让别人检查代码
+    - 试着向别人详细解释它是如何工作的
+- 测试定位
+- 可测试性设计
+- 多线程测试技术
+- 测试多线程代码的性能
+
 
 ## References
 
