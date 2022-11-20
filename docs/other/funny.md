@@ -9,3 +9,4 @@
 
 - [SadServers](https://sadservers.com/): 一个开源的 Linux 服务器管理题库。它会在浏览器里面创建服务器实例，让用户自己动手解决问题
 - [Fly.io](https://fly.io/): 可以免费部署小型 docker 镜像的网站。
+

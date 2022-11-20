@@ -234,3 +234,4 @@ $ addr2line -e cmdTest 40053b
 - [linux常用命令--开发调试篇](https://www.yanbinghu.com/2018/09/26/61877.html)
 - [GDB调试指南](https://www.yanbinghu.com/2019/04/20/41283.html)
 - [GDB官方文档](https://sourceware.org/gdb/documentation/)
+- [GDB调试指南：C++中如何调试生产环境的程序？](https://juejin.cn/post/6998906637213761543)
