@@ -62,6 +62,10 @@ Docker 相对于 LXC 的价值在于
 
 `containerd-shim` 负责采集容器日志和容器监控信息
 
+内部架构：
+
+![](../images/docker-arch.jpg ":size=50%")
+
 ## Docker Registry 镜像站
 
 ```json
@@ -72,6 +76,16 @@ Docker 相对于 LXC 的价值在于
 }
 ```
 
+## 容器化思维
+
+!> 每个容器内只应启动一个进程(PID=1)
+
+> 容器的本质：一个进程及运行该进程所需要的各种依赖
+
 ## References
 
 - [容器的演进](http://icyfenix.cn/immutable-infrastructure/container/)
+- [第一本 Docker 书](https://book.douban.com/subject/26285268/)
+- [Docker 实战博客](https://github.com/zq2599/blog_demos)
+- [Docker 源码分析](https://www.infoq.cn/article/docker-source-code-analysis-part1)
+- [Docker 相关博客](https://soulteary.com/tags/docker.html)

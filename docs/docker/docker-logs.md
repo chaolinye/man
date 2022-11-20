@@ -92,9 +92,6 @@ services:
 
 ![](../images/dozzle.png ":size=50%")
 
-
-
-
 ## References
 
 - [docker logs 实现剖析](http://guide.daocloud.io/dcs/docker-logs-9153967.html)
