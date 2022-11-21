@@ -7,6 +7,7 @@
     - [JavaScript](/docs/javascript/)
     - [C++](/docs/cpp/)
     - [Python](/docs/python/)
+    - [Rust](/docs/rust/)
     - [数据结构与算法](/docs/algorithm/)
 
 - 框架

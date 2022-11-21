@@ -3,6 +3,8 @@
 ## 学习资料
 
 - [Go 语言圣经](https://books.studygolang.com/gopl-zh/)
+- [Go语言精进之路](https://book.douban.com/subject/35720728/)
+- [Go 专家编程](https://book.douban.com/subject/35144587/)
 - [Go 知识图谱](https://www.processon.com/view/link/5a9ba4c8e4b0a9d22eb3bdf0#map)
 - [Go 语言中文网](https://studygolang.com/)
 - [Go 学习笔记](https://github.com/qyuhen/book)
