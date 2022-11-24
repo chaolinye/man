@@ -14,5 +14,7 @@
 ## References
 
 - [Rust 语言圣经](https://course.rs/about-book.html)
+- [Rust 官方文档](https://www.rust-lang.org/learn)
 - [Programming Rust, 2nd Edition](https://book.douban.com/subject/34973905/)
 - [Rusty Book](https://rusty.rs/about.html)
+- [Rust Reference](https://doc.rust-lang.org/reference/)
