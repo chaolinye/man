@@ -1,5 +1,26 @@
 # GDB 调试
 
+## core file 调试
+
+Unix 系统在程序崩溃时会把程序的内存 dump 到 core dump 文件中。
+
+Unix 系统默认会限制 core 文件的大小，如果 core 文件超过这个大小则不会生成，当然也可以配置无穷大。
+
+```bash
+# core dump文件生成配置
+ulimit -c #查看core文件配置，如果结果为0，程序core dump时将不会生成core文件
+ulimit -c unlimited #不限制core文件生成大小
+ulimit -c 10 #设置最大生成大小为10kb
+```
+
+core 文件默认会在工作目录生成，文件名称是 `core_xxx`。当然也可以通过修改 `/proc/sys/kernel/core_pattern` 文件指定 core 文件的存放目录。
+
+```bash
+# 调试 core 文件
+gdb 程序文件名 core文件名
+```
+
+
 ## 调试常用命令
 
 ```bash

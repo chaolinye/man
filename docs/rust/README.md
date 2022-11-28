@@ -18,3 +18,6 @@
 - [Programming Rust, 2nd Edition](https://book.douban.com/subject/34973905/)
 - [Rusty Book](https://rusty.rs/about.html)
 - [Rust Reference](https://doc.rust-lang.org/reference/)
+- [中央仓库](https://crates.io/)
+- [包搜索](https://lib.rs/)
+- [文档](https://docs.rs/)
