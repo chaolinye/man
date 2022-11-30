@@ -221,6 +221,8 @@ pub struct Fern {
 ## Cargo
 
 ```bash
+# 构建新工程
+cargo new hello_world
 # 构建 debug 版本可执行文件，包含调试信息和边界检查，包比较大
 cargo build
 # 构建 release 版本可执行文件，没有多余的调试信息和边界检查，包小性能高，但是编译时间比较常
@@ -243,6 +245,8 @@ cargo login <apikey>
 # 推送 .crate 文件到中央仓库
 cargo publish
 ```
+
+Cargo 的 Home 目录是 `~/.cargo`，下载的依赖 crate 源码也在这里。
 
 可以在 `Cargo.toml` 文件 profile section 中对于不同场景的构建指定参数
 

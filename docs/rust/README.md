@@ -21,3 +21,4 @@
 - [中央仓库](https://crates.io/)
 - [包搜索](https://lib.rs/)
 - [文档](https://docs.rs/)
+- [Cheat Sheet](https://cheats.rs/)
