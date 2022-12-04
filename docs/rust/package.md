@@ -246,7 +246,9 @@ cargo login <apikey>
 cargo publish
 ```
 
-Cargo 的 Home 目录是 `~/.cargo`，下载的依赖 crate 源码也在这里。
+Cargo 的 Home 目录是 `~/.cargo`，下载的依赖 crate 也在这里(`~/.cargo/registry/cache/<registry>/xxx.crate`)。
+
+> .crate 是 Cargo crate 的打包发布文件（本质上是 gzip 文件），下载的依赖 crate 解压后放在 `~/.cargo/registry/src/`
 
 可以在 `Cargo.toml` 文件 profile section 中对于不同场景的构建指定参数
 
@@ -260,6 +262,14 @@ debug = true # 让 cargo build --release 构建保留调试信息
 [profile.test]
 # 针对 cargo test 的配置
 ```
+
+cargo.io 部署在 AWS 上，crate 存储在 AWS 的 S3 上，一般国内能够下载。
+
+> 如果下载依赖太慢，可以[配置镜像](https://course.rs/first-try/slowly-downloading.html)
+
+在公司内部为了稳定性以及放置自己私有的 crate，可以搭建自己的 registries，具体参考[文档](https://doc.rust-lang.org/cargo/reference/registries.html#using-an-alternate-registry)
+
+
 
 ## Workspace
 
@@ -305,9 +315,9 @@ members = ["fern_sim", "fern_img", "fern_video"]
 cargo build --workspace
 ```
 
-
 ## References
 
 - [中央仓库](https://crates.io/)
 - [包搜索](https://lib.rs/)
 - [Cargo 文档](https://doc.rust-lang.org/stable/cargo/)
+- [Cargo如何下载依赖](https://zhuanlan.zhihu.com/p/64917441)

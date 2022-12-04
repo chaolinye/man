@@ -1,5 +1,26 @@
 # Rust 语言特性
 
+Rust 的定位是一门系统编程语言，主打性能和安全，适用于资源受限场景的编程。
+
+Rust 的优势是 speed，concurrency 和 safety。
+
+分别对应着 Rust 的三个设计目标：零抽象开销，可靠并发，内存安全。
+
+零抽象开销是从 C++ 中借鉴的设计。至于可靠并发和内存是通过所有权（ownership）、移动（move）、借用（borrow）、生命周期（lifetime）机制来实现。
+
+对于内存管理，主要有两种方式：
+
+1. 手动管理（c/c++）。优点：及时清理内存，性能好；缺点：无法保证内存安全，容易出现内存泄漏。
+2. GC（java/python/go...）。优点：内存安全；缺点：占用内存多；GC 时 stop the world，无法用于时延要求高的场景。
+
+> 对于内存泄漏问题，可以用 C++ 中的 RAII 编程模式来规避。但是 dangling pointers 等内存安全问题还是无法保证。
+
+C/C++ 中最令人害怕的就是 undefined behavior。而 Rust 中解决了这些问题，常见的 dangling pointers、double free、null pointer deferences 能在编译期是发现，数组越界问题通过编译期和运行期检查一起保证。
+
+> 在 Rust 中，如果代码能够通过编译，就不会有 undefined behavior。
+
+## 
+
 ## Attritues
 
 Attritues 是 Rust 中给编译器的说明或者建议，可以装饰所有的 Item。
