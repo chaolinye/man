@@ -63,6 +63,20 @@ cargo login <apikey>
 cargo publish
 ```
 
+## 语言心得
+
+Rust 的语言风格和 JavaScript/Typescript 很像：
+
+- `let` 变量声明
+- `for..in` 语法
+- Cargo 和 npm 类似的包管理能力
+- 变量名后 `:T` 类型标注
+- `async/await` 异步编程关键字
+
+Rust 从功能上是门很完美的语言，通过 RAII + 编译期引用生命周期检查解决了手动管理内存的内存安全问题，优势是高性能、内存安全、并发可靠。
+
+Rust 入门很复杂，编程心智负担高；其复杂性主要来自两处：1. 严格的所有权+生命周期；2. 丰富的类型系统
+
 ## References
 
 - [Rust 语言圣经](https://course.rs/about-book.html)

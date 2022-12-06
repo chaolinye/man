@@ -167,6 +167,46 @@ cout << *p;
 
 利用 `void＊` 指针能做的事儿比较有限：拿它和别的指针比较、作为函数的输入或输出，或者赋给另外一个 `void＊` 指针。
 
+### 枚举
+
+[文档](https://en.cppreference.com/w/cpp/language/enum)
+
+枚举可分为二种定义模式:
+
+- `enum`: 不限域枚举。定义的枚举成员无需通过枚举类名引用，在枚举类所在作用域可直接访问；可隐式转换成数字类型。底层类型不确定，不支持定义底层类型（C++11后支持）
+
+    ```cpp
+    enum Color { red = 10, green, blue };
+    Color r = red;
+    
+    switch(r)
+    {
+        case red  : std::cout << "red\n";   break;
+        case green: std::cout << "green\n"; break;
+        case blue : std::cout << "blue\n";  break;
+    }
+
+    if (r == 10) {
+        std::cout << "10" << std::endl;
+    }
+    ```
+
+- `enum class`: 限域枚举（C++11）。枚举成员需要通过枚举类名引用；不可隐式转换成数字类型，转换需要使用 `static_cast<>`; 底层默认是 int 类型，支持自定义底层类型
+
+    ```cpp
+    enum class Color { red, green = 20, blue };
+    Color r = Color::blue;
+    
+    switch(r)
+    {
+        case Color::red  : std::cout << "red\n";   break;
+        case Color::green: std::cout << "green\n"; break;
+        case Color::blue : std::cout << "blue\n";  break;
+    }
+    
+    // int n = r; // error: no implicit conversion from scoped enum to int
+    int n = static_cast<int>(r); // OK, n = 21
+    ```
 
 #### 理解复合类型的声明
 
