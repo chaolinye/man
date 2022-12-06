@@ -22,6 +22,12 @@
     cat /etc/os-release
     ```
 
+- 查看程序执行时间
+
+    ```bash
+    time <program>
+    ```
+
 - 查看本机公网IP
 
     ```bash

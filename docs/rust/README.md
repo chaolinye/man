@@ -52,6 +52,9 @@ cargo fix
 # 升级依赖版本
 cargo update
 
+# 离线查看标准库文档
+rustup doc --std
+
 # 打包 crate，会包含所有的源码、Cargo.toml 文件，生成 .crate 文件
 cargo package
 # 登录 cargo 中央仓库，需要先注册账号
