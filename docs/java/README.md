@@ -6,4 +6,4 @@
 
 ## References
 
-- [Java 编程思想第五版](https://lingcoder.gitee.io/onjava8/#/)
+- [Java 编程思想第五版](https://www.kancloud.cn/alex_wsc/java_thinking/1921154)
