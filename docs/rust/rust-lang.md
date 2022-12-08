@@ -2,9 +2,9 @@
 
 Rust 的定位是一门系统编程语言，主打性能和安全，适用于资源受限场景的编程。
 
-Rust 的优势是 speed，concurrency 和 safety。
+Rust 的优势是 `speed`，`concurrency` 和 `safety`。
 
-分别对应着 Rust 的三个设计目标：零抽象开销，可靠并发，内存安全。
+分别对应着 Rust 的三个设计目标：`零抽象开销`，`可靠并发`，`内存安全`。
 
 零抽象开销是从 C++ 中借鉴的设计。至于可靠并发和内存安全是通过所有权（ownership）、移动（move）、借用（borrow）、生命周期（lifetime）机制来实现。
 
@@ -18,6 +18,12 @@ Rust 的优势是 speed，concurrency 和 safety。
 C/C++ 中最令人害怕的就是 undefined behavior。而 Rust 中解决了这些问题，常见的 dangling pointers、double free、null pointer deferences 能在编译期发现，数组越界问题通过编译期和运行期检查一起保证。
 
 > 在 Rust 中，如果代码能够通过编译，就不会有 undefined behavior。
+
+## 代码风格
+
+struct、enum、trait 用大写字母开头的驼峰式
+
+变量、方法、函数 用小写字母+下划线
 
 
 ## 变量
@@ -145,7 +151,7 @@ assert_eq!(false as i32, 0);
 assert_eq!(true as i32, 1);
 ```
 
-但是，其它所有类型都不能转成 bool 类型(隐式和显式都不行)。
+!> 但是，其它所有类型都不能转成 bool 类型(隐式和显式都不行)。
 
 !> bool 值要么是 bool 字面量，要么是布尔表达式产生。
 
@@ -431,6 +437,20 @@ Rust 保证字符串是有效的 UTF-8。但是再与其它系统操作是，需
 
 ### 类型转换
 
+#### 点操作符
+
+方法调用的点操作符看起来简单，实际上非常不简单，它在调用时，会发生很多魔法般的类型转换，例如：自动引用、自动解引用，强制类型转换直到类型能匹配等。
+
+假设有一个方法 foo，它有一个接收器(接收器就是 self、&self、&mut self 参数)。如果调用 value.foo()，编译器在调用 foo 之前，需要决定到底使用哪个 Self 类型来调用。现在假设 value 拥有类型 T。
+ 
+1. 编译器检查是否可以直接调用 `T::foo(value)`，称之为值方法调用
+2. 如果不行(例如方法类型错误或者特征没有针对 Self 进行实现，上文提到过特征不能进行强制转换)，那么编译器会尝试增加自动引用，例如会尝试以下调用： `<&T>::foo(value)` 和 `<&mut T>::foo(value)`(当然前提是 value 本身得是 mut)，称之为引用方法调用
+3. 若上面两个方法依然不工作，编译器会试着解引用 T ，然后再进行尝试。这里使用了 `Deref` 特征 —— 若 `T: Deref<Target = U>` (T 可以被解引用为 U)，那么编译器会使用 U 类型进行上述两步的尝试，称之为解引用方法调用
+4. 若 T 不能被解引用，且 T 是一个定长类型(在编译器类型长度是已知的)，那么编译器也会尝试将 T 从定长类型转为不定长类型，例如将 [i32; 2] 转为 [i32]
+5. 若还是不行，那编译器就报错
+
+> 另外 `[]` 操作符其实是个语法糖，本质上是调用 `Index` 特征的 `index()` 方法，即 `array[0]` 等价于 `array.index(0)`，所以其也适用于点操作符的规则
+
 ## 所用权、引用、生命周期
 
 对于内存管理，几乎所有编程语言的处理方式可以归为两派：
@@ -659,6 +679,268 @@ let u: Rc<String> = s.clone();
 
 ## 表达式和语句
 
+[文档](https://doc.rust-lang.org/reference/statements-and-expressions.html)
+
+Rust 是所谓的表达式语言
+
+> 表达式语言可追溯到 Lisp
+
+C 族语言中的大多数的控制流工具是语句，而在 Rust 中，它们全是表达式。
+
+!> C 族语言常见的语句和表达式在 Rust 大部分都是表达式
+
+!> 表达式返回值，语句不会
+
+### 语句
+
+Rust 中的语句有四种：
+
+- Item : `fn`、`struct` 或 `use` 等
+- let 变量声明语句
+- 表达式加分号结束或者表达式返回`()`
+- 宏调用
+
+### 表达式
+
+### 块与分号
+
+代码块，同样也是表达式。块产生值，其可以用于任何需要值的地方。块的值就是其内部最后一个表达式的值。
+
+如果最后一个语句加上了分号，那么这个块会默认返回 unit type `()`
+
+```rust
+let display_name = match post.author() {
+    Some(author) => author.name(),
+    None => {
+        let network_info = post.get_network_metadata()?;
+        let ip = network_info.client_address();
+        ip.to_string()
+    }
+};
+
+let msg = {
+    // let声明：分号是必需的
+    let dandelion_control = puffball.open();
+    // 表达式+分号：方法调用，返回值被清除
+    dandelion_control.release_all_seeds(launch_codes);
+    // 表达式不带分号：方法被调用，返回值保存于msg中
+    dandelion_control.get_status()
+};
+```
+
+!> let 声明不返回值，比如加上分号
+!> 表达式+分号, 返回值被清除
+
+
+
+```rust
+if preferences.changed() {
+    // 编译会报错
+    page.compute_size() // 噢，漏掉了分号
+}
+```
+
+空语句可以出现在块中
+
+```rust
+loop {
+ work();
+ play();
+ ; // <-- 空语句
+}
+```
+
+#### 声明
+
+除了表达式和分号，块还可以包含多个任意声明。最常见的是用于声明局部变量的 let 声明：
+
+```rust
+// 类型和初始值是可选的，分号是必需的。
+let name: type = expr;
+```
+
+和其它语言不一样，在同一作用域中，可以创建同名变量，前面的变量会被覆盖
+
+```rust
+for line in file.lines() {
+    let line = line?;
+    ...
+}
+```
+
+#### 条件表达式
+
+```rust
+if condition1 {
+    block1
+} else if condition2 {
+    block2
+} else {
+    block_n
+}
+```
+
+> if 表达式要求每个分支都要返回相同的类型，如果没有 else block，那么 if block 也必须返回 `()`
+
+```rust
+match code {
+    0 => println!("OK"),
+    1 => println!("Wires Tangled"),
+    2 => println!("User Asleep"),
+    // 类似于 switch 的 default
+    _ => println!("Unrecognized Error {}", code)
+}
+```
+
+match 表达式看起来类似于 C 的 switch 语句，但其实会更灵活，因为其可以使用**模式匹配**
+
+> 模式匹配是 Rust 内置的 mini 语言
+
+```rust
+match value {
+    pattern => expr,
+    ...
+}
+
+match params.get("name") {
+    Some(name) => println!("Hello, {}!", name),
+    None => println!("Greetings, stranger.")
+}
+```
+
+!> match 的所有模式中必须至少有一个匹配，否则编译器会报错
+
+> match 的所有分支也都必须返回相同类型的值
+
+if 可以使用模式匹配，那就是 `if let` 语句
+
+```rust
+if let pattern = expr {
+    block1
+} else {
+    block2
+}
+
+if let Some(cookie) = request.session_cookie {
+    return restore_session(cookie);
+}
+```
+
+if let 是 match 的一个子集，等价于 
+
+```rust
+match expr {
+    pattern => { block1 }
+    _ => { block2 }
+}
+```
+
+#### 循环表达式
+
+四种类型
+
+```rust
+while condition {
+    block
+}
+// 类似于 if let
+while let pattern = expr {
+    block
+}
+
+loop {
+    block
+}
+
+for pattern in iterable {
+    block
+}
+```
+
+Rust 中的 for 循环只提供了 range 语法，但是结合 `..` 语法糖可以很简单的模拟 for-i 语句。
+
+`..` 操作符会产生 Range 对象，`0..20`(半开区间) 等价于 `std::ops::Range { start: 0, end: 20 }`，另外 `0..` `..20` `0..=20` 等写法也会产生对应 Range 类型的对象。这些 Range 类型都实现了 `std::iter::Iterable` Trait（for 循环只能作用于 `Iterable`，）
+
+```rust
+for index in 0..20 {
+    print!({}, index);
+}
+```
+
+for 循环本身也是个语法糖，等价于
+
+```rust
+while let Some(item) = iterable.into_iter().next() {
+    ...
+}
+```
+
+for 循环也是默认使用 move
+
+```rust
+let strings: Vec<String> = error_messages();
+for s in strings { // each String is moved into s here...
+    println!("{}", s);
+}
+// ...and dropped here
+println!("{} error(s)", strings.len()); // error: use of moved value
+```
+
+如果不想被 move，可以使用 `&strings` 引用替代
+
+循环表达式可以使用 `break` `continue` 语句，break 语句可以返回值，还可以指定跳出的 label
+
+```rust
+// Find the square root of the first perfect square
+// in the series.
+let sqrt = 'outer: loop {
+    let n = next_number();
+    for i in 1.. {
+        let square = i * i;
+        if square == n {
+        // Found a square root.
+            break 'outer i;
+        }
+        if square > n {
+            // `n` isn't a perfect square, try the next
+            break;
+        }
+    }
+};
+```
+
+#### return 表达式
+
+return 用来退出当前函数，并返回一个值。
+
+函数 block 一般使用最后一个表达式作为返回值，如果要提前返回，就需要使用 return
+
+常用于 `Option<T>` 和 `Result<T, E>` 的 `?` 操作符就是个使用 return 的语法糖
+
+```rust
+let output = File::create(filename)?;
+
+// 等价于
+let output = match File::create(filename) {
+    Ok(f) => f,
+    Err(err) => return Err(err)
+};
+```
+
+前面说过，if 表达式的所有分支必须是相同的类型。如果把这个规则强加给以 `break` 或 `return` 表达式结尾的块、无穷 `loop`、对 `panic!()` 或 `std::process::exit()` 的调用，则是不明智的。这些表达式共有的特点是它们都不以惯常的方式结束，不返回值。
+
+不正常结束的表达式通常被指定为特殊类型 `!`，就是说这些表达式永远不会返回。比如 `std::process::exit()` 的函数签名中返回类型就是 `!`
+
+#### 函数和方法调用
+
+```rust
+let x = gcd(1302, 462); // function call
+let room = player.location();   // method call
+let mut numbers = Vec::new();   // type-associated function call
+```
+
+
+
 ## 模式匹配
 
 ## 错误处理
@@ -666,6 +948,22 @@ let u: Rc<String> = s.clone();
 ## 空处理
 
 ## 函数
+
+函数可以定义在 block 内，但是不能访问 block 的局部变量
+
+```rust
+use std::io;
+use std::cmp::Ordering;
+fn show_files() -> io::Result<()> {
+    let mut v = vec![];
+    ...
+    fn cmp_by_timestamp_then_name(a: &FileInfo, b: &FileInfo) -> Ordering {
+        ...
+    }
+    v.sort_by(cmp_by_timestamp_then_name);
+    ...
+}
+```
 
 ## 结构体
 
