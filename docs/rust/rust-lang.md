@@ -437,6 +437,34 @@ Rust 保证字符串是有效的 UTF-8。但是再与其它系统操作是，需
 
 ### 类型转换
 
+#### as 操作符
+
+```rust
+let x = 17; // x is type i32
+let index = x as usize; // convert to usize
+```
+
+as 的使用场景：
+
+- 数字类型之间转换
+- `bool`, `char`, C-like `enum` 类型转整数类型（**反之不行**）
+
+    > 可用 `std::char::form_u32()` 把整型转成 `char` ，返回值是 `Option<char>`, 如果不是有效的 Unicode 编码，返回 `None`
+    
+    > 有一个例外，`u8` 可以转成 `char`，因为 `u8` 都是有效的 Unicode 编码
+
+- 引用转成原始指针，只读原始指针转可变原始指针(`&T as *T`, `*T as *mut T`)
+
+#### 隐式转换
+
+实现了 `Deref` 特征的类型，在初始化、赋值、函数参数、返回值、match 等场景会被自动 `deRef`:
+
+常见的有:
+
+- `&String` -> `&str`
+- `&Vec<i32>` -> `&[i32]`
+- `&Box<Chessboard>` -> `&Chessboard`
+
 #### 点操作符
 
 方法调用的点操作符看起来简单，实际上非常不简单，它在调用时，会发生很多魔法般的类型转换，例如：自动引用、自动解引用，强制类型转换直到类型能匹配等。
@@ -698,11 +726,32 @@ Rust 中的语句有四种：
 - Item : `fn`、`struct` 或 `use` 等
 - let 变量声明语句
 - 表达式加分号结束或者表达式返回`()`
+
+    > 表达式返回 `()` 就不需要额外加分号了
+
 - 宏调用
+
+#### let 声明
+
+除了表达式和分号，块还可以包含多个任意声明。最常见的是用于声明局部变量的 `let` 声明：
+
+```rust
+// 类型和初始值是可选的，分号是必需的。
+let name: type = expr;
+```
+
+和其它语言不一样，在同一作用域中，可以创建同名变量，前面的变量会被覆盖
+
+```rust
+for line in file.lines() {
+    let line = line?;
+    ...
+}
+```
 
 ### 表达式
 
-### 块与分号
+#### 块与分号
 
 代码块，同样也是表达式。块产生值，其可以用于任何需要值的地方。块的值就是其内部最后一个表达式的值。
 
@@ -728,10 +777,9 @@ let msg = {
 };
 ```
 
-!> let 声明不返回值，比如加上分号
+!> `let` 声明不返回值，比如加上分号
+
 !> 表达式+分号, 返回值被清除
-
-
 
 ```rust
 if preferences.changed() {
@@ -747,24 +795,6 @@ loop {
  work();
  play();
  ; // <-- 空语句
-}
-```
-
-#### 声明
-
-除了表达式和分号，块还可以包含多个任意声明。最常见的是用于声明局部变量的 let 声明：
-
-```rust
-// 类型和初始值是可选的，分号是必需的。
-let name: type = expr;
-```
-
-和其它语言不一样，在同一作用域中，可以创建同名变量，前面的变量会被覆盖
-
-```rust
-for line in file.lines() {
-    let line = line?;
-    ...
 }
 ```
 
@@ -937,13 +967,204 @@ let output = match File::create(filename) {
 let x = gcd(1302, 462); // function call
 let room = player.location();   // method call
 let mut numbers = Vec::new();   // type-associated function call
+let mut numbers2 = Vec::<i32>::new(); // 关联方法指定类型参数
 ```
 
+#### Fields 和 Elements 访问
 
+```rust
+// 获取 struct 的 field 值
+game.black_pawns 
+// 获取 tuple like struct 的 field
+coords.1 
+// 获取数组或者向量的值
+pieces[i]
+// 获取数据或者向量的切片引用
+let second_half = &game_moves[midpoint .. end];
+```
+
+Range 语法糖的本质：
+
+> Range 对象都实现了 `Iterable`
+
+```
+..      // RangeFull
+a ..     // RangeFrom { start: a }
+.. b     // RangeTo { end: b }
+a .. b    // Range { start: a, end: b }
+..= b       // RangeToInclusive { end: b }
+a ..= b     // RangeInclusive::new(a, b)
+```
+
+#### 引用操作符和解引用操作符
+
+引用操作符: `&` `&mut`
+
+解引用操作符: `*`
+
+> 当使用 `.` 操作符时会自动解引用，因此 `*` 操作符一般只需要用于读或者写引用对象的值
+
+```rust
+let padovan: Vec<u64> = compute_padovan_sequence(n);
+for elem in &padovan {
+    draw_triangle(turtle, *elem);
+}
+```
+
+#### 算术、位运算、比较、逻辑运算符
+
+算术: `+` `-` `*` `/` `%`
+位运算: `&` `|` `^` `<<` `>>` `!`
+比较: `==` `!=` `<` `<=` `>` `>=`
+逻辑：`&&` `||` `!`
+
+> Rust 有无符号整数，所以不需要 Java 中的 `>>>` 运算符
+
+```rust
+println!("{}", -100);
+let x = 1234.567 % 10.0;
+
+let hi: u8 = 0xe0;
+let lo = !hi;   // 0x1f
+```
+
+#### 赋值运算符
+
+```rust
+total += item.price;
+```
+
+!> Rust 没有 C 的 `++` `--` 运算符
+
+#### 闭包 Closures
+
+```rust
+// 自动推导入参和返回值类型
+let is_even = |x| x % 2 == 0;
+// 显式标注入参和返回值类型
+let is_even = |x: u64| -> bool { x % 2 == 0 };  // ok
+// 调用闭包
+is_even(14)
+```
 
 ## 模式匹配
 
 ## 错误处理
+
+Rust 中有两种错误处理方法：`panic` 和 `Result<T, E>`
+
+Result 用来表示程序外部导致的问题
+
+panic 表示不应该发生的错误
+
+### Panic
+
+常见的 Panic 场景：
+
+- 数组越界
+- 除以 0
+- 调用 Result 的 `.expect()`
+- assert 断言错误
+- 调用 `panic!()` 宏
+
+以上情形的共性在于它们都由程序员的错误所导致。因此我们的经验是：“最好不要 panic”。
+
+panic 触发后的处理过程:
+
+1. 在终端打印错误消息
+2. 栈被展开
+3. 线程退出，如果 panic 的是主线程，则退出进程
+
+panic 是线程级别的
+
+可以使用 `std::panic::catch_unwind()` 方法捕获 panic，让代码继续执行。但是一般只在 UT 代码或者被 C/C++ 调用时才使用。
+
+`panic` 不是 `crash`，也不是 `undefined behavior`。更像 Java 的 `RuntimeException` 和 C++ 的 `std::logic_error`。
+
+代码写得好，理论上是不会发生 panic 的。但是哪有完美的代码，为保证程序更加健壮，可以使用线程和 `catch_unwind()` 来处理
+诧异。
+
+!> 触发第一个 panic， 在栈展开过程中，如果某个 `drop` 方法触发了第二个 panic，会直接中止进程
+
+### Result
+
+和 Go 类似，Rust 没有 exception。
+
+取而代之，可以通过返回 `Result<T, E>` 类型来表达函数可能失败
+
+```rust
+// 成功返回 Ok(weather)，weather 是 WeatherReport 类型；失败返回 Err(error_value)，error_value 是 io::Error 类型
+fn get_weather(location: LatLng) -> Result<WeatherReport, io::Error>
+```
+
+Go 是用返回 `value, err` 元组表达失败，这也导致出现了大量的 `if err != nil` 的错误判断，这也是 Go 被诟病最多的一个点。
+
+Rust 中**用 match 表达式和模式匹配处理 Result**，类似于其它语言中的 `try/catch`
+
+```rust
+match get_weather(hometown) {
+    Ok(report) => {
+        display_weather(hometown, &report);
+    }
+    Err(err) => {
+        println!("error querying the weather: {}", err);
+        schedule_weather_retry();
+    }
+}
+```
+
+同时，Result 也提供了一些方法来简化处理
+
+- `result.is_ok()`, `result.is_err()` : 判断函数成功还是失败
+- `result.ok()`: 返回 `Option<T>`，Err 时就是 `None`
+- `result.err()`: 返回 `Option<E>`, Err 时有值
+- `result.unwrap_or(fallback)`: 返回 `T`, Err 时取 `fallback` 默认值
+- `result.unwrap_or_else(fallback_fn)`: 返回 `T`, Err 时调用 `fallback_fn`，取其默认值
+- `result.unwrap()`: 返回 `T`, Err 时 panic
+- `result.expect(message)`: 返回 `T`, Err 时 panic，panic 打印 message 作为错误信息
+- `result.as_ref()`, `result.as_mut()`: 返回 `Result<&T, &E>` 或者 `Result<&mut T, &mut E>`
+
+一般一个模块内会用同一 Err 类型，所以经常会 alias Result 来简化 Result 的书写
+
+```rust
+// 类型别名
+pub type Result<T> = result::Result<T, Error>;
+
+// 使用类型别名
+fn remove_file(path: &Path) -> Result<()>
+```
+
+打印错误信息:
+
+```rust
+// 打印错误信息
+println!("error: {}", err);
+// 打印错误信息到标准错误输出
+writeln!(stderr(), "error: {}", err);
+// 打印 Err 类型内容
+println!("error: {:?}", err);
+
+// 获取错误信息
+let err_msg = err.to_string();
+// 获取上级 Err, 返回的是 Option 类型
+let err_source = err.source();
+```
+
+> Rust 标准库的错误类型一般不包含 stack trace，`err.source` 都是 None, 但是三方 `anyhow` crate 提供了对应的错误类型。
+
+Rust 还提供了一种语法糖用于简化`传播错误`，即 `?` 操作符
+
+```rust
+let weather = get_weather(hometown)?;
+
+// 等价于
+let weather = match get_weather(hometown) {
+    Ok(success_value) => success_value,
+    Err(err) => return Err(err)
+};
+```
+
+
 
 ## 空处理
 
