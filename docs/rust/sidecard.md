@@ -1,3 +1,6 @@
 - [README]()
 - [Rust 语言特性](./rust-lang)
+- [Rust 宏编程](./rust-macro.md)
+- [Rust Unsafe](./rust-unsafe.md)
 - [包管理和模块](./package.md)
+- [常用三方库](./rust-lib)
