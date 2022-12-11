@@ -15,3 +15,7 @@
 ## 序列化
 
 - [serde_json](https://lib.rs/crates/serde_json)：json 转 struct
+
+## References
+
+- [日常开发三方库精选](https://course.rs/practice/third-party-libs.html)

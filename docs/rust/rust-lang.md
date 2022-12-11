@@ -48,6 +48,82 @@ let mut v: u32 = 20;
 
 > 一个值只拥有栈上数据的，都应该是 `Copy`
 
+### 全局变量
+
+#### 静态常量
+
+关键字 `const`，必须指明类型，全大写，**可以在任意作用域定义**，只能是常量表达式(编译期得到结果)，不能重复定义，生命周期是 `'static`，编译器会尽力内联。
+
+```rust
+const MAX_ID: usize =  usize::MAX / 2;
+fn main() {
+   println!("用户ID允许的最大值是{}",MAX_ID);
+}
+```
+
+#### 静态变量
+
+静态变量和静态常量类似，除了以下两点：
+
+- 关键字 `static` / `static mut`
+- 静态变量不会被内联，在整个程序中，静态变量只有一个实例，所有的引用都会指向同一个地址
+- 存储在静态变量中的值必须要实现 Sync trait
+
+```rust
+static mut REQUEST_RECV: usize = 0;
+```
+
+由于在多线程下会有安全问题，Rust 要求 **必须使用 unsafe 语句块才能访问和修改 static 变量**
+
+除了显式使用 unsafe，还是用原子类型、Mutex、CellRef、Cell等内部可变性类型作为静态变量，这是也可以修改。
+
+静态初始化有一个致命的问题：无法用函数进行静态初始化。
+
+这是可以使用社区提供的 `lazy_static` 宏
+
+```rust
+use std::sync::Mutex;
+use lazy_static::lazy_static;
+lazy_static! {
+    static ref NAMES: Mutex<String> = Mutex::new(String::from("Sunface, Jack, Allen"));
+}
+
+fn main() {
+    let mut v = NAMES.lock().unwrap();
+    v.push_str(", Myth");
+    println!("{}",v);
+}
+```
+
+`Box::leak` 也可以用作运行期初始化的全局动态配置
+
+```rust
+#[derive(Debug)]
+struct Config {
+    a: String,
+    b: String,
+}
+static mut CONFIG: Option<&mut Config> = None;
+
+fn init() -> Option<&'static mut Config> {
+    let c = Box::new(Config {
+        a: "A".to_string(),
+        b: "B".to_string(),
+    });
+
+    Some(Box::leak(c))
+}
+
+
+fn main() {
+    unsafe {
+        CONFIG = init();
+
+        println!("{:?}", CONFIG)
+    }
+}
+```
+
 ## 类型
 
 由于 Rust 是静态类型语言，所以要写出函数参数、返回值、struct 字段以及其它结构体的类型。

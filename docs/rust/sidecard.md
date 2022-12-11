@@ -2,5 +2,6 @@
 - [Rust 语言特性](./rust-lang)
 - [Rust 宏编程](./rust-macro.md)
 - [Rust Unsafe](./rust-unsafe.md)
+- [Rust 并发编程](./rust-concurrency.md)
 - [包管理和模块](./package.md)
 - [常用三方库](./rust-lib)
