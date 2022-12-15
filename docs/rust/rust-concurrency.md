@@ -597,15 +597,25 @@ struct AsyncFuture {
 
 可以看出编译得到的 Future 很容易就存在自引用结构，所以需要用 `!Unpin` 保护。 
 
-而 Pin 只是一个结构体，用于
+而 Pin 只是一个封装 Future 指针的结构体，内部的指针字段不是 pub，也就是只能通过 Pin 提供的关联方法来创建 Pin 值，一般有三种方法：
 
-> 
+- 使用 `futures-lite` crate 提供的 `pin!`，其生成 `Pin<&mut T>`，其中的引用指向当前栈中的值，离开当前作用域销毁，一般用于 `block_on` 
+- `Box::pin` 构造器，拥有所有权
+- `Pin<Box<T>>` 实现了 `From<Box<T>>`，所以可以用 `Pin::from(boxed)`，也拥有所有权
+
+pinned 一个 future，也就放弃了 future 的所有权，pin 本身可以移动，但是其封装指针的内部不可移动。
+
+可以通过 `pin.as_mut()` 获取内部指针的可变引用。
 
 ```rust
 pub struct Pin<P> {
+    // 注意 pointer 不是 pub
     pointer: P,
 }
 ```
+
+但是并不是所有的 future 都是 `!Unpin`(编译后不会产生自引用，比如没有 await 语句)。对于这种封装指针实现了 `Unpin` 的 Pin，可以通过 `Pin::new()`构建，并通过 `pin.into_inner()` 来解开封装。
+
 
 ### Rust 异步编程原理
 
