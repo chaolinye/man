@@ -6,7 +6,19 @@
 
 协程的实现会显著增大运行时的大小，因此 Rust 只在**标准库中提供了 1:1 的线程模型**，如果你愿意牺牲一些性能来换取更精确的线程控制以及更小的线程上下文切换成本，那么可以选择 Rust 中的 **M:N 模型，这些模型由三方库提供了实现**，例如大名鼎鼎的 tokio。
 
-> 据不精确估算，创建一个线程大概需要 `0.24 毫秒`
+async 和多线程的性能对比
+
+| 操作 | async | 线程 |
+| :--: | :--: | :--: |
+| 创建 | 0.3us | 17us |
+| 线程切换 | 0.2us | 1.7us |
+
+async 和多线程的选择：
+
+- 有大量 IO 任务需要并发运行时，选 async 模型
+- 有部分 IO 任务需要并发运行时，选多线程，如果想要降低线程创建和销毁的开销，可以使用线程池
+- 有大量 CPU 密集任务需要并行运行时，例如并行计算，选多线程模型，且让线程数等于或者稍大于 CPU 核心数
+- 无所谓时，统一选多线程
 
 ## 多线程
 
@@ -460,11 +472,382 @@ let t = thread::spawn(move|| {
 });
 ```
 
-## aysnc/await
+## aysnc/await 异步编程
 
-> TODO
+上面的多线程编程本质上是同步编程，IO 会阻塞线程，而每个线程会占用一定的系统资源，系统的线程数量是有限的，IO 阻塞线程也就导致并发度受限。
+
+Unix 系统支持 [5 种 IO 模型](/docs/netty/?id=_5-种-io-模型)，由于当前异步 IO 还不完善，大多数异步编程都是通过 IO 多路复用实现（在 Linux 下就是 epoll 了）。
+
+Nodejs 默认就是异步编程，其实现异步编程是通过事件循环来（使用线程池通过IO多路复用监听事件，有事件完成时再把事件和回调放入主循环中）。
+
+Rust 的异步编程也是差不多的原理。关键字也是采用了 `async/await` (await 的语法有点差别)。
+
+> Go 的协程本质上也是基于异步 IO 实现的。不过其是有栈协程。`async/await` 是无栈携程。
+
+async 的底层实现非常复杂，且会导致编译后文件体积显著增加，因此 Rust 没有选择像 Go 语言那样内置了完整的特性和运行时，而是选择了通过 Rust 语言提供了必要的特性支持，再通过社区来提供 async 运行时的支持。 因此要完整的使用 async 异步编程，你需要依赖以下特性和外部库:
+
+- Rust 语言提供 `async/await` 关键字, 并进行了编译器层面的支持
+- 标准库提供所必须的特征(例如 `Future` )、类型和函数
+- 官方开发的 `futures` 包提供众多实用的类型、宏和函数
+- async 代码的执行、IO 操作、任务创建和调度等等复杂功能由社区的 async 运行时提供，例如 `tokio` 和 `async-std`
+
+### Futures
+
+> 由标准库提供
+
+Rust 为支持异步编程提供了 `std::future::Future`。其提供一个 `poll` 拉取异步任务结果，会立即返回 `Ready(output)` 或者 `Pending`。另外 `poll` 可以传入一个 `wake` 回调函数，等异步任务完成了，会调用 `wake` 函数。
+
+> Rust 的运行时就是通过 `wake` 函数来唤醒阻塞的任务（在 wake 函数中把任务重新加到任务列表）
+
+> 和其它语言的 Future 只是一个句柄不一样，Rust 的 Future 是惰性的，只有在被 poll 时才会运行。里面是个状态机，每次 poll 才会执行，一般会执行到下一个状态。也就是说任务的内容就在 Future 中。
+
+一个简化版的特征：
+
+```rust
+trait SimpleFuture {
+    type Output;
+    fn poll(&mut self, wake: fn()) -> Poll<Self::Output>;
+}
+
+enum Poll<T> {
+    Ready(T),
+    Pending,
+}
+```
+
+### async/await 表达式
+
+> 由 Rust 语言提供
+
+async 可以用于函数即 `async fn`，也可以用于 block 即 `async { ... }`
+
+`aysnc` 返回实现 `Future` 特征的类型(类似于 Javascript 的 async 返回 promise)
+
+和 Javascirpt 类似，只有在 `async` 中调用 `async` 才可以使用 `.wait`，同步代码中调用 `block_on(future)`。
+
+>  `block_on` 会阻塞线程，`.wait` 并不会阻塞当前的线程。
+
+!> 
+同步代码中需要把最外层的 Future 放到三方库提供的**运行时**的任务列表中。
+
+```toml
+[dependencies]
+futures = "0.3"
+```
+
+```rust
+use futures::executor::block_on;
+
+async fn hello_world() {
+    hello_cat().await;
+    println!("hello, world!");
+}
+
+async fn hello_cat() {
+    println!("hello, kitty!");
+}
+fn main() {
+    let future = hello_world();
+    block_on(future);
+}
+```
+
+### Pin 和 Unpin
+
+在 Rust 中，所有的类型可以分为两类:
+
+- 类型的值可以在内存中安全地被移动，例如数值、字符串、布尔值、结构体、枚举，总之你能想到的几乎所有类型都可以落入到此范畴内
+- 自引用类型
+
+    ```rust
+    // pointer_to_value 指向 value，如果 SelfRef 移动后，pointer_to_value 还是指向原来的变量字段，而这个字段已经是为初始化
+    struct SelfRef {
+        value: String,
+        pointer_to_value: *mut String,
+    }
+    ```
+
+绝大多数类型都不在意是否被移动(开篇提到的第一种类型)，因此它们都自动实现了 `Unpin` 特征。对于不能安全移动的类型需要实现 `!Unpin` 特征。
+
+由于自引用类型，才需要实现 `!Unpin` 特征
+
+如果 async 语句块中使用了引用类型
+
+```rust
+async {
+    let mut x = [0; 128];
+    let read_into_buf_fut = read_into_buf(&mut x);
+    read_into_buf_fut.await;
+    println!("{:?}", x);
+}
+```
+
+被编译成两个 Future，
+
+```rust
+struct ReadIntoBuf<'a> {
+    buf: &'a mut [u8], // 指向下面的`x`字段
+}
+
+struct AsyncFuture {
+    x: [u8; 128],
+    read_into_buf_fut: ReadIntoBuf<'what_lifetime?>,
+}
+```
+
+可以看出编译得到的 Future 很容易就存在自引用结构，所以需要用 `!Unpin` 保护。 
+
+而 Pin 只是一个结构体，用于
+
+> 
+
+```rust
+pub struct Pin<P> {
+    pointer: P,
+}
+```
+
+### Rust 异步编程原理
+
+1. 编译器把 `async fn` 和 `async` block 编译成一个实现 `Future` 的类型，这个类型是个状态机，根据 `.await` 切分状态。
+
+    > 每个状态就是个恢复点，下次唤醒时执行对应状态的代码
+
+    ```rust
+    #[tokio::main]
+    async fn main() {
+        let when = Instant::now() + Duration::from_millis(10);
+        let future = Delay { when };
+
+        // 运行并等待 Future 的完成
+        let out = future.await;
+
+        // 判断 Future 返回的字符串是否是 "done"
+        assert_eq!(out, "done");
+    }
+    ```
+
+    会被编译成
+
+    ```rust
+    use std::future::Future;
+    use std::pin::Pin;
+    use std::task::{Context, Poll};
+    use std::time::{Duration, Instant};
+
+    enum MainFuture {
+        // 初始化，但永远不会被 poll
+        State0,
+        // 等待 `Delay` 运行，例如 `future.await` 代码行
+        State1(Delay),
+        // Future 执行完成
+        Terminated,
+    }
+
+    impl Future for MainFuture {
+        type Output = ();
+
+        fn poll(mut self: Pin<&mut Self>, cx: &mut Context<'_>)
+            -> Poll<()>
+        {
+            use MainFuture::*;
+
+            loop {
+                match *self {
+                    State0 => {
+                        let when = Instant::now() +
+                            Duration::from_millis(10);
+                        let future = Delay { when };
+                        *self = State1(future);
+                    }
+                    State1(ref mut my_future) => {
+                        match Pin::new(my_future).poll(cx) {
+                            Poll::Ready(out) => {
+                                assert_eq!(out, "done");
+                                *self = Terminated;
+                                return Poll::Ready(());
+                            }
+                            Poll::Pending => {
+                                return Poll::Pending;
+                            }
+                        }
+                    }
+                    Terminated => {
+                        panic!("future polled after completion")
+                    }
+                }
+            }
+        }
+    }
+    ```
+
+2. 同步代码把 `Future` 封装成 `Task`（Task 实现了 `Wake` 特征） 加入**运行时**的任务列表中
+
+    ```rust
+    #[tokio::main]
+    async fn main() {
+        let when = Instant::now() + Duration::from_millis(10);
+        let future = Delay { when };
+
+        // 运行并等待 Future 的完成
+        let out = future.await;
+
+        // 判断 Future 返回的字符串是否是 "done"
+        assert_eq!(out, "done");
+    }
+    ```
+
+    会编译成
+
+    > 暂时忽略 Future 的编译
+
+    ```rust
+    fn main() {
+        let mut mini_tokio = MiniTokio::new();
+
+        mini_tokio.spawn(async {
+            let when = Instant::now() + Duration::from_millis(10);
+            let future = Delay { when };
+
+            let out = future.await;
+            assert_eq!(out, "done");
+        });
+
+        mini_tokio.run();
+    }
+    ```
+
+    一个简化的 Tokio 实现如下：
+
+    ```rust
+    struct MiniTokio {
+        scheduled: channel::Receiver<Arc<Task>>,
+        sender: channel::Sender<Arc<Task>>,
+    }
+
+    impl MiniTokio {
+        fn new() -> MiniTokio {
+            let (sender, scheduled) = channel::unbounded();
+
+            MiniTokio { scheduled, sender }
+        }
+
+        /// 生成一个 Future并放入 mini-tokio 实例的任务队列中
+        fn spawn<F>(&self, future: F)
+        where
+            F: Future<Output = ()> + Send + 'static,
+        {
+            Task::spawn(future, &self.sender);
+        }
+
+        fn run(&self) {
+            while let Ok(task) = self.scheduled.recv() {
+                task.poll();
+            }
+        }
+    }
+    ```
+
+    任务的封装：
+
+    ```rust
+    struct Task {
+        // `Mutex` 是为了让 `Task` 实现 `Sync` 特征，它能保证同一时间只有一个线程可以访问 `Future`。
+        // 事实上 `Mutex` 并没有在 Tokio 中被使用，这里我们只是为了简化： Tokio 的真实代码实在太长了 :D
+        future: Mutex<Pin<Box<dyn Future<Output = ()> + Send>>>,
+        executor: channel::Sender<Arc<Task>>,
+    }
+
+    impl Task {
+        fn schedule(self: &Arc<Self>) {
+            self.executor.send(self.clone());
+        }
+
+        fn poll(self: Arc<Self>) {
+            // 基于 Task 实例创建一个 waker, 它使用了之前的 `ArcWake`
+            let waker = task::waker(self.clone());
+            let mut cx = Context::from_waker(&waker);
+
+            // 没有其他线程在竞争锁时，我们将获取到目标 future
+            let mut future = self.future.try_lock().unwrap();
+
+            // 对 future 进行 poll
+            let _ = future.as_mut().poll(&mut cx);
+        }
+
+        fn spawn<F>(future: F, sender: &channel::Sender<Arc<Task>>)
+        where
+            F: Future<Output = ()> + Send + 'static,
+        {
+            let task = Arc::new(Task {
+                future: Mutex::new(Box::pin(future)),
+                executor: sender.clone(),
+            });
+
+            let _ = sender.send(task);
+        }
+
+    }
+
+    impl ArcWake for Task {
+        fn wake_by_ref(arc_self: &Arc<Self>) {
+            arc_self.schedule();
+        }
+    }
+    ```
+
+3. 运行时的 `Executor` 从任务列表获取任务，调用其 `poll`，传入 `context`(包含 `waker` 对象，也就是 Task 对象)
+
+4. poll 时，Future 执行其内部状态机的第一个状态方法，执行完第一个状态后，执行第二个状态内的方法，poll 其它 future，并传入 `waker`。
+
+5. 一直调用到最里面的 future，这时一般是需要执行异步IO（IO 多路复用），或者定时器，把 `waker` 传给对应的线程或者线程池。
+
+    一个定时器 Future
+
+    ```rust
+    struct Delay {
+        when: Instant,
+    }
+
+    impl Future for Delay {
+        type Output = &'static str;
+
+        fn poll(self: Pin<&mut Self>, cx: &mut Context<'_>)
+            -> Poll<&'static str>
+        {
+            if Instant::now() >= self.when {
+                println!("Hello world");
+                Poll::Ready("done")
+            } else {
+                // 为当前任务克隆一个 waker 的句柄
+                let waker = cx.waker().clone();
+                let when = self.when;
+
+                // 生成一个计时器线程
+                thread::spawn(move || {
+                    let now = Instant::now();
+
+                    if now < when {
+                        thread::sleep(when - now);
+                    }
+
+                    waker.wake();
+                });
+
+                Poll::Pending
+            }
+        }
+    }
+    ```
+
+6. 异步 IO 或者定时器完成时，调用 `waker.wake()` ，这个会把 Task 对象再次放入任务列表，让 Executor 继续调用其 poll。
+
+
 
 ## References
 
 - [多线程并发编程](https://course.rs/advance/concurrency-with-threads/intro.html)
+- [深入 Tokio 背后的异步原理](https://course.rs/async-rust/tokio/async.html)
 - [Rust 异步编程](https://course.rs/async-rust/intro.html)
+- [浅谈有栈协程与无栈协程](https://zhuanlan.zhihu.com/p/347445164)
+- [深入了解 Rust 异步开发模式](https://cloud.tencent.com/developer/news/686021)
