@@ -19,6 +19,7 @@ C++ 中的每个变量都有其数据类型，数据类型决定着变量所占�
 int units_sold(0);
 int units_sold = 0;
 // 列表初始化，c++ 11 开始支持
+int units_sold{} // initialized with zero
 int units_sold{0}
 int units_sold = {0}
 ```
@@ -119,6 +120,10 @@ enum class Color;                   //限域enum声明
 std::cout << "a really, really long string literal "
             "that spans two lines" << std::endl;
 ```
+
+[字符串字面值文档](https://en.cppreference.com/w/cpp/language/string_literal)
+
+原始字符串字面值： `R"--(STUV)--"` 包含 `STUV` 字符
 
 ![](../images/cpp_literal.png ":size=50%")
 
@@ -486,7 +491,7 @@ auto f = [] {return 42;};
 cout << f() << endl;
 ```
 
-当定义一个 lambd a时，编译器生成一个与 lambda 对应的新的（未命名的）类类型。
+当定义一个 lambda 时，编译器生成一个与 lambda 对应的新的（未命名的）类类型。
 
 > 如果 lambda 的函数体包含任何单一 return 语句之外的内容，且未指定返回类型，则返回 `void`。有其它语句会导致编译器无法推导出返回类型
 
@@ -533,6 +538,24 @@ f1 = [] (int i, int j ) { return i * j; }   // lambda
 - `for(declaration : expression) { statement }`
 
 > 范围 for 语句中的 `expression` 表示的必须是一个序列，比如用花括号括起来的**初始值列表、数组或者 vector 或 string** 等类型的对象，这些类型的共同特点是拥有能返回迭代器的 begin 和 end 成员。
+
+```c++
+for (decl: coll) {
+    statement
+}
+
+// 等价于
+for (auto _pos = coll.begin(), _end = coll.end(); _pos != _end; ++_pos) {
+    decl = *_pos;
+    statement
+}
+
+// 或者，比如数组
+for (auto _pos = begin(coll), _end = end(coll); _pos != _end; ++_pos) {
+    decl = *_pos;
+    statement
+}
+```
 
 ### 跳转语句
 
@@ -930,7 +953,7 @@ public:
     }
     ```
 
-    > 不抛出异常的移动构造函数和移动赋值运算符必须标记为 `noexcept`。因为很多标准库函数都是根据这些函数是否是 `noexcept` 来决定使用移动还是拷贝
+    > 不抛出异常的移动构造函数和移动赋值运算符必须标记为 `noexcept`。因为很多标准库函数都是根据这些函数是否是 `noexcept` 来决定使用移动还是拷贝。在 `noexcept(...)` 中你可以指定一个 Boolean 条件(编译器条件)
 
     > 只有当一个类没有定义任何自己版本的拷贝控制成员，且它的所有数据成员都能移动构造或移动赋值时，编译器才会为它合成移动构造函数或移动赋值运算符。
 
@@ -1979,6 +2002,8 @@ int compare(const char (&p1)[N], const char (&p2)[M]) {
 ### 类模板
 
 类模板（class template）是用来生成类的蓝图的。与函数模板的不同之处是，编译器不能为类模板推断模板参数类型。为了使用类模板，我们必须在模板名后的尖括号中提供额外信息，比如 `vector<int>`
+
+> Class 的成员函数可以是 template，然而 member template 不可以是 virtual
 
 当我们在类外定义一个成员时，必须说明成员属于哪个类。而且，从一个模板生成的类的名字中必须包含其模板实参
 

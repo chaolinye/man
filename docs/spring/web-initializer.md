@@ -205,135 +205,135 @@
 
 ## ServletContextInitializer
 
-    Spring Boot 的内嵌 Tomcat 不会通过 SPI 来寻找 `ServletContainerInitializer`，而是硬编码了一个实现 `org.springframework.boot.web.embedded.tomcat.TomcatStarter`
+Spring Boot 的内嵌 Tomcat 不会通过 SPI 来寻找 `ServletContainerInitializer`，而是硬编码了一个实现 `org.springframework.boot.web.embedded.tomcat.TomcatStarter`
 
-    ```java
-    public class TomcatServletWebServerFactory extends AbstractServletWebServerFactory implements ConfigurableTomcatWebServerFactory, ResourceLoaderAware {
+```java
+public class TomcatServletWebServerFactory extends AbstractServletWebServerFactory implements ConfigurableTomcatWebServerFactory, ResourceLoaderAware {
+    // ...
+
+    protected void configureContext(Context context, ServletContextInitializer[] initializers) {
+        TomcatStarter starter = new TomcatStarter(initializers);
+        if (context instanceof TomcatEmbeddedContext) {
+            TomcatEmbeddedContext embeddedContext = (TomcatEmbeddedContext) context;
+            embeddedContext.setStarter(starter);
+            embeddedContext.setFailCtxIfServletStartFails(true);
+        }
+        context.addServletContainerInitializer(starter, NO_CLASSES);
+
         // ...
 
-        protected void configureContext(Context context, ServletContextInitializer[] initializers) {
-            TomcatStarter starter = new TomcatStarter(initializers);
-            if (context instanceof TomcatEmbeddedContext) {
-                TomcatEmbeddedContext embeddedContext = (TomcatEmbeddedContext) context;
-                embeddedContext.setStarter(starter);
-                embeddedContext.setFailCtxIfServletStartFails(true);
-            }
-            context.addServletContainerInitializer(starter, NO_CLASSES);
+        new DisableReferenceClearingContextCustomizer().customize(context);
+        for (String webListenerClassName : getWebListenerClassNames()) {
+            context.addApplicationListener(webListenerClassName);
+        }
+        for (TomcatContextCustomizer customizer : this.tomcatContextCustomizers) {
+            customizer.customize(context);
+        }
+    }
+}
+```
 
-            // ...
+```java
+class TomcatStarter implements ServletContainerInitializer {
 
-            new DisableReferenceClearingContextCustomizer().customize(context);
-            for (String webListenerClassName : getWebListenerClassNames()) {
-                context.addApplicationListener(webListenerClassName);
+    private static final Log logger = LogFactory.getLog(TomcatStarter.class);
+
+    private final ServletContextInitializer[] initializers;
+
+    private volatile Exception startUpException;
+
+    TomcatStarter(ServletContextInitializer[] initializers) {
+        this.initializers = initializers;
+    }
+
+    @Override
+    public void onStartup(Set<Class<?>> classes, ServletContext servletContext) throws ServletException {
+        try {
+            for (ServletContextInitializer initializer : this.initializers) {
+                initializer.onStartup(servletContext);
             }
-            for (TomcatContextCustomizer customizer : this.tomcatContextCustomizers) {
-                customizer.customize(context);
+        }
+        catch (Exception ex) {
+            this.startUpException = ex;
+            // Prevent Tomcat from logging and re-throwing when we know we can
+            // deal with it in the main thread, but log for information here.
+            if (logger.isErrorEnabled()) {
+                logger.error("Error starting Tomcat context. Exception: " + ex.getClass().getName() + ". Message: "
+                        + ex.getMessage());
             }
         }
     }
-    ```
 
-    ```java
-    class TomcatStarter implements ServletContainerInitializer {
-
-        private static final Log logger = LogFactory.getLog(TomcatStarter.class);
-
-        private final ServletContextInitializer[] initializers;
-
-        private volatile Exception startUpException;
-
-        TomcatStarter(ServletContextInitializer[] initializers) {
-            this.initializers = initializers;
-        }
-
-        @Override
-        public void onStartup(Set<Class<?>> classes, ServletContext servletContext) throws ServletException {
-            try {
-                for (ServletContextInitializer initializer : this.initializers) {
-                    initializer.onStartup(servletContext);
-                }
-            }
-            catch (Exception ex) {
-                this.startUpException = ex;
-                // Prevent Tomcat from logging and re-throwing when we know we can
-                // deal with it in the main thread, but log for information here.
-                if (logger.isErrorEnabled()) {
-                    logger.error("Error starting Tomcat context. Exception: " + ex.getClass().getName() + ". Message: "
-                            + ex.getMessage());
-                }
-            }
-        }
-
-        Exception getStartUpException() {
-            return this.startUpException;
-        }
-
+    Exception getStartUpException() {
+        return this.startUpException;
     }
-    ```
 
-    而 `TomcatStarter` 是通过传入的 `ServletContextInitializer` 实例进行初始化操作
+}
+```
 
-    > `ServletContextInitializer` 初始化就是向 `ServletContext` 添加 `Servlet` `Filter` `Listener` 等组件
+而 `TomcatStarter` 是通过传入的 `ServletContextInitializer` 实例进行初始化操作
 
-    > 如果是 Spring Boot 外部容器场景，ServletContext 实例是 SpringBootWebApplicationInitializer 传入的外部实例
+> `ServletContextInitializer` 初始化就是向 `ServletContext` 添加 `Servlet` `Filter` `Listener` 等组件
 
-    ```java
-    public class ServletWebServerApplicationContext extends GenericWebApplicationContext
-		implements ConfigurableWebServerApplicationContext {
+> 如果是 Spring Boot 外部容器场景，ServletContext 实例是 SpringBootWebApplicationInitializer 传入的外部实例
 
-            private void createWebServer() {
-                WebServer webServer = this.webServer;
-                ServletContext servletContext = getServletContext();
-                if (webServer == null && servletContext == null) {
-                    StartupStep createWebServer = this.getApplicationStartup().start("spring.boot.webserver.create");
-                    ServletWebServerFactory factory = getWebServerFactory();
-                    createWebServer.tag("factory", factory.getClass().toString());
-                    this.webServer = factory.getWebServer(getSelfInitializer());
-                    createWebServer.end();
-                    getBeanFactory().registerSingleton("webServerGracefulShutdown",
-                            new WebServerGracefulShutdownLifecycle(this.webServer));
-                    getBeanFactory().registerSingleton("webServerStartStop",
-                            new WebServerStartStopLifecycle(this, this.webServer));
-                }
-                // 外部容器场景
-                else if (servletContext != null) {
-                    try {
-                        getSelfInitializer().onStartup(servletContext);
-                    }
-                    catch (ServletException ex) {
-                        throw new ApplicationContextException("Cannot initialize servlet context", ex);
-                    }
-                }
-                initPropertySources();
+```java
+public class ServletWebServerApplicationContext extends GenericWebApplicationContext
+    implements ConfigurableWebServerApplicationContext {
+
+        private void createWebServer() {
+            WebServer webServer = this.webServer;
+            ServletContext servletContext = getServletContext();
+            if (webServer == null && servletContext == null) {
+                StartupStep createWebServer = this.getApplicationStartup().start("spring.boot.webserver.create");
+                ServletWebServerFactory factory = getWebServerFactory();
+                createWebServer.tag("factory", factory.getClass().toString());
+                this.webServer = factory.getWebServer(getSelfInitializer());
+                createWebServer.end();
+                getBeanFactory().registerSingleton("webServerGracefulShutdown",
+                        new WebServerGracefulShutdownLifecycle(this.webServer));
+                getBeanFactory().registerSingleton("webServerStartStop",
+                        new WebServerStartStopLifecycle(this, this.webServer));
             }
-
-            private org.springframework.boot.web.servlet.ServletContextInitializer getSelfInitializer() {
-                return this::selfInitialize;
-            }
-
-            private void selfInitialize(ServletContext servletContext) throws ServletException {
-                prepareWebApplicationContext(servletContext);
-                registerApplicationScope(servletContext);
-                WebApplicationContextUtils.registerEnvironmentBeans(getBeanFactory(), servletContext);
-                for (ServletContextInitializer beans : getServletContextInitializerBeans()) {
-                    beans.onStartup(servletContext);
+            // 外部容器场景
+            else if (servletContext != null) {
+                try {
+                    getSelfInitializer().onStartup(servletContext);
+                }
+                catch (ServletException ex) {
+                    throw new ApplicationContextException("Cannot initialize servlet context", ex);
                 }
             }
+            initPropertySources();
+        }
 
-            protected Collection<ServletContextInitializer> getServletContextInitializerBeans() {
-                // ServletContextInitializerBeans 是个 ServletContextInitializer 集合，组合模式
-                return new ServletContextInitializerBeans(getBeanFactory());
+        private org.springframework.boot.web.servlet.ServletContextInitializer getSelfInitializer() {
+            return this::selfInitialize;
+        }
+
+        private void selfInitialize(ServletContext servletContext) throws ServletException {
+            prepareWebApplicationContext(servletContext);
+            registerApplicationScope(servletContext);
+            WebApplicationContextUtils.registerEnvironmentBeans(getBeanFactory(), servletContext);
+            for (ServletContextInitializer beans : getServletContextInitializerBeans()) {
+                beans.onStartup(servletContext);
             }
-    }
-    ```
+        }
 
-    `ServletContextInitializerBeans` 是个 `ServletContextInitializer` 集合，在 `BeanFactory` 中查找 `ServletContextInitializer` 类型的 bean 放到集合中
+        protected Collection<ServletContextInitializer> getServletContextInitializerBeans() {
+            // ServletContextInitializerBeans 是个 ServletContextInitializer 集合，组合模式
+            return new ServletContextInitializerBeans(getBeanFactory());
+        }
+}
+```
 
-    Spring Boot 提供了不少 `ServletContextInitializer` 的实现类，可以基于这些实现类来简化自定义 `ServletContextInitializer` Bean 的开发
+`ServletContextInitializerBeans` 是个 `ServletContextInitializer` 集合，在 `BeanFactory` 中查找 `ServletContextInitializer` 类型的 bean 放到集合中
 
-    ![](../images/spring-servletcontextinitializer)
+Spring Boot 提供了不少 `ServletContextInitializer` 的实现类，可以基于这些实现类来简化自定义 `ServletContextInitializer` Bean 的开发
 
-    `ServletContextInitializer` 的优势是由 Spring 进行管理的（本身属于 Spring Bean），可以结合 Spring 做更多的事情
+![](../images/spring-servletcontextinitializer)
+
+`ServletContextInitializer` 的优势是由 Spring 进行管理的（本身属于 Spring Bean），可以结合 Spring 做更多的事情
 
 ## 实践建议
 
