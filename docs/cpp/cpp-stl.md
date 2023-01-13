@@ -370,10 +370,6 @@ shared_ptr<int> sp2(p);
 
 shared_pointer 并非线程安全，所以在多个线程中以 shared pointer 指向同一个对象，必须使用诸如锁等技术解决数据竞争问题。
 
-
-
-
-
 #### weak_ptr
 
 weak_ptr 允许 “共享但不拥有对象”
@@ -394,6 +390,37 @@ expired() ? shared_ptr<T>() : shared_ptr<T>(*this)
 - `use_count() == 0`: 效率不是很好
 - `new shared_ptr<T>(weak_ptr_var)`：不存在则抛出 bad_weak_ptr 异常
 
-#### 误用 shared pointer
+#### unique_ptr
 
+unique_ptr 是 “其所指向对象” 的唯一拥有者。
 
+```c++
+// 初始化
+std::unique_ptr<std::string> up(new int);
+// 置空的两种写法
+up = nullptr;
+up.reset()
+// 获取拥有的对象并放弃拥有权
+int *p = up.release();
+// 判断不为空的三种写法
+if (up) {}
+if (up != nullptr) {}
+if (up.get() != nullptr) {}
+```
+
+shared_ptr 需要额外的内存存放计数器，unique_ptr 无需额外的开销，它消费的内存应该和 native pointer 相同
+
+### 数值的极值
+
+数值类型的极值与平台相关。C++ 标准库借由 template numberic_limits （`<limits>`）提供这些极值，用以取代 C 语言采用的预处理器常量(`<climits>` 和 `<cfloat>`)。
+
+```c++
+numberic_limits<short>::max();
+numberic_limits<short>::min();
+numberic_limits<int>::max();
+numberic_limits<int>::min();
+```
+
+### Type Trait
+
+[文档](https://en.cppreference.com/w/cpp/meta)
