@@ -1023,4 +1023,4 @@ STL 被设计为一个框架，可以向任何放心扩展
 
 ## References
 
-- [C++ 标准库第二版]
+- [C++ 标准库第二版](https://book.douban.com/subject/26419721/)
