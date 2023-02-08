@@ -126,19 +126,19 @@ Percentage of the requests served within a certain time (ms)
 
     > 对于浏览器中的请求，可以从 `F12 开发者工具 -> Network -> 选中一个右击 -> copy -> copy as curl` 获取到 curl 格式链接，再改造成 ab 格式即可
 
-    ### JMeter
+### JMeter
 
-    > ab 只能单机测试，无法模拟真实的多客户端场景，比较适合于开发人员快速验证 QPS
+> ab 只能单机测试，无法模拟真实的多客户端场景，比较适合于开发人员快速验证 QPS
 
-    JMeter 是一个专业的压测工具
+JMeter 是一个专业的压测工具
 
-    [官方文档](https://jmeter.apache.org/)
+[官方文档](https://jmeter.apache.org/)
 
-    教程
+教程
 
-    - [JMeter 入门教程](https://www.cnblogs.com/tankxiao/p/4045439.html)
-    - [Jmeter 教程 简单的压力测试](https://www.cnblogs.com/TankXiao/p/4059378.html)
+- [JMeter 入门教程](https://www.cnblogs.com/tankxiao/p/4045439.html)
+- [Jmeter 教程 简单的压力测试](https://www.cnblogs.com/TankXiao/p/4059378.html)
 
-    ## References
+## References
 
-    - [Rails Apache Benchmark 的使用的个人浅薄经验](https://ruby-china.org/topics/13870)
+- [Rails Apache Benchmark 的使用的个人浅薄经验](https://ruby-china.org/topics/13870)
