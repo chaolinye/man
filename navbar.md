@@ -9,6 +9,7 @@
     - [Python](/docs/python/)
     - [Rust](/docs/rust/)
     - [数据结构与算法](/docs/algorithm/)
+    - [English](/docs/english/)
 
 - 框架
     - [Mybatis](/docs/mybatis/)
