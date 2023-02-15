@@ -33,14 +33,14 @@ C++ 标准库的头文件是没有后缀名的
 
 > 真实文件系统中的头文件是否有扩展名由编译器决定
 
-```c++
+```cpp
 #include <iostream>
 #include <string>
 ```
 
 这种写法也适用于 C 标准头文件，但必须采用前缀字符 c
 
-```c++
+```cpp
 #include <cstdlib> // was: <stdlib.h>
 #include <string> // was: <string.h>
 ```
@@ -59,7 +59,7 @@ C++ 标准库不同组件对于错误处理差异很大，例如 string class，
 
 异常类的头文件
 
-```c++
+```cpp
 #include <exception>    // for classes exception an bad_exception
 #include <stdexcept>    // for most logic and runtime error classes
 #include <system_error> // for system errors(since c++11)
@@ -98,7 +98,7 @@ STL 容器提供的并发保证：
 
 C++ 标准库定义了一个 default allocator 如下：
 
-```c++
+```cpp
 namespace std {
     template <typename T>
     class allocator;
@@ -117,7 +117,7 @@ namespace std {
 
 struct pair 定义于 `<utility>`
 
-```c++
+```cpp
 namespace std {
     template<typename T1, typename T2>
     struct pair {
@@ -131,7 +131,7 @@ namespace std {
 
 获取元素
 
-```c++
+```cpp
 typedef std::pair<int, float> IntFloatPair;
 IntFloatPair p(42, 3.14);
 
@@ -144,7 +144,7 @@ std::tuple_element<0, IntFloatPair>::type // int，获取元素类型
 
 构造 pair
 
-```c++
+```cpp
 // 构造器
 std::pair<int, float>(42, 3.14)
 // 便捷方法，推导出 <int,double>
@@ -155,7 +155,7 @@ Template 函数 `make_pair()` 使你无需写出类型就能生成一个 pair �
 
 在作为实参时，还可以用初值列
 
-```c++
+```cpp
 void f(std::pair<int, const char*>);
 void g(std::pair<int, std::string>);
 ...
@@ -169,7 +169,7 @@ g({42, "chairs"});
 
 `make_pair()` 的参数支持移动语义，同时结合 `ref()/cref()`（定义于 `<functional>`） 还支持引用语义
 
-```c++
+```cpp
 int i = 0;
 auto p = std::make_pair(std::ref(i), std::ref(i)); // pair<int&, int&>
 ++pfirst;
@@ -179,7 +179,7 @@ assert(i == 2);
 
 还可以使用 `std::tie()` 进行对象解构
 
-```c++
+```cpp
 std::tie(std::ignore, c) = p; // extract second value into c(ignore first one)
 ```
 
@@ -189,7 +189,7 @@ std::tie(std::ignore, c) = p; // extract second value into c(ignore first one)
 
 定义于 `<tuple>`
 
-```c++
+```cpp
 namespace std {
     template< class... Types >
     class tuple;
@@ -198,7 +198,7 @@ namespace std {
 
 和 pair 一样，tuple 可以通过构造函数和 `make_tuple()` 模板方法构建，使用 `std::get()` 获取元素
 
-```c++
+```cpp
 tuple<int, float, string> t1(41, 6.3, "nico");
 
 cout << get<0>(t1) << " ";
@@ -213,7 +213,7 @@ get<1>(t1) = get<1>(t2);
 
 tuple 的元素类型可以是 reference
 
-```c++
+```cpp
 string s;
 tuple<string&> t(s);
 
@@ -222,7 +222,7 @@ get<0>(t) = "hello";
 
 `make_tuple()` 默认是值传递，如果要传入引用类型，需要使用 `std::ref()`
 
-```c++
+```cpp
 std::string s;
 
 auto y = std::make_tuple(ref(s)); // tuple<string&>
@@ -231,7 +231,7 @@ std::get<0>(y) = "my value" // modifies s
 
 运用 reference 搭配 `make_tuple()`，可以提取 tuple 的元素值
 
-```c++
+```cpp
 std::tuple<int, float, std::string> t(77, 1.1, "more light");
 int i;
 float f;
@@ -242,7 +242,7 @@ std::make_tuple(std::ref(i), std::ref(f), std::ref(s)) = t;
 
 为了简化使用，标准库提供了 `std::tie()`，它可以建立一个内含 reference 的 tuple，使用 `tie()` 后的简化写法
 
-```c++
+```cpp
 std::tuple<int, float, std::string> t(77, 1.1, "more light");
 int i;
 float f;
@@ -253,7 +253,7 @@ std::tie(i, f, s) = t;
 
 如果想忽略某个元素，可以使用 `std::ignore`
 
-```c++
+```cpp
 std::tie(i, f, std::ignore) = t;
 ```
 
@@ -269,7 +269,7 @@ tuple 另外的辅助函数，主要是为了支持泛型编程
 
 大量运用了模板元编程中的迭代，然后使用偏特化版本用来终结递归调用。
 
-```c++
+```cpp
 #include <tuple>
 #include <iostream>
 
@@ -312,7 +312,7 @@ std::ostream& operator << (std::ostream& strm, const std::tuple<Args...>& t)
 
 shared_ptr 的初始化
 
-```c++
+```cpp
 shared_ptr<string> pNico(new string("nico"));
 // 统一初始化
 shared_ptr<string> pNico{new string("nico")};
@@ -322,7 +322,7 @@ shared_ptr<string> pNico = make_shared<string>("nico");
 
 也可以先声明 shared_ptr, 然后对它赋值一个 new pointer。然而不可以使用 assignment 操作符，必须改用 `reset()`
 
-```c++
+```cpp
 shared_ptr<string> pNico; // nullptr
 pNico = new string("nico"); // ERROR
 pNico.reset(new string("nico")); // OK
@@ -332,7 +332,7 @@ pNico.reset(new string("nico")); // OK
 
 最后一个 shared_ptr 在析构函数中默认使用 delete 清理资源，也可以声明自定义的 deleter
 
-```c++
+```cpp
 shared_ptr<string> pNico(new string("nico"),
                             [](string *p) {
                                 count << "delete " << *p << endl;
@@ -342,7 +342,7 @@ shared_ptr<string> pNico(new string("nico"),
 
 shared_ptr 默认的 delete 遇到 Array 会有问题
 
-```c++
+```cpp
 std::shared_ptr<int> p(new int[10]); // ERROR，but compiles，内存泄漏
 std::shared_ptr<int[]> p(new int[10]); // ERROR: does not compile，类型不一致
 // 正确用法
@@ -356,13 +356,13 @@ std::unique_ptr<int, void(*)(int*)> p(new int[10], [](int *p) { delete[] p; });
 
 shared_ptr 不提供 `operator[]`，所以无法使用下标运算符。至于 unqiue_ptr，它有一个针对 array 的偏特化，提供 `operator[]`。shared_ptr 要使用下标运算符得先使用 `get()`。
 
-```c++
+```cpp
 p.get()[i] = i * 42;
 ```
 
 shared pointer 也很容易误用：当使用原始指针创建 shared pointer，可能会出现多个所有者 group，析构时会导致 double free 的问题
 
-```c++
+```cpp
 int *p = new int;
 shared_ptr<int> sp1(p);
 shared_ptr<int> sp2(p);
@@ -380,7 +380,7 @@ weak_ptr 允许 “共享但不拥有对象”
 
 调用 `lock()` 方法转换为 shared pointer，如果对象已过期，则返回的 shared pointer 为 nullptr，即等价于
 
-```c++
+```cpp
 expired() ? shared_ptr<T>() : shared_ptr<T>(*this)
 ```
 
@@ -394,7 +394,7 @@ expired() ? shared_ptr<T>() : shared_ptr<T>(*this)
 
 unique_ptr 是 “其所指向对象” 的唯一拥有者。
 
-```c++
+```cpp
 // 初始化
 std::unique_ptr<std::string> up(new int);
 // 置空的两种写法
@@ -414,7 +414,7 @@ shared_ptr 需要额外的内存存放计数器，unique_ptr 无需额外的开�
 
 数值类型的极值与平台相关。C++ 标准库借由 template numberic_limits （`<limits>`）提供这些极值，用以取代 C 语言采用的预处理器常量(`<climits>` 和 `<cfloat>`)。
 
-```c++
+```cpp
 numberic_limits<short>::max();
 numberic_limits<short>::min();
 numberic_limits<int>::max();
@@ -472,7 +472,7 @@ type trait 的几种用途
 
 例如
 
-```c++
+```cpp
 template <typename T>
 void foo(T val);
 
@@ -492,7 +492,7 @@ foo(std::cref(x));
 
 class reference_wrapper 使你得以使用 reference 作为最高级对象，例如作为 array 或 STL 容器的元素类型
 
-```c++
+```cpp
 std::vector<MyClass&> coll;             //Error
 std::vector<std::reference_wrapper<MyClass>> coll;  // OK
 ```
@@ -510,7 +510,7 @@ std::vector<std::reference_wrapper<MyClass>> coll;  // OK
 函数 `swap()` 用来交换两对象的值。定义于 `<utility>`：
 
 
-```c++
+```cpp
 namespace std {
     template <typename T>
     inline void swap(T &a, T &b) noexcept(is_nothrow_move_constuctible<T>::value && is_nothrow_move_assignable<T>::value) {
@@ -527,7 +527,7 @@ std::swap(x, y);
 
 `swap()` 的最大优势在于，通过模板特化或函数重载，可以为更复杂的类型提供特殊实现版本；这些特殊实现有可能交换内部成员，而非对象赋值，这无疑大大节省了时间。
 
-```c++
+```cpp
 class MyContainer {
 private:
     int *elems;
@@ -552,7 +552,7 @@ inline void swap(MyContainer &c1, MyContainer &c2) noexcept(c1.swap(c2)) {
 
 在 `<utility>` 中有四个 function template 分别定义了 `!=` `>` `<=` `>=` 四个比较操作符。它们都是利用操作符 `==` `<` 完成。
 
-```c++
+```cpp
 namespace std {
     namespace rel_ops {
         template <typenmae T>
@@ -583,7 +583,7 @@ namespace std {
 
 定义于 `<ratio>`
 
-```c++
+```cpp
 namespace std {
     template <intmax_t N, intmax_t D = 1>
     class ratio {
@@ -595,7 +595,7 @@ namespace std {
 }
 ```
 
-```c++
+```cpp
 typedef ratio<5, 3> FiveThirds;
 assert(FiveThirds::num == 5)
 assert(FiveThirds::den == 3)
@@ -603,7 +603,7 @@ assert(FiveThirds::den == 3)
 
 编译期运算
 
-```c++
+```cpp
 // 获得 std::ratio<13,21>
 std::ratio_add<std::ratio<2, 7>, std::ratio<2,6>>::type
 ```
@@ -677,7 +677,7 @@ STL 甚至提供更泛化的组件。借由特定的适配器（adapter）和函
 
 头文件 `<array>`
 
-```c++
+```cpp
 array<string, 5> coll = {"hello", "world"};
 ```
 
@@ -813,7 +813,7 @@ begin() 和 end() 形成了一个半开区间
 
 算法的头文件 `<algorithm>`
 
-```c++
+```cpp
 // 查找某个值
 auto pos3 = find(coll.begin(), coll.end(), 3);
 // 反转区间
@@ -829,7 +829,7 @@ find_if(coll.beigin(), coll.end(), [] (int i) { return i == 25 || i == 35; })
 
 有多个算法需要同时处理多重空间。通常你必须设定第一个区间的起点和终点，至于其他区间，只需设定起点即可，终点通常可由第一区间的元素数量推导出来。
 
-```c++
+```cpp
 if (equal(coll1.beigin(), coll1.end(), coll2.begin())) {
     ...
 }
@@ -870,7 +870,7 @@ Stream Iterator 被用来读写 stream
 - `istream_iterator`: 通过 operator>> 读取数据
 - `ostream_iterator`: 通过 operator<< 赋值
 
-```c++
+```cpp
 copy(istream_iterator<string>(cin), istream_iterator<string>(), back_inserter(coll));
 
 sort(coll.begin(), coll.end())
@@ -886,7 +886,7 @@ Reverse Iterator 会造成算法逆向操作，其内部将对递增操作符的
 
 所有提供双向或随机访问迭代器的容器（也就是 forward_list 之外的所有序列式容器和所有关联式容器）都可以通过它们的成员函数 `rbegin()` 和 `rend()` 产生一个反向迭代器。
 
-```c++
+```cpp
 // print all element in reverse order
 copy(coll.crbegin(), coll.crend(), ostream_iterator<int>(cout, " "));
 ```
@@ -905,7 +905,7 @@ copy(coll.crbegin(), coll.crend(), ostream_iterator<int>(cout, " "));
 
 事实上这个算法返回了一个新终点。你可以利用该终点获取新区间、缩减后的容器大小，或是获得被删除元素的个数。
 
-```c++
+```cpp
 auto end = remove(coll.begin(), coll.end(), 3);
 
 // print resulting elements of the collection
@@ -920,7 +920,7 @@ coll.erase(end, coll.end());
 
 如果需要以单一的语句删除元素，可以这么做
 
-```c++
+```cpp
 coll.erase(remove(coll.begin(), coll.end(), 3), coll.end());
 ```
 
@@ -938,7 +938,7 @@ coll.erase(remove(coll.begin(), coll.end(), 3), coll.end());
 
 ### 以函数作为算法的实参
 
-```c++
+```cpp
 void print(int elem)
 {
     cout << elem << ' ';
@@ -969,7 +969,7 @@ std::transform(coll.begin(), coll.end(), coll.begin(), [](double d){ return d*d*
 
 可以使用特殊的 function adapter，或所谓 binder，将预定义的函数对象和其它数值结合为一体
 
-```c++
+```cpp
 transform(coll1.cbegin(), coll1.end(), back_inserter(coll2), bind(multiplies<int>, _1, 10));
 
 // binder 组合体, x>50&&x<=80

@@ -33,7 +33,7 @@ inline 只是个提示，是否真的内联由编译器根据函数的复杂度�
 
 如何识别 inline 是否被编译器应用？
 
-```c++
+```cpp
 // 使用 gcc 的内置函数 __builtin_return_address(LEVEL) 通过打印当前函数的返回地址判断 inline 是否生效
 std::out << "current return address: " <<  __builtin_return_address(0) << std::endl;
 ```

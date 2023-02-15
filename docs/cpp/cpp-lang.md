@@ -539,7 +539,7 @@ f1 = [] (int i, int j ) { return i * j; }   // lambda
 
 > 范围 for 语句中的 `expression` 表示的必须是一个序列，比如用花括号括起来的**初始值列表、数组或者 vector 或 string** 等类型的对象，这些类型的共同特点是拥有能返回迭代器的 begin 和 end 成员。
 
-```c++
+```cpp
 for (decl: coll) {
     statement
 }
