@@ -9,3 +9,5 @@
 
 [replit](https://replit.com/): 在线 web IDE
 [HTTPie](https://httpie.io/app): 在线 Http 调试工具
+[在线加解密工具](https://crypto-online.cn/playground/hash)
+
