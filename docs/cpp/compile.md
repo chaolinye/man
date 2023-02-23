@@ -403,6 +403,13 @@ cc_binary(
 
 ## 包管理
 
+### Conan
+
+[官方文档](https://docs.conan.io/2/introduction.html)
+
+
+### 其它包管理器
+
 - [build2](https://build2.org/): 一个开源的 (MIT)、跨平台的构建工具链，旨在为开发和打包 C/C++ 项目时提供如 Rust Cargo 一样的便利性。
 - [cget](https://cget.readthedocs.io/en/latest/):	Cmake 包检索工具，可用于下载并安装 Cmake 包。
 - [cmodule](https://github.com/scapix-com/cmodule):	非侵入式 CMake 依赖管理。
