@@ -849,19 +849,440 @@ slab 分配程序采用了分离空闲列表
 
 因此，值得考虑第二种方法：将空间分割成固定长度的分片。在虚拟内存中，我们称这种思想为**分页**。
 
+分页可能最大的改进就是灵活性，另外就是让空闲空间管理更加简单。
+
 > 关键问题：如何通过页来实现虚拟内存
 
 如何通过页来实现虚拟内存，从而避免分段的问题？基本技术是什么？如何让这些技术运行良好，并尽可能减少空间和时间开销？
 
+为了记录地址空间的每个虚拟页放在物理内存中的位置，操作系统通常为每个进程保存一个数据结构，称为页表（page table）。页表的主要作用是为地址空间的每个虚拟页面保存地址转换（address translation）
+
+![](../images/address-translation.png)
+
+#### 页表存在哪里
+
+页表往往比较大。（一个20位的VPN，假设每个页表条目需要4个字节，那这个页表就需要4MB内存，如果有100个进程，就需要 400MB 内存）
+
+由于比较大，页表只能存储在内存中。
+
+
+![](../images/page-table-in-memory.png)
+
+#### 页表中究竟有什么
+
+![](../images/x86-pte.png)
+
+P: 存在位（present bit）, 表示该页是在物理存储器还是在磁盘上
+
+R/W: 是否允许写入该页面
+
+U/S: 确定用户模式进程是否可以访问该页面
+
+PWT、PCD、PAT、G：确定硬件缓存如何为这些页面工作
+
+A: 访问位（accessed bit），有时用于追踪页是否被访问，也用于确定哪些页很受欢迎，因此应该保留在内存中
+
+D: 脏位（dirty bit）
+
+#### 分页：也很慢
+
+利用分页访问内存的过程：
+
+```java
+// Extract the VPN from the virtual address
+VPN = (VirtualAddress & VPN_MASK) >> SHIFT
+
+// Form the address of the page-table entry (PTE)
+PTEAddr = PTBR + (VPN * sizeof(PTE))
+
+// Fetch the PTE
+PTE = AccessMemory(PTEAddr)
+
+// Check if process can access the page
+if (PTE.Valid == False)
+    RaiseException(SEGMENTATION_FAULT)
+else if (CanAccess(PTE.ProtectBits) == False)
+    RaiseException(PROTECTION_FAULT)
+else
+    // Access is OK: form physical address and fetch it
+    offset   = VirtualAddress & OFFSET_MASK
+    PhysAddr = (PTE.PFN << PFN_SHIFT) | offset
+    Register = AccessMemory(PhysAddr)
+```
+
+为了访问 PTE 会多一次内存引用，在这种情况下，可能会使进程减慢两倍或更多。
+
+因此，实现分页需要解决上面两个实际问题
+
+- **会导致较慢的机器（有许多额外的内存访问来访问页表）**
+- **内存浪费（内存被页表塞满而不是有用的应用程序数据）**
 
 ### 分页：快速地址转换（TLB）
 
+> 关键问题：如何加速地址转换
+>
+> 如何才能加速虚拟地址转换，尽量避免额外的内存访问？需要什么样的硬件支持？操作系统该如何支持？
+
+想让某些东西更快，操作系统通常需要一些帮助。帮助常常来自操作系统的老朋友：硬件。我们要增加所谓的（由于历史原因）地址转换旁路缓冲存储器（translation-lookaside buffer，TLB），它就是频繁发生的虚拟到物理地址转换的硬件缓存（cache）。因此，更好的名称应该是地址转换缓存（address-translation cache）。对每次内存访问，硬件先检查TLB，看看其中是否有期望的转换映射，如果有，就完成转换（很快），不用访问页表（其中有全部的转换映射）。TLB带来了巨大的性能提升，实际上，因此它使得虚拟内存成为可能。
+
+#### TLB 的基本算法
+
+```java
+VPN = (VirtualAddress & VPN_MASK) >> SHIFT
+(Success, TlbEntry) = TLB_Lookup(VPN)
+if (Success == True)    // TLB Hit
+    if (CanAccess(TlbEntry.ProtectBits) == True)
+        Offset   = VirtualAddress & OFFSET_MASK
+        PhysAddr = (TlbEntry.PFN << SHIFT) | Offset
+        AccessMemory(PhysAddr)
+    else
+        RaiseException(PROTECTION_FAULT)
+else    // TLB Miss
+    PTEAddr = PTBR + (VPN * sizeof(PTE))
+    PTE = AccessMemory(PTEAddr)
+    if (PTE.Valid == False)
+        RaiseException(SEGMENTATION_FAULT)
+    else if (CanAccess(PTE.ProtectBits) == False)
+        RaiseException(PROTECTION_FAULT)
+    else
+        TLB_Insert(VPN, PTE.PFN, PTE.ProtectBits)
+        RetryInstruction()
+```
+
+可见性能的提升关键在于**尽可能避免TLB未命中**
+
+缓存的成功依赖于空间和时间局部性。
+
+TLB 的加载单元是PTE，如果页越大，命中率越高。典型页的大小一般为4KB
+
+既然像TLB这样的缓存这么好，为什么不做更大的缓存，装下所有的数据？可惜的是，这里我们遇到了更基本的定律，就像物理定律那样。如果想要快速地缓存，它就必须小，因为光速和其他物理限制会起作用。大的缓存注定慢，因此无法实现目的
+
+#### 谁来处理TLB未命中
+
+可能有两个答案：硬件或软件（操作系统）
+
+现代 RISC 指令计算机一般都是让操作系统来处理。发生TLB未命中时，硬件系统会抛出一个异常，这会暂停当前的指令流，将特权级提升至内核模式，跳转至陷阱处理程序。这个陷阱处理程序是操作系统的一段代码，用于处理TLB未命中。
+
+#### TLB 的内容
+
+典型的TLB有32项、64项或128项，并且是全相联的（这就意味着一条地址映射可能存在TLB中的任意位置，硬件会并行地查找TLB）
+
+格式可能是： `VPN ｜ PFN ｜ 其他位`
+
+常见的其它位：
+
+- 有效位
+- 保护位
+
+补充：TLB的有效位!=页表的有效位
+
+在页表中，如果一个页表项（PTE）被标记为无效，就意味着该页并没有被进程申请使用，
+
+TLB的有效位不同，只是指出TLB项是不是有效的地址映射。TLB有效位在系统上下文切换时起到了很重要的作用，通过将所有TLB项设置为无效，系统可以确保将要运行的进程不会错误地使用前一个进程的虚拟到物理地址转换映射。
+
+#### 上下文切换时对TLB的处理
+
+上下文切换时为了避免 TLB 污染，最简单的方法就是清空TLB(把所有条目的有效位置为 0)
+
+但是这样会导致频繁切换进程时，TLB的命中率很低
+
+为了减少这种开销，一些系统增加了硬件支持，实现跨上下文切换的TLB共享。比如有的系统在TLB中添加了一个地址空间标识符（Address Space Identifier，ASID）。可以把ASID看作是进程标识符（Process Identifier，PID），但通常比PID位数少（PID一般32位，ASID一般是8位）
+
+当然，硬件也需要知道当前是哪个进程正在运行，以便进行地址转换，因此操作系统在上下文切换时，必须将某个特权寄存器设置为当前进程的ASID。
+
+#### TLB 替换策略
+
+和其它缓存的策略基本一致，LRU，随机等
+
+#### 实际的 TLB 项
+
+![](../images/mips-tlb.png)
+
+G: 全局位（Global bit），用来指示这个页是不是所有进程全局共享的。因此，如果全局位置为1，就会忽略ASID
+ASID: 区分进程空间
+C: Coherence 一致位，决定硬件如何缓存该页
+D: dirty 脏位，表示该页是否被写入新数据
+V: valid 有效位， 告诉硬件该项的地址映射是否有效。
+
 ### 分页：较小的表
+
+> 关键问题：如何让页表更小？
+>
+> 简单的基于数组的页表（通常称为线性页表）太大，在典型系统上占用太多内存。如何让页表更小？关键的思路是什么？由于这些新的数据结构，会出现什么效率影响？
+
+#### 简单的解决方案: 更大的页
+
+这种方法的主要问题在于，大内存页会导致每页内的浪费，这被称为内部碎片（internal fragmentation）问题。所以大多数系统在常见的情况下使用相对较小的页大小：4KB（如x86）或8KB（如SPARCv9）
+
+#### 混合方法：分页和分段
+
+![](../images/seg-and-page.png)
+
+```java
+SN           = (VirtualAddress & SEG_MASK) >> SN_SHIFT 
+VPN          = (VirtualAddress & VPN_MASK) >> VPN_SHIFT 
+AddressOfPTE = Base[SN] + (VPN * sizeof(PTE))
+```
+
+杂合方案的关键区别在于，每个分段都有界限寄存器，每个界限寄存器保存了段中最大有效页的值。以这种方式，与线性页表相比，杂合方法实现了显著的内存节省。栈和堆之间未分配的页不再占用页表中的空间（仅将其标记为无效）。
+
+但是，分段并不像我们需要的那样灵活，因为它假定地址空间有一定的使用模式。例如，如果有一个大而稀疏的堆，仍然可能导致大量的页表浪费。其次，这种杂合导致外部碎片再次出现。尽管大部分内存是以页面大小单位管理的，但页表现在可以是任意大小（是PTE的倍数）。
+
+#### 多级页表
+
+另一种方法并不依赖于分段，但也试图解决相同的问题：**如何去掉页表中的所有无效区域，而不是将它们全部保留在内存中？**我们将这种方法称为多级页表
+
+多级页表的基本思想很简单。首先，将页表分成页大小的单元。然后，如果整页的页表项（PTE）无效，就完全不分配该页的页表。为了追踪页表的页是否有效（以及如果有效，它在内存中的位置），使用了名为页目录（page directory）的新结构。页目录因此可以告诉你页表的页在哪里，或者页表的整个页不包含有效页。
+
+![](../images/multi-level-page-table.png)
+
+![](../images/multi-level-virtual-address.png)
+
+多级页表是有成本的，会导致更多的内存访问，因此多级表是一个时间—空间折中的例子。
+
+```java
+VPN = (VirtualAddress & VPN_MASK) >> SHIFT
+(Success, TlbEntry) = TLB_Lookup(VPN)
+if (Success == True)    // TLB Hit
+    if (CanAccess(TlbEntry.ProtectBits) == True)
+        Offset   = VirtualAddress & OFFSET_MASK
+        PhysAddr = (TlbEntry.PFN << SHIFT) | Offset
+        Register = AccessMemory(PhysAddr)
+    else
+        RaiseException(PROTECTION_FAULT)
+else                  // TLB Miss
+    // first, get page directory entry
+    PDIndex = (VPN & PD_MASK) >> PD_SHIFT
+    PDEAddr = PDBR + (PDIndex * sizeof(PDE))
+    PDE     = AccessMemory(PDEAddr)
+    if (PDE.Valid == False)
+        RaiseException(SEGMENTATION_FAULT)
+    else
+        // PDE is valid: now fetch PTE from page table
+        PTIndex = (VPN & PT_MASK) >> PT_SHIFT
+        PTEAddr = (PDE.PFN << SHIFT) + (PTIndex * sizeof(PTE))
+        PTE     = AccessMemory(PTEAddr)
+        if (PTE.Valid == False)
+            RaiseException(SEGMENTATION_FAULT)
+        else if (CanAccess(PTE.ProtectBits) == False)
+            RaiseException(PROTECTION_FAULT)
+        else
+            TLB_Insert(VPN, PTE.PFN, PTE.ProtectBits)
+            RetryInstruction()
+```
+
+#### 反向页表
+
+在反向页表（inverted page table）中，可以看到页表世界中更极端的空间节省。在这里，我们保留了一个页表，其中的项代表系统的每个物理页，而不是有许多页表（系统的每个进程一个）。页表项告诉我们哪个进程正在使用此页，以及该进程的哪个虚拟页映射到此物理页。
+
+现在，要找到正确的项，就是要搜索这个数据结构。线性扫描是昂贵的，因此通常在此基础结构上建立散列表，以加速查找。
 
 ### 超越物理内存：机制
 
+为了支持更大的地址空间，操作系统需要把当前没有在用的那部分地址空间找个地方存储起来。一般来说，这个地方有一个特点，那就是比内存有更大的容量。在现代系统中，硬盘（hard disk drive）通常能够满足这个需求。
+
+#### 交换空间
+
+在硬盘上开辟一部分空间用于物理页的移入和移出。在操作系统中，一般这样的空间称为交换空间（swap space），因为我们将内存中的页交换到其中，并在需要的时候又交换回去。因此，我们会假设操作系统能够以页大小为单元读取或者写入交换空间。为了达到这个目的，操作系统需要记住给定页的硬盘地址（disk address）。
+
+交换空间不是唯一的硬盘交换目的地。二进制程序的代码页本来就是从硬盘上加载的，所以也可以使用硬盘中的二进制文件。
+
+![](../images/disk-memory.png)
+
+硬件（或操作系统，在软件管理TLB时）判断是否在内存中的方法，是通过页表项中的一条新信息，即`存在位（present bit）`。如果存在位为0，则会抛出页错误(page fault)。操作系统被唤起来处理页错误。一段称为“页错误处理程序（page-fault handler）”的代码会执行，来处理页错误
+
+#### 页错误
+
+操作系统可以用PTE中的某些位来存储硬盘地址，这些位通常用来存储像页的PFN这样的数据。当操作系统接收到页错误时，它会在PTE中查找地址，并将请求发送到硬盘，将页读取到内存中。
+
+当硬盘I/O完成时，操作系统会更新页表，将此页标记为存在，更新页表项（PTE）的PFN字段以记录新获取页的内存位置，并重试指令
+
+#### 内存满了怎么办
+
+页交换策略。（和缓存的淘汰策略类似）
+
+#### 页错误处理流程
+
+硬件：
+
+```java
+VPN = (VirtualAddress & VPN_MASK) >> SHIFT
+(Success, TlbEntry) = TLB_Lookup(VPN)
+if (Success == True)    // TLB Hit
+    if (CanAccess(TlbEntry.ProtectBits) == True)
+        Offset     = VirtualAddress & OFFSET_MASK
+        PhysAddr   = (TlbEntry.PFN << SHIFT) | Offset
+        Register  = AccessMemory(PhysAddr)
+    else
+        RaiseException(PROTECTION_FAULT)
+else                  // TLB Miss
+    PTEAddr = PTBR + (VPN * sizeof(PTE))
+    PTE = AccessMemory(PTEAddr)
+    if (PTE.Valid == False)
+        RaiseException(SEGMENTATION_FAULT)
+    else
+        if (CanAccess(PTE.ProtectBits) == False)
+            RaiseException(PROTECTION_FAULT)
+        else if (PTE.Present == True)
+            // assuming hardware-managed TLB
+            TLB_Insert(VPN, PTE.PFN, PTE.ProtectBits)
+            RetryInstruction()
+        else if (PTE.Present == False)
+            RaiseException(PAGE_FAULT)
+```
+
+操作系统处理页错误
+
+```java
+PFN = FindFreePhysicalPage()
+if (PFN == -1)               // no free page found
+    PFN = EvictPage()        // run replacement algorithm
+DiskRead(PTE.DiskAddr, pfn) // sleep (waiting for I/O)
+PTE.present = True           // update page table with present
+PTE.PFN     = PFN            // bit and translation (PFN)
+RetryInstruction()           // retry instruction
+```
+
+#### 交换何时真正发生
+
+为了保证有少量的空闲内存，大多数操作系统会设置高水位线（High Watermark，HW）和低水位线（Low Watermark，LW）。当操作系统发现有少于LW个页可用时，后台负责释放内存的线程会开始运行，直到有HW个可用的物理页。这个后台线程有时称为交换守护进程（swap daemon）或页守护进程（page daemon）
+
 ### 超越物理内存：策略
+
+> 关键问题：如何决定踢出哪个页
+>
+> 操作系统如何决定从内存中踢出哪一页（或哪几页）？这个决定由系统的替换策略做出，替换策略通常会遵循一些通用的原则（下面将会讨论），但也会包括一些调整，以避免特殊情况下的行为。
+
+平均内存访问时间计算公式：`AMAT = P(Hit)·T(M) + P(Miss)·T(D)`
+
+现代系统中，磁盘访问的成本非常高，即使很小概率的未命中也会拉低正在运行的程序的总体AMAT
+
+!> 由于分页到硬盘非常昂贵，因此频繁分页的成本太高。所以，过度分页的最佳解决方案往往很简单：购买更多的内存。
+
+#### 最优替换策略
+
+最优策略：替换内存中在最远将来才会被访问到的页，可以达到缓存未命中率最低。
+
+> 为了更好地理解一个特定的替换策略是如何工作的，将它与最好的替换策略进行比较是很好的方法。这样就可以知道你的策略有多大的改进空间，也用于决定当策略已经非常接近最优策略时，停止做无谓的优化。
+
+#### 替换策略
+
+常见的策略有：FIFO，随机，LRU
+
+像LRU这样的算法通常优于简单的策略（如FIFO或随机）。基于历史信息的策略带来了一个新的挑战：应该如何实现呢？
+
+> 关键问题：如何实现LRU替换策略
+> 
+> 由于实现完美的LRU代价非常昂贵，我们能否实现一个近似的LRU算法，并且依然能够获得预期的效果？
+
+#### 近似 LRU
+
+最简单的是时钟算法
+
+这个想法需要硬件增加一个使用位。
+
+想象一下，系统中的所有页都放在一个循环列表中。时钟指针开始时指向某个特定的页。当必须进行页替换时，操作系统检查当前指向的页P的使用位是1还是0。如果是1，则意味着页面P最近被使用，因此不适合被替换。然后，P的使用位设置为0，时钟指针递增到下一页（P + 1）。该算法一直持续到找到一个使用位为0的页，使用位为0意味着这个页最近没有被使用过（在最坏的情况下，所有的页都已经被使用了，那么就将所有页的使用位都设置为0）。
+
+时间算法还有个变种：在需要进行页替换时`随机`扫描各页，如果遇到一个页的引用位为1，就清除该位（即将它设置为0）。直到找到一个使用位为0的页，将这个页进行替换
+
+> 这个变种的实现更加简单
+
+#### 考虑脏页
+
+如果页已被修改（modified）并因此变脏（dirty），则踢出它就必须将它写回磁盘，这很昂贵。如果它没有被修改，踢出就没成本。
+
+为了支持这种行为，硬件应该包括一个修改位，每次写入页时都会设置此位
+
+时钟算法也要做相应的修改，以扫描既未使用又干净的页先踢出。无法找到这种页时，再查找脏的未使用页面，
+
+#### 其它虚拟内存策略
+
+页面替换不是虚拟内存子系统采用的唯一策略。操作系统还必须决定何时将页载入内存。该策略有时称为页选择（page selection）策略
+
+操作系统可能会猜测一个页面即将被使用，从而提前载入。这种行为被称为`预取`（prefetching）
+
+另一个策略决定了操作系统如何将页面写入磁盘。当然，它们可以简单地一次写出一个。然而，许多系统会在内存中收集一些待完成写入，并以一种（更高效）的写入方式将它们写入硬盘。这种行为通常称为聚集（clustering）写入，或者就是分组写入（grouping）
+
+#### 抖动
+
+当内存就是被超额请求时，操作系统应该做什么，这组正在运行的进程的内存需求是否超出了可用物理内存？在这种情况下，系统将不断地进行换页，这种情况有时被称为抖动
+
+一些早期的操作系统有一组相当复杂的机制，以便在抖动发生时检测并应对。
+
+目前的一些系统采用更严格的方法处理内存过载。例如，当内存超额请求时，某些版本的Linux会运行“内存不足的杀手程序（out-of-memory killer）.这个守护进程选择一个内存密集型进程并杀死它.
 
 ### VAX/VMS 虚拟内存系统
 
+VAX/VMS操作系统的虚拟内存管理器，它特别干净漂亮。
+
+VAX-11为每个进程提供了一个32位的虚拟地址空间，分为512字节的页。因此，虚拟地址由23位VPN和9位偏移组成。此外，VPN的高两位用于区分页所在的段。因此，如前所述，该系统是分页和分段的混合体。
+
+由于页大小非常小。系统通过两种方式，减少了页表对内存的压力。
+
+1. 每个进程的地址空间分为两段，P0(代码和堆)，P1(栈)。每段一个页表，和堆之间未使用的地址空间部分不需要页表空间。
+2. 通过在内核虚拟内存中放置用户页表。这样内存不够时可以交换到磁盘
+
+将页表放入内核虚拟内存意味着地址转换更加复杂（需要查询系统页表）。幸运的是，VAX的硬件管理的TLB让所有这些工作更快，TLB通常（很有可能）会绕过这种费力的查找。
+
+#### 一个真实的地址空间
+
+研究VMS有一个很好的方面，我们可以看到如何构建一个真正的地址空间
+
+例如代码段永远不会从第0页开始。相反，该页被标记为不可访问，以便为检测空指针（null-pointer）访问提供一些支持
+
+```c
+int *p = NULL; // set p = 0
+*p = 10;      // try to store value 10 to virtual address 0
+```
+
+因此上面的代码会触发段错误
+
+![](../images/vms-address.png)
+
+内核虚拟地址空间（即其数据结构和代码）是每个用户地址空间的一部分。在上下文切换时，操作系统改变P0和P1寄存器以指向即将运行的进程的适当页表。但是，它不会更改S基址和界限寄存器，并因此将“相同的”内核结构映射到每个用户的地址空间。
+
+内核映射到每个地址空间，这种结构使得内核的运转更轻松。例如，如果操作系统收到用户程序（例如，在write()系统调用中）递交的指针，很容易将数据从该指针处复制到它自己的结构。通过这种构造（现在广泛使用），**内核几乎就像应用程序库一样**，尽管是受保护的。
+
+#### 页替换
+
+VAX中的页表项（PTE）包含以下位：一个有效位，一个保护字段（4位），一个修改（或脏位）位，为OS使用保留的字段（5位），最后是一个物理帧号码（PFN）将页面的位置存储在物理内存中。但是：`没有引用位`（no reference bit）！因此，VMS替换算法必须在没有硬件支持的情况下，确定哪些页是活跃的。
+
+开发人员也担心会有`自私贪婪的内存`（memory hog）—— 一些程序占用大量内存，使其他程序难以运行。到目前为止，我们所看到的大部分策略都容易受到这种内存的影响。
+
+为了解决这两个问题，提出了`分段的FIFO`（segmented FIFO）替换策略：每个进程都有一个可以保存在内存中的最大页数，称为`驻留集大小`（Resident Set Size，RSS）。每个页都保存在FIFO列表中。当一个进程超过其RSS时，“先入”的页被驱逐。
+
+正如我们前面看到的，纯粹的FIFO并不是特别好。为了提高FIFO的性能，VMS引入了两个`二次机会列表`，页在从内存中被踢出之前被放在其中。具体来说，是全局的干净页空闲列表和脏页列表。当进程P超过其RSS时，将从其进程的FIFO中移除一个页。如果干净（未修改），则将其放在干净页列表的末尾。如果脏（已修改），则将其放在脏页列表的末尾。
+
+如果另一个进程Q需要一个空闲页，它会从全局干净列表中取出第一个空闲页。但是，如果原来的进程P在回收之前在该页上出现页错误，则P会从空闲（或脏）列表中回收，从而避免昂贵的磁盘访问。**这些全局二次机会列表越大，分段的FIFO算法越接近LRU**。
+
+#### 页聚集
+
+VMS采用的另一个优化也有助于克服VMS中的小页面问题。通过聚集，VMS将大批量的页从全局脏列表中分组到一起，并将它们一举写入磁盘
+
+#### 其它漂亮的虚拟内存技巧
+
+VMS有另外两个现在成为标准的技巧：按需置零和写入时复制。
+
+> 都是些惰性优化手段
+
+利用按需置零，当页添加到你的地址空间时，操作系统的工作很少。它会在页表中放入一个标记页不可访问的条目。如果进程读取或写入页，则会向操作系统发送陷阱。此时，操作系统会完成寻找物理页的必要工作，将它置零，并映射到进程的地址空间。如果该进程从不访问该页，则所有这些工作都可以避免，从而体现按需置零的好处。
+
+写时复制: 如果操作系统需要将一个页面从一个地址空间复制到另一个地址空间，不是实际复制它，而是将其映射到目标地址空间，并在两个地址空间中将其标记为只读。如果其中一个地址空间确实尝试写入页面，就会陷入操作系统.操作系统会注意到该页面是一个COW页面，因此（惰性地）分配一个新页，填充数据，并将这个新页映射到错误处理的地址空间
+
 ## 并发
+
+### 并发介绍
+
+### 插叙：线程 API
+
+### 锁
+
+### 基于锁的并发数据结构
+
+### 条件变量
+
+### 信号量
+
+### 常见并发问题
+
+### 基于事件的并发（进阶）
