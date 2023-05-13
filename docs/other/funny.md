@@ -9,4 +9,5 @@
 
 - [SadServers](https://sadservers.com/): 一个开源的 Linux 服务器管理题库。它会在浏览器里面创建服务器实例，让用户自己动手解决问题
 - [Fly.io](https://fly.io/): 可以免费部署小型 docker 镜像的网站。
-- [ChatGPT](https://gpt.chatapi.art/): 聊天机器人国内代理
+- [ChatGPT](https://chat.openai.com/): 聊天机器人
+- [ChatGPT playground](https://platform.openai.com/playground?mode=chat): 访问速度较快
