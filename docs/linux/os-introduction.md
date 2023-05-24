@@ -2336,3 +2336,493 @@ int main(void) {
 基于事件的方法的另一个问题是，它不能很好地与某些类型的系统活动集成，如分页（paging）。由于页错误导致的这种隐式阻塞很难避免，因此在频繁发生时可能会导致较大的性能问题。
 
 还有一个问题是随着时间的推移，基于事件的代码可能很难管理，因为各种函数的确切语义发生了变化
+
+## 持久性
+
+### I/O 设备
+
+> 关键问题：如何将I/O集成进计算机系统中
+> 
+> I/O应该如何集成进系统中？其中的一般机制是什么？如何让它们变得高效？
+
+#### 系统架构
+
+![](../images/system-arch.png)
+
+越快的总线越短，因此高性能的内存总线没有足够的空间连接太多设备。让要求高性能的设备（比如显卡）离CPU更近一些,
+
+#### 标准设备
+
+![](../images/standard-device.png)
+
+#### 标准协议
+
+```cpp
+While (STATUS == BUSY)
+    ; // wait until device is not busy 
+Write data to DATA register
+Write command to COMMAND register
+    (Doing so starts the device and executes the command) 
+While (STATUS == BUSY)
+    ; // wait until device is done with your request
+```
+
+如果主CPU参与数据移动（就像这个示例协议一样），我们就称之为编程的I/O（PIO）
+
+这个简单的协议好处是足够简单并且有效。但是轮询过程比较低效，在等待设备执行完成命令时浪费大量CPU时间
+
+> 关键问题：如何减少轮询开销
+> 
+> 操作系统检查设备状态时如何避免频繁轮询，从而降低管理设备的CPU开销？
+
+#### 利用中断减少 CPU 开销
+
+有了中断后，CPU 不再需要不断轮询设备，而是向设备发出一个请求，然后就可以让对应进程睡眠，切换执行其他任务。当设备完成了自身操作，会抛出一个硬件中断，引发CPU跳转执行操作系统预先定义好的中断服务例程（Interrupt Service Routine，ISR），或更为简单的中断处理程序（interrupt handler）。中断处理程序是一小段操作系统代码，它会结束之前的请求（比如从设备读取到了数据或者错误码）并且唤醒等待I/O的进程继续执行。
+
+注意，使用中断并非总是最佳方案。如果设备非常快，那么最好的办法反而是轮询
+
+另一个最好不要使用中断的场景是网络。网络端收到大量数据包，如果每一个包都发生一次中断，那么有可能导致操作系统发生活锁（livelock），即不断处理中断而无法处理用户层的请求。
+
+另一个基于中断的优化就是合并（coalescing）。设备在抛出中断之前往往会等待一小段时间，在此期间，其他请求可能很快完成，因此多次中断可以合并为一次中断抛出，从而降低处理中断的代价
+
+#### 利用 DMA 进行更高效的数据传送
+
+> 关键问题：如何减少PIO的开销
+> 
+> 使用PIO的方式，CPU的时间会浪费在向设备传输数据或从设备传出数据的过程中。如何才能分离这项工作，从而提高CPU的利用率？
+
+解决方案就是使用 `DMA`（Direct Memory Access）。DMA引擎是系统中的一个特殊设备，它可以协调完成内存和设备间的数据传递，不需要CPU介入。
+
+为了能够将数据传送给设备，操作系统会通过编程告诉DMA引擎数据在内存的位置，要拷贝的大小以及要拷贝到哪个设备。在此之后，操作系统就可以处理其他请求了。当DMA的任务完成后，DMA控制器会抛出一个中断来告诉操作系统自己已经完成数据传输。
+
+#### 设备交互的方法
+
+> 关键问题：如何与设备通信
+> 
+> 硬件如何与设备通信？是否需要一些明确的指令？或者其他的方式？
+
+主要有两种方式来实现与设备的交互。第一种办法相对老一些（在IBM主机中使用了多年），就是用明确的I/O指令。例如在x86上，in和out指令可以用来与设备进行交互。
+
+第二种方法是内存映射I/O（memory- mapped I/O）。通过这种方式，硬件将设备寄存器作为内存地址提供
+
+两种方法没有一种具备极大的优势。内存映射I/O的好处是不需要引入新指令来实现设备交互，
+
+#### 纳入操作系统：设备驱动程序
+
+> 关键问题：如何实现一个设备无关的操作系统
+> 
+> 如何保持操作系统的大部分与设备无关，从而对操作系统的主要子系统隐藏设备交互的细节？
+
+在最底层，操作系统的一部分软件清楚地知道设备如何工作，我们将这部分软件称为设备驱动程序（device driver），所有设备交互的细节都封装在其中。
+
+![](../images/file-system-stack.png)
+
+这种封装也有不足的地方。例如，如果有一个设备可以提供很多特殊的功能，但为了兼容大多数操作系统它不得不提供一个通用的接口，这样就使得自身的特殊功能无法使用。
+
+查看Linux内核代码会发现，超过70%的代码都是各种驱动程序。
+
+#### 小结
+
+中断和DMA，用于提高设备效率。
+
+访问设备寄存器的两种方式，I/O指令和内存映射I/O。
+
+### 磁盘驱动器
+
+> 关键问题：如何存储和访问磁盘上的数据
+> 
+> 现代磁盘驱动器如何存储数据？接口是什么？数据是如何安排和访问的？磁盘调度如何提高性能？
+
+![](../images/disk.png)
+
+驱动器由大量扇区（512字节块）组成，每个扇区都可以读取或写入。在具有n个扇区的磁盘上，扇区从0到n−1编号。因此，我们可以将磁盘视为一组扇区，0到n−1是驱动器的地址空间（address space）.
+
+多扇区操作是可能的。实际上，许多文件系统一次读取或写入4KB（或更多）。但是，在更新磁盘时，驱动器制造商唯一保证的是单个512字节的写入是原子的.
+
+盘片（platter）开始，它是一个圆形坚硬的表面，通过引入磁性变化来永久存储数据。磁盘可能有一个或多个盘片。每个盘片有两面，每面都称为表面。
+
+所有盘片都围绕主轴（spindle）连接在一起，主轴连接到一个电机，以一个恒定（固定）的速度旋转盘片（当驱动器接通电源时）。旋转速率通常以每分钟转数（Rotations Per Minute，RPM）来测量，典型的现代数值在7200～15000 RPM范围内。也就是以10000 RPM旋转的驱动器意味着一次旋转需要大约6ms。
+
+数据在扇区的同心圆中的每个表面上被编码。我们称这样的同心圆为一个磁道（track）。
+
+驱动器的每个表面有一个这样的磁头：感应（即读取）磁盘上的磁性图案，或者让它们发生变化（即写入）。读写过程由磁头（disk head）完成。磁头连接到单个磁盘臂（disk arm）上，磁盘臂在表面上移动，将磁头定位在期望的磁道上
+
+要读取某个扇区的数据，首先磁头要移动到该扇区所在的磁道，这个过程叫做`寻道`，然后等待该扇区`旋转`到磁头下，最后`传输`数据。
+
+#### 一些其它细节
+
+许多驱动器采用某种形式的**磁道偏斜**（track skew），以确保即使在跨越磁道边界时，顺序读取也可以方便地服务
+
+外圈磁道通常比内圈磁道具有更多扇区
+
+驱动器会使用缓存来保存从磁盘读取或写入磁盘的数据，可以加快后续的请求。
+
+
+#### I/O 时间：用数学
+
+`T(I/O) = T(寻道) + T(旋转) + T(传输)`
+
+> 磁盘的指标报告上一般会有平均寻道时间，旋转时间可以通过 RPM 来计算（取半圈的时间），传输时间就是传输大小除以峰值传输速率（数据量小时可以忽略不计）
+
+`I/O 速率 = 大小(传输) / T(I/O)`
+
+
+尽可能以顺序方式将数据传输到磁盘，并从磁盘传输数据。如果顺序不可行，至少应考虑以大块传输数据：越大越好。如果I/O是以小而随机方式完成的，则I/O性能将受到显著影响
+
+#### 磁盘调度
+
+由于I/O的高成本，操作系统在决定发送给磁盘的I/O顺序方面历来发挥作用。
+
+SSTF：最短寻道时间优先
+
+> 可能会导致饥饿
+
+电梯（又称SCAN或C-SCAN）
+
+> SCAN及其变种并不是最好的调度技术。特别是，SCAN（甚至SSTF）实际上并没有严格遵守SJF的原则。具体来说，它们忽视了旋转
+
+SPTF：最短定位时间优先
+
+> 根据旋转和寻道的综合时间来选择，操作系统通常不太清楚磁道边界在哪，也不知道磁头当前的位置（旋转到了哪里）。因此，SPTF通常在驱动器内部执行
+
+在现代系统中，磁盘可以接受多个分离的请求。操作系统调度程序通常会选择它认为最好的几个请求（如16），并将它们全部发送到磁盘。磁盘然后利用其磁头位置和详细的磁道布局信息等内部知识，以最佳可能（SPTF）顺序服务于这些请求。
+
+磁盘调度程序执行的另一个重要相关任务是I/O合并
+
+> 在向磁盘发出I/O之前，系统应该等待多久？
+
+### 廉价冗余阵列（RAID）
+
+> 关键问题：如何得到大型、快速、可靠的磁盘
+> 
+> 我们如何构建一个大型、快速和可靠的存储系统？关键技术是什么？不同方法之间的折中是什么？
+
+RAID 这种技术使用多个磁盘一起构建更快、更大、更可靠的磁盘系统
+
+RAID 的优点：性能、容量、可靠性
+
+RAID为使用它们的系统透明地（transparently）提供了这些优势，即RAID对于主机系统看起来就像一个大磁盘
+
+在很高的层面上，RAID是一个非常专业的计算机系统：它有一个处理器，内存和磁盘。
+
+#### RAID 0级：条带化
+
+![](../images/raid.png)
+
+块的大小会影响阵列的性能。较小的块对于单文件来说并行度高，但是会增加定位时间（取最大定位时间）。较大的块则相反
+
+这个级别的性能和容量都很好，倒是可靠性差，只要有任何一个块坏了，都会导致数据损坏
+
+#### RAID 1级：镜像
+
+![](../images/raid1.png)
+
+#### RAID 4级：通过奇偶校验节省空间
+
+基于奇偶校验的方法试图使用较少的容量，从而克服由镜像系统付出的巨大空间损失。不过，这样做的代价是——性能。
+
+![](../images/raid4.png)
+
+可以简单异或（XOR）函数做奇偶校验就相当不错
+
+RAID-4容许1个磁盘故障，不容许更多。如果丢失多个磁盘，则无法重建丢失的数据。
+
+#### RAID 5级: 旋转奇偶校验
+
+![](../images/raid5.png)
+
+RAID-5的工作原理与RAID-4几乎完全相同，只是它将奇偶校验块跨驱动器旋转
+
+用于缓解每次写入都要修改存储校验值的同一磁盘的瓶颈问题
+
+#### 比较
+
+RAID容量、可靠性和性能: 
+
+![](../images/raid_vs.png)
+
+镜像RAID是简单的、可靠的，并且通常提供良好的性能，但是容量成本高。相比之下，RAID-5从容量角度来看是可靠和更好的，但在工作负载中有小写入时性能很差
+
+### 插叙：文件和目录
+
+到目前为止，我们看到了两项关键操作系统技术的发展：进程，它是虚拟化的CPU；地址空间，它是虚拟化的内存。
+
+虚拟化拼图中还有关键的一块：持久存储（persistent storage）。内存在断电时，其内容会丢失，而持久存储设备会保持这些数据不变
+
+> 关键问题：如何管理持久存储设备
+> 
+> 操作系统应该如何管理持久存储设备？都需要哪些API？实现有哪些重要方面？
+
+#### 文件和目录
+
+存储虚拟化形成了两个关键的抽象。
+
+第一个是文件（file），就是一个线性字节数组。每个文件都有某种低级名称，通常称为inode号。
+
+第二个抽象是目录，像文件一样，也有一个低级名字（即inode号），但是它的内容非常具体：它包含一个`（用户可读名字，低级名字）`对的列表。目录中的每个条目都指向文件或其他目录,通过将目录放入其他目录中，用户可以构建任意的目录树.
+
+在UNIX系统中，你几乎可以想到的所有内容都是通过文件系统命名的。除了文件、设备、管道，甚至进程都可以在一个看似普通的旧文件系统中看到
+
+#### 创建文件
+
+```c
+int fd = open("foo", O_CREAT | O_WRONLY | O_TRUNC);
+```
+
+`open()` 的一个重要方面是它的返回值：文件描述符（file descriptor）。文件描述符只是一个整数，是每个进程私有的，在UNIX系统中用于访问文件。
+
+> 文件描述符是一个间接层，通过文件描述符，可以得到具体的 inode 及当前的偏移量
+
+#### 读写文件
+
+```bash
+prompt> echo hello > foo 
+prompt> cat foo
+hello 
+prompt>
+```
+
+可以通过 Linux 的 strace 工具跟踪程序在运行时所做的每个系统调用，然后将跟踪结果显示在屏幕上供你查看。
+
+```bash
+prompt> strace cat foo
+...
+open("foo", O_RDONLY|O_LARGEFILE)          = 3
+read(3, "hello\n", 4096)                   = 6
+write(1, "hello\n", 6)                     = 6 
+hello
+read(3, "", 4096)                          = 0
+close(3)                                   = 0
+...
+prompt>
+```
+
+为什么第一次调用open()会返回3，而不是0或1？
+
+每个正在运行的进程已经打开了3个文件：标准输入，标准输出），以及标准错误）。这些分别由文件描述符0、1和2表示。
+
+#### 读取和写入，但不按顺序
+
+使用 `lseek()` 系统调用可以调整偏移量
+
+> lseek()调用只是在OS内存中更改一个变量，并不会触发 IO
+
+#### 用 fsync 立即写入
+
+调用 `write()`，只是告诉文件系统：请在将来的某个时刻，将此数据写入持久存储。出于性能的原因，文件系统会将这些写入在内存中缓冲（buffer）一段时间（例如5s或30s）。在稍后的时间点，写入将实际发送到存储设备。
+
+如果需要更高的数据持久性保证，可以调用 `fsync(int fd)` 强制写入磁盘
+
+```c
+int fd = open("foo", O_CREAT | O_WRONLY | O_TRUNC); 
+assert(fd > -1);
+int rc = write(fd, buffer, size); 
+assert(rc == size);
+rc = fsync(fd); 
+assert(rc == 0);
+```
+
+#### 文件重命名
+
+```bash
+prompt> mv foo bar
+```
+
+mv 的底层是调用 `rename(char * old, char * new)`
+
+rename()调用提供了一个有趣的保证：它（通常）是一个**原子调用**，不论系统是否崩溃
+
+对于支持某些需要对文件状态进行原子更新的应用程序，rename()非常重要。
+
+通过 rename 实现文件的原子更新：
+
+```c
+int fd = open("foo.txt.tmp", O_WRONLY|O_CREAT|O_TRUNC); 
+write(fd, buffer, size); // write out new version of file 
+fsync(fd);
+close(fd);
+rename("foo.txt.tmp", "foo.txt");
+```
+
+#### 获取文件信息
+
+使用 `stat()` 或 `fstat()` 系统调用获取文件元数据
+
+```c
+struct stat {
+    dev_t    st_dev;        /* ID of device containing file */ 
+    ino_t    st_ino;        /* inode number */
+    mode_t    st_mode;      /* protection */
+    nlink_t    st_nlink;    /* number of hard links */
+    uid_t    st_uid;        /* user ID of owner */
+    gid_t    st_gid;        /* group ID of owner */
+    dev_t    st_rdev;       /* device ID (if special file) */
+    off_t    st_size;       /* total size, in bytes */
+    blksize_t st_blksize;   /* blocksize for filesystem I/O */
+    blkcnt_t st_blocks;    /* number of blocks allocated */
+    time_t    st_atime;     /* time of last access */
+    time_t    st_mtime;     /* time of last modification */
+    time_t    st_ctime;     /* time of last status change */
+};
+```
+
+> 命令行工具 stat file
+
+#### 删除文件
+
+```bash
+prompt> strace rm foo
+...
+unlink("foo")                     = 0
+...
+```
+
+#### 创建目录
+
+```bash
+prompt> strace mkdir foo
+...
+mkdir("foo", 0777)                 = 0
+...
+prompt>
+```
+
+#### 读取目录
+
+使用了opendir()、readdir()和closedir()这3个调用
+
+```c
+int main(int argc, char *argv[]) { 
+    DIR *dp = opendir("."); 
+    assert(dp != NULL);
+    struct dirent *d;
+    while ((d = readdir(dp)) != NULL) {
+        printf("%d %s\n", (int) d->d_ino, d->d_name);
+    }
+    closedir(dp); 
+    return 0;
+}
+```
+
+```c
+struct dirent {
+    char         d_name[256];        /* filename */
+    ino_t        d_ino;              /* inode number */
+    off_t          d_off;     /* offset to the next dirent */
+    unsigned short d_reclen;  /* length of this record */
+    unsigned char  d_type;    /* type of file */
+};
+```
+
+#### 删除目录
+
+通过调用`rmdir()`来删除目录，要求该目录在被删除之前是空的（只有“.”和“..”条目）
+
+#### 硬链接
+
+在文件系统树中创建条目的新方法：`link()` 系统调用，有两个参数：一个旧路径名和一个新路径名
+
+> 这也是 unlink() 名称的由来
+
+```bash
+prompt> echo hello > file 
+prompt> cat file
+hello
+prompt> ln file file2 
+prompt> cat file2 
+hello
+prompt> ls -i file file2 
+67158084 file
+67158084 file2 
+prompt>
+```
+
+可以使用stat()来查看文件的引用计数
+
+```bash
+prompt> echo hello > file
+prompt> stat file
+... Inode: 67158084   Links: 1 ...
+prompt> ln file file2
+prompt> stat file
+... Inode: 67158084   Links: 2 ...
+prompt> stat file2
+... Inode: 67158084   Links: 2 ...
+prompt> ln file2 file3
+prompt> stat file
+... Inode: 67158084   Links: 3 ...
+prompt> rm file
+prompt> stat file2
+... Inode: 67158084   Links: 2 ...
+prompt> rm file2
+prompt> stat file3
+... Inode: 67158084   Links: 1 ...
+prompt> rm file3
+```
+
+#### 符号链接
+
+还有一种非常有用的链接类型，称为`符号链接`（symbolic link），有时称为`软链接`（soft link）。
+
+硬链接有点局限：你不能创建目录的硬链接（因为担心会在目录树中创建一个环）。你不能硬链接到其他磁盘分区中的文件（因为inode号在特定文件系统中是唯一的，而不是跨文件系统），等等。因此，人们创建了一种称为符号链接的新型链接。
+
+```bash
+prompt> echo hello > file 
+prompt> ln -s file file2 
+prompt> cat file2
+hello
+prompt> stat file
+ ... regular file ... 
+prompt> stat file2
+ ... symbolic link ...
+prompt> rm file 
+prompt> cat file2
+cat: file2: No such file or directory
+```
+
+形成符号链接的方式，即将链接指向文件的路径名作为链接文件的数据。由于创建符号链接的方式，有可能造成所谓的悬空引用（dangling reference）。
+
+#### 创建并挂载文件系统
+
+使用 `mkfs` 工具：作为输入，为该工具提供一个设备（例如磁盘分区，例如/dev/sda1），一种文件系统类型（例如ext3），它就在该磁盘分区上写入一个空文件系统，从根目录开始。
+
+创建的文件系统需要挂载到统一的文件系统树中进行访问。这个任务是通过 mount 程序实现的。
+
+mount的作用很简单：以现有目录作为目标挂载点（mount point），本质上是将新的文件系统粘贴到目录树的这个点上。
+
+```bash
+prompt> mount -t ext3 /dev/sda1 /home/users
+```
+
+如你所见，路径名/home/users/现在指的是新挂载目录的根。因此mount的美妙之处在于：它将所有文件系统统一到一棵树中，而不是拥有多个独立的文件系统，这让命名统一而且方便。
+
+运行 mount 程序可以查看系统上挂载的内容
+
+```bash
+prompt> mount
+/dev/sda1 on / type ext3 (rw) 
+proc on /proc type proc (rw) 
+sysfs on /sys type sysfs (rw)
+/dev/sda5 on /tmp type ext3 (rw)
+/dev/sda7 on /var/vice/cache type ext3 (rw) 
+tmpfs on /dev/shm type tmpfs (rw)
+AFS on /afs type afs (rw)
+```
+
+
+
+### 文件系统实现
+
+### 局部性和快速文件系统
+
+### 崩溃一致性：FSCK和日志
+
+### 日志结构文件系统
+
+### 数据完整性和保护
+
+## 分布式系统
+
+### Sun 的网络文件系统（NFS）
+
+### Andrew 文件系统（AFS）
