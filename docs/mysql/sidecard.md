@@ -5,3 +5,4 @@
 - [性能剖析](./profile)
 - [主从复制和数据迁移](./replication)
 - [Innodb 锁](./lock)
+- [innodb](./innodb)
