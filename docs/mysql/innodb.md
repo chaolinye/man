@@ -306,3 +306,90 @@ else
 
 ### InnoDB 关键特性
 
+#### 插入缓冲（Insert Buffer）
+
+由于聚集索引的特性，对于非聚集索引的插入或者更新往往都是随机的
+
+对于非聚集索引的插入或更新操作，不是每一次直接插入到索引页中，而是先判断插入的非聚集索引页是否在缓冲池中，若在，则直接插入；若不在，则先放入到一个 Insert Buffer 对象中。然后再以一定的频率和情况进行 Insert Buffer 和辅助索引页子节点的 merge 操作，这是通常能将多个插入合并到一个操作中（因为在一个索引页中），这就大大提供了对于非聚集索引插入的性能。
+
+Insert Buffer 的使用需要同时满足以下两个条件：
+
+- 索引是辅助索引
+- 索引不是唯一索引
+
+通过 `SHOW ENGINE INNODB STATUS \G` 的 merged recs（插入记录数） 和 merges(合并次数) 指标，（1- merges / merged recs） 可以得到减少的IO次数。
+
+目前 Insert Buffer 存在一个问题是：在写密集的情况下，插入缓冲占用过多的缓冲池内存，默认最大可以占到 1/2 的缓冲池内存。
+
+1.0.x 引入了 `Change Buffer`, 可以视为 Insert Buffer 的升级：对 INSERT、DELETE、UPDATE 都进行缓冲，分别是 Insert Buffer、Delete Buffer、Purge buffer。
+
+Change Buffer 的适用对象依然是非唯一的辅助索引
+
+1.2.x 版本，可以通过 innodb_change_buffer_max_size 控制 Change Buffer 最大适用内存的数量
+
+Insert Buffer 的数据结构是一颗 B+ 树。全局只有一棵 Insert Buffer B+ 树，存放在共享表空间中，默认就是 ibdata1 中。
+
+![](../images/insert-buffer-non-leaf.png)
+
+在 InnoDB 引擎中，每个表有一个唯一的 space_id。marker 用来兼容老版本的 insert buffer。offset 表示页所在的偏移量
+
+![](../images/insert-buffer-leaf.png)
+
+Merge Insert Buffer 的操作可能发生在以下几种情况下：
+
+- 辅助索引页被读取到缓冲池时
+- Insert Buffer Bitmap 也追踪到该辅助索引页已无可用空间时
+- Master Thread
+
+#### 两次写（Double Write）
+
+如果说 Insert Buffer 带给 InnoDB 存储引擎的是性能上的提升，那么 doublewrite 带来就是数据页的可靠性
+
+16KB 的页，只写了前 4 KB，之后发生了宕机，被称为部分写失效。
+
+> 重做日志中只记录了对页中的某个位置的修改，无法恢复整个页
+
+![](../images/innodb-doublewrite.png)
+
+脏页刷新时先 memcpy 到内存的 doublewrite buffer，然后写入共享表空间文件（fsync），然后再写入各表空间文件中（部分失效就用共享表空间来恢复）
+
+```sql
+# 查看 doublewrite 运行情况
+SHOW GLOBAL STATUS LIKE 'innodb_dblwr%'\G
+```
+
+#### 自适应哈希索引（Adaptive Hash Index）
+
+hash 时间复杂度为 O(1)，一般只需要一次查询
+
+在生产环境中，B+ 树的高度一般为 3~4 层，故需要 3~4 次查询
+
+InnoDB 存储引擎会监控对表上各索引页的查询。如果观察到建立哈希索引可以带来速度的提升，则建立哈希索引，称之为自适应哈希索引。
+
+AHI 只能用来搜索等值的查询，而且需要查询的条件一样
+
+可以通过观察 `SHOW ENGINE INNODB STATUS` 的结果及参数 `innodb_adaptive_hash_index` 来考虑是禁用或启动此特性
+
+#### 异步 IO（Async IO）
+
+AIO 的一个优势是可以进行 IO Merge 操作
+
+参数 `innodb_user_native_aio` 用来控制是否启用 Native AIO，在 Linux 下默认启用
+
+#### 刷新邻接页（Flush Neightbor Page）
+
+当刷新一个脏页时，检测该页所在区（extent）的所有页，如果是脏页，那么一起进行刷新。
+
+通过参数 `innodb_flush_neighbors` 控制。机械硬盘建议启用，固态硬盘建议关闭
+
+### 启动、关闭与恢复
+
+在关闭时，参数 `innodb_fast_shutdown` 影响行为
+
+- 0。完成所有的 full purge、merge insert buffer、脏页刷新
+- 1。默认值。数据脏页刷新
+- 2。只将日志写入日志文件
+
+参数 `innodb_force_recovery` 影响启动时的恢复，默认为 0(完成所有恢复)
+
+## 文件
