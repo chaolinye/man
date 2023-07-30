@@ -393,3 +393,198 @@ AIO 的一个优势是可以进行 IO Merge 操作
 参数 `innodb_force_recovery` 影响启动时的恢复，默认为 0(完成所有恢复)
 
 ## 文件
+
+### 参数文件
+
+告诉 MySQL 实例启动时在哪里可以找到数据库文件，并且指定某些初始化参数，这些参数定义了某种内存结构的大小等设置，还会介绍各种参数的类型。
+
+参数文件可以通过 `mysql --help | grep my.cnf` 来寻找
+
+MySQL 实例可以不需要参数文件，因为有默认值
+
+参数可以理解为一个键/值对。可以通过命令 `SHOW VARIABLES` 查看数据库中的所有参数，也可以通过 LIKE 来过滤参数名。还可以通过 information_schema 架构下的 `GLOBAL_VARIALBES` 视图来进行查找。还可以用 `SELECT @@var_name` 来查看。
+
+参数可以分为两大类：
+
+- 动态类型：可以在运行时修改。可以通过 set 命令修改
+    ```sql
+    # global 和 session 表明该修改是基于当前会话还是整个实例的生命周期
+    SET {global | session} system_var_name = expr
+    # 或者
+    SET {@@global. | @@session. | @@}system_var_name = expr
+    ```
+    若想在数据库实例下次启动该参数修改还能生效，就只能改参数文件了
+- 静态类型
+    运行时只读。修改会报错
+
+### 日志文件
+
+#### 错误日志（error log）
+
+对 MySQL 的启动、运行、关闭过程进行了记录。
+
+```sql
+SHOW VARIABLES LIKE 'log_error'\G
+```
+
+#### 慢查询日志（slow query log）
+
+在 MySQL 启动时可以设置一个阈值(`long_query_time`)，将运行时间超过(大于)该值的所有 SQL 语句都记录到慢查询日志文件中。
+
+```sql
+# 阈值配置
+SHOW VARIABLES LIKE 'long_query_time'\G
+# 慢查询日志开关
+SHOW VARIABLES LIKE 'log_slow_queries'\G
+# 慢查询日志文件路径
+SHOW VARIABLES LIKE 'slow_query_log_file'\G
+# 将没有使用索引的SQL语句也记录到慢查询日志开关
+SHOW VARIABLES LIKE 'log_queries_not_using_indexes'\G
+# 每分钟允许记录到 slow log 的且未使用索引的 SQL 语句次数
+log_throttle_queries_not_using_indexes
+```
+
+可以通过 mysqldumpslow 命令查看慢查询日志文件
+
+```bash
+mysqldumpslow xxx-slow.log
+
+# 执行时间最长的 10 条 SQL
+mysqldumpslow -s al -n 10 xxx-slow.log
+```
+
+MySQL 5.1 开始可以将慢查询的日志记录放入一张表中。位置是 `mysql.slow_log`
+
+```sql
+# 设置慢查询日志输出到表中，默认是 FILE
+SET GLOBAL log_output='TABLE'
+
+# 构建一条慢查询日志
+select sleep(10)\G
+
+# 查询慢查询日志
+select * from mysql.slow_log\G
+```
+
+#### 查询日志（log）
+
+记录了所有对 MySQL 数据库请求的信息，无论这些请求是否得到了正确的执行。默认文件名为：主机名.log
+
+MySQL 5.1 开始可以放入一张表中(`mysql.general_log`)
+
+```sql
+# 查询日志开关
+SHOW VARIABLES LIKE 'general_log'\G
+# 查询日志位置
+SHOW VARIABLES LIKE 'general_log_file'\G
+
+# 设置查询日志输出到表中，默认是 FILE
+SET GLOBAL log_output='TABLE'
+# 查询慢查询日志
+select * from mysql.general_log\G
+```
+
+#### 二进制日志（binlog）
+
+记录了对 MySQL 数据库执行更改的所有操作，但是不包括 SELECT 和 SHOW 这类操作。
+
+```sql
+# 执行修改操作
+UPDATE t SET a = 1 WHERE a = 2;
+# 查看当前的binlog文件名
+SHOW MASTER STATUS\G
+# 查看binlog事件
+SHOW BINLOG EVENTS IN 'mysql.000008'\G
+```
+
+二进制日志主要有以下的作用：
+
+- 恢复
+- 复制
+- 审计
+
+通过配置参数`log-bin[=name]`可以启动二进制日志。如果不指定 name，则默认二进制日志文件名为主机名，后缀名为二进制日志的序列号，所在路径为数据目录(datadir).
+
+xxx.index 为二进制的索引文件，用来存储过往产生的二进制日志序号
+
+二进制日志的相关参数:
+
+- max_binlog_size: 单个二进制日志文件最大值，默认是 1G
+- binlog_cache_size：所有未提交的事务的二进制日志会被记录到一个缓冲中，默认为 32k，基于会话的。通过 show global status 查看 binlog_cache_use, binlog_cache_disk_use 的状态来判断当前大小是否合适
+- sync_binlog： 二进制日志并不是在每次写的时候同步到磁盘。每写多少次缓冲就同步到磁盘。
+- binlog-do-db：需要写入哪些库的日志
+- binlog-ignore-db：需要忽略哪些库的日志
+- log-slave-update：slave 默认不会将 master 的二进制日志写入到自己的二进制日志。如果需要，则设置该参数
+- binlog_format：
+    - `STATEMENT`: 记录逻辑SQL语句。遇到rand，uuid等函数会导致数据的不一致
+    - `ROW`：记录表的行更改情况。缺点是数据量大
+    - `MIXED`：默认采用 STATEMENT，某些情况使用 ROW
+
+    在通常情况下，设置为 ROW，可以为数据库的恢复和复制带来更好的可靠性。
+
+
+查看二进制文件的内容
+
+```bash
+mysqlbinlog --start-position=203 test.000004
+# ROW 模式，需要加上 -vv
+mysqlbinlog -vv --start-position=203 test.000004
+```
+
+### 套接字文件
+
+```sql
+SHOW VARIABLES LIKE 'socket'\G
+```
+
+### pid 文件
+
+```sql
+SHOW VARIABLES LIKE 'pid_file'\G
+```
+
+### 表结构定义文件
+
+MySQL 数据的存储是根据表进行的，每个表都会有与之对应的文件。`frm` 为后缀名的文件记录了表的结构定义。
+
+### InnoDB 存储引擎文件
+
+之前介绍的文件都是 MySQL 数据库本身的文件，和存储引擎无关
+
+#### 表空间文件
+
+InnoDB 采用将存储的数据按表空间进行存放的设计。默认的表空间文件名为 ibdata1，通过 `innodb_data_file_path` 参数设置该文件的路径和数量
+
+```cnf
+[mysqld]
+innodb_data_file_path=/db/ibdata1:2000M;/dr2/db/ibdata2:2000M:autoextend
+```
+
+默认所有表的数据都会记录到该共享表空间中。若设置了参数 `innodb_file_per_table`，则每个表产生一个独立表空间。独立表空间的命名规则为：表名.ibd。
+
+这些单独的表空间文件劲存储该表的数据、索引和插入缓冲 BITMAP 等信息，其余信息还是存放在默认的表空间中.
+
+![](../images/innodb-ibd.png)
+
+#### 重做日志文件
+
+默认情况下，数据目录下会有两个名为 ib_logfile0 和 ib_logfile1 的文件。
+
+每个 InnoDB 存储引擎至少有1个重做日志文件组，每个文件组至少有2个重做文件。日志文件组中以循环写入的方式运行，例如先写文件1，满了再写文件2，满了再写文件1.
+
+影响重做日志文件的参数：
+
+- innodb_log_file_size
+- innodb_log_files_in_group
+- innodb_mirrored_log_groups
+- innodb_log_group_home_dir
+
+和二进制日志的区别
+
+1. 二进制日志记录MySQL数据库所有有关的日志记录，包括各种存储引擎的日志。InnoDB重做日志只记录本存储引擎的事务日志
+2. 无论是哪种格式，二进制日志记录的都是逻辑日志。重做日志记录的是关于每个页的更改的物理情况
+3. 二进制日志仅在事务提交前进行提交。重做日志在事务进行中也在不断得写入
+
+![](../images/innodb-redo.png)
+
+## 表
