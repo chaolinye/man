@@ -588,3 +588,165 @@ innodb_data_file_path=/db/ibdata1:2000M;/dr2/db/ibdata2:2000M:autoextend
 ![](../images/innodb-redo.png)
 
 ## 表
+
+### 索引组织表
+
+在 InnoDB 存储引擎中，表都是根据主键顺序组织存放的，这种存储方式的表称为索引组织表。
+
+如果在创建表时没有显式地定义主键，则会按如下方式选择或创建主键：
+
+- 如果表中有非空的唯一索引，则该列即为主键。如果有多个，则选择建表时第一个定义的
+- 如果没有，则自动创建一个6字节大小的指针
+
+可以通过 `_rowid` 显式表的主键，不过这种方式只能用于查看单个列为主键的情况
+
+### InnoDB 逻辑存储结构
+
+![](../images/innodb-tablespace.png)
+
+#### 表空间
+
+默认情况下数据都在共享表空间 ibdata1.
+
+如果启用了 innodb_file_per_table 参数，每张表内的数据可以单独放到一个表空间内，但是这些表空间存放的只是数据、索引和插入缓冲 Bitmap 页，其它数据，如 undo 信息，插入缓冲索引页、系统事务信息、二次写缓冲等还是存放在原理的共享表中。
+
+#### 段
+
+表空间是由各个段组成的，常见的段有数据段、索引段、回滚段等。
+
+数据段是 B+ 树的叶子节点，索引段是 B+ 树的非叶子节点。
+
+#### 区
+
+区是由连续页组成的空间，在任何情况下每个区的大小都为 1MB。在默认情况下，InnoDB 存储引擎页的大小为 16KB，即一个区中一共有 64 个连续的页。页可以通过 KYE_BLOCK_SIZE 参数来压缩，或者通过 innodb_page_size 来修改大小，但是区的大小总是 1M。
+
+在用户启动了参数 innodb_file_per_table 后，创建的表默认大小是96KB。区的大小总是 1M，那么表空间至少是 1MB 才对。其实这是因为在每个段开始时，先用32个页大小的碎片页（fragment page）来存放数据，在使用完这些页之后才是区的申请。
+
+#### 页
+
+页 是 InnoDB 磁盘管理的最小单位。默认大小是 16KB，可以通过参数 innodb_page_size 修改，若设置完成，则所有表中页的大小都为 innodb_page_size ，不可以对其再次进行修改，除非通过 mysqldump 导入和导出操作来产生新的库。
+
+常见的页类型：
+
+- 数据页（B-tree Node）
+- undo 页（undo Log Page）
+- 系统页（System Page）
+- 事务数据页（Transaction system Page）
+- 插入缓冲位图页（Insert Buffer Bitmap）
+- 插入缓冲空闲列表页（Insert Buffer Free List）
+- 未压缩的二进制大对象页（Uncompressed BLOB Page）
+- 压缩的二进制大对象页（compressed BLOB Page）
+
+#### 行
+
+InnoDB 数据是按行进行存放的。每个页存放的行记录也是有硬性定义的，最多允许存放 16KB/2 - 200 行的记录，即 79992 行。
+
+### InnoDB 行记录格式
+
+```sql
+# 查看表的行记录格式，Row_format 字段
+show table status like 'mytest'\G
+```
+
+InnoDB 1.0.x 版本之前，InnoDB 存储引擎提供了 `Compact` 和 `Redundant`（兼容更老版本） 两种格式来存放行记录数据。
+
+#### Compact 行记录格式
+
+![](../images/innodb-row-format-compact.png)
+
+变长字段长度列表：记录非 NULL 的变长字段的长度的列表，且是按照列的顺序逆向放置的。
+
+大于 255 的用两个字节，小于等于255的用一个字节。变长字段的长度最大不可以超过 2 字节，因此 VARCHAR类型的最大长度限制为 65535.
+
+NULL 标志位：用二进制位的方式表示某行数据是否为 NULL。
+
+记录头信息：
+
+![](../images/innodb-compact-record-header.png)
+
+接下来就是列数据，除了用户定义的列外，还有两个隐藏列，事务ID列和回滚指针列，分别为6字节和7字节大小。若 InnoDB 表没有定义主键，每行还会增加一个6字节的 rowid 列。
+
+比如一个表
+
+```sql
+CREATE TABLE mytest (
+    t1 VARCHAR(10),
+    t2 VARCHAR(10),
+    t3 CHAR(10),
+    t4 VARCHAR(10)
+) ENGINE=INNODB CHARSET=LATIN1 ROW_FORMAT=COMPACT;
+INSERT INTO mytest VALUES ('a', 'bb', 'bb', 'ccc');
+INSERT INTO mytest VALUES ('d', NULL, NULL, 'fff');
+```
+
+通过 `hexdump -c -v mytest.ibd` 可以看到第一行数据：
+
+![](../images/innodb-compact-1.png)   
+![](../images/innodb-compact-2.png)
+
+第二行数据：
+
+![](../images/innodb-compact-3.png)
+
+不管是 CHAR 类型还是 VARCHAR 类型，在 compact 格式下 NULL 值都不占用任何存储空间
+
+#### Redundant 行记录格式
+
+![](../images/innodb-redundant-row-format.png)
+
+NULL 的 CHAR 类型在 Redundant 行记录格式需要占用空间。
+
+#### 行溢出数据
+
+MySQL 官方手册中定义的 VARCHAR 类型最大支持 65535，单位是字节。由于其它开销，真实只允许 65532，也就说在 latin1 编码下是 65532，在 GBK 编码下是 32767， 在 UTF8 编码下是 21845。
+
+另外，65535 长度限制是指所有 VARCHAR 列的长度总和，如果列的长度总和超过了这个长度，依然无法创建。
+
+InnoDB 存储引擎的页为 16KB，即 16384 字节，怎么能存放 65532 字节呢？
+
+在一般情况下，数据都是存放在页类型为 `B-tree node` 中。但是当发生行溢出时，数据存放在页类型为 `Uncompress BLOB` 页中。B-tree node 中只保存数据的前 768 字节。
+
+![](../images/innodb-overflow-page.png)
+
+那么多长会溢出呢？每个页至少应该有两条行记录。如果页中只能存放一条记录，那么就会把行数据存放在溢出页。根据实验，如果表中仅有一个varchar列，那么这个列的长度不超过 8098 就不会溢出。
+
+对于 TEXT 或 BLOB 的数据类型，也和 VARCHAR 一样的规则：至少保证一个页能存放两条记录。
+
+#### Compressed 和 Dynamic 行记录格式
+
+这是新版本的行记录格式
+
+对于存放在 BLOB 中的数据采用了完全的行溢出的方式
+
+![](../images/innodb-new-row-format.png)
+
+Compressed 行记录格式的另一个功能就是存储在其中的行数据会以 zlib 的算法进行压缩，因此对于 BLOB、TEXT、VARCHAR 这类大长度类型的数据能够进行非常有效的存储。
+
+#### CHAR 的存储格式
+
+对于多字节编码的 CHAR 数据类型的存储，InnoDB存储引擎在内部将其视为变成字符类型。这也意味着变成长度列表中会记录 CHAR 数据类型的长度。
+
+CHAR 类型被明确视为了变成字符类型，但是对于未能占满长度的字符还是填充 Ox20。
+
+### InnoDB 数据页结构
+
+![](../images/innodb-data-page.png)
+
+
+### Named File Format 机制
+
+1.0.x 版本之前的文件格式定义为 Antelope，新版本支持的文件格式定义为 Barracuda，并且向下兼容。
+
+![](../images/innodb-row-format.png)
+
+```sql
+# 查看mysql版本
+SELECT @@version\G
+# 查看 innodb 版本
+SHOW VARIABLES LIKE 'innodb_version'\G
+# 查看文件格式
+SHOW VARIABLES LIKE 'innodb_file_format'\G
+```
+
+### 约束
+
