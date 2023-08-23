@@ -24,3 +24,4 @@
 
 [AI Code Translator](https://aicodeconvert.com/)  
 [ToolAI](https://www.toolai.io/): AI 网站目录，收录了全球5000个 AI 网站。
+[MyShell](https://myshell.ai/): 口语联系机器人

@@ -750,3 +750,113 @@ SHOW VARIABLES LIKE 'innodb_file_format'\G
 
 ### 约束
 
+#### 数据完整性
+
+关系型数据库系统和文件系统的一个不同点是，关系数据库本身能保证存储数据的完整性，不需要应用程序的控制。
+
+几乎所有的关系型数据库都提供了约束机制来保证数据的完整性。
+
+数据完整性有以下三种形式：
+
+- 实体完整性保证表中有一个主键
+- 域完整性保证数据每列的值满足特定的条件。
+    - 选择合适的数据类型
+    - 外键约束
+    - 编写触发器
+    - DEFAULT
+- 参照完整性保证两张表之间的关系。
+    - 外键
+
+对于 InnoDB 存储引擎本身而言，提供了以下几种约束：
+
+- Primary Key
+- Unique Key
+- Foreign Key
+- Default
+- NOT NULL
+
+#### 约束的创建和查找
+
+约束的创建可以采用以下两种方式：
+
+- 表创建时就进行约束定义
+- 利用 ALTER TABLE 命令来进行创建约束
+
+```sql
+create table u (
+    id INT,
+    name VARCHAR(20),
+    id_card CHAR(18),
+    PRIMARY_KEY (id),
+    UNIQUE KEY (name);
+)
+
+ALTER TABLE u
+ADD UNIQUE KEY uk_id_card(id_card);
+```
+
+主键的约束名为 PRIMARY，唯一索引的默认约束名与列名相同。
+
+```sql
+# 查看表的约束信息
+SELECT constraint_name,constraint_type FROM information_schema.TABLE_CONSTRAINTS where table_schema='mytest' and table_name = 'p'\G
+# 查看库的外键信息
+SELECT * FROM information_schema.REFERENTIAL_CONSTRAINTS WHERE constraint_schema='mytest'\G
+```
+
+#### 约束和索引的区别
+
+约束是一个逻辑的概念，用来保证数据的完整性，而索引是一个数据结构，既有逻辑上的概念，在数据库中还代表着物理存储的方式。
+
+#### 对错误数据的约束
+
+在某些默认设置下，MySQL 数据库允许非法的或不正确的数据的插入或更新，有或者转化成一个合法的值，如向 NOT NULL 的字段插入一个 NULL 值，MySQL 数据库会将其更改为 0 再进行插入，可以通过 `show warnings\G` 查看告警。如果希望报错而不是警告，可以设置 sql_mode 为 STRICT_TRANS_TABLES.
+
+#### ENUM 和 SET 约束
+
+MySQL 不支持传统的 CHECK 约束，可以通过 ENUM 和 SET 类型来解决部分的约束需求。
+
+```sql
+CREATE TABLE a (
+    id INT,
+    sex ENUM('male', 'female')
+);
+```
+
+只限于对离散数值的约束。对于连续值的范围约束或更复杂的约束，需要通过触发器来实现
+
+#### 触发器与约束
+
+[官方文档](https://dev.mysql.com/doc/refman/5.7/en/create-trigger.html)
+
+触发器的作用是在执行 INSERT、DELETE、UPDATE 命令之前或之后自动调用 SQL 命令或存储过程。
+
+```
+CREATE
+[DEFINER = { user | CURRENT_USER }]
+TRIGGER trigger_name BEFER|AFTER INSERT|UPDATE|DELETE
+ON tbl_name FOR EACH ROW trigger_stmt
+```
+
+#### 外键约束
+
+[官方文档](https://dev.mysql.com/doc/refman/5.7/en/create-table-foreign-keys.html)
+
+```
+[CONSTRAINT [symbol]] FOREIGN KEY
+    [index_name] (col_name, ...)
+    REFERENCES tbl_name (col_name,...)
+    [ON DELETE reference_option]
+    [ON UPDATE reference_option]
+
+reference_option:
+    RESTRICT | CASCADE | SET NULL | NO ACTION | SET DEFAULT
+```
+
+在导入过程中忽视外键的检查
+
+```sql
+SET foreign_key_checks = 0;
+LOAD DATA...
+SET foreign_key_checks = 1;
+```
