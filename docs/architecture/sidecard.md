@@ -5,3 +5,4 @@
 - [CAP 理论](./cap)
 - [分布式系统指标](./system-metric)
 - [重构](./refactor)
+- [软件设计](./software-design)
