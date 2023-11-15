@@ -2,3 +2,4 @@
 - [《10 人以下小团队管理手册》笔记](./management)
 - [有趣的玩意](./funny.md)
 - [工具箱](./tool.md)
+- [Word 技巧](./word.md)
