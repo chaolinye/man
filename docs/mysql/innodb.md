@@ -860,3 +860,63 @@ SET foreign_key_checks = 0;
 LOAD DATA...
 SET foreign_key_checks = 1;
 ```
+
+### 视图
+
+在 MySQL 数据库中，视图（view）是一个命名的虚表，它由一个 SQL 查询来定义，可以当作表使用。但是视图中的数据没有实际的物理存储。
+
+#### 视图的作用
+
+视图的主要用途之一是被用做一个抽象装置，在一定程度上起到一个安全层的作用。
+
+```
+CREATE
+    [OR REPLACE]
+    [ALGORITHM = {UNDEFINED | MERGE | TEMPTABLE}]
+    [DEFINER = user]
+    [SQL SECURITY { DEFINER | INVOKER }]
+    VIEW view_name [(column_list)]
+    AS select_statement
+    [WITH [CASCADED | LOCAL] CHECK OPTION]
+```
+
+某些视图可以进行更新操作，称为可更新视图。WITH CHECK OPTION 就是针对可更新视图添加检查。
+
+`show tables` 除了持久表，也会显示视图。
+
+如果只想查看持久表
+
+```sql
+# 查看持久表和视图
+show tables;
+
+# 查看持久表
+select * from information_schema.TABLES
+where table_type = 'BASE TABLE' and table_schema=database()\G;
+
+# 查看视图
+select * from information_schema.VIEWS
+where table_schema=database()\G;
+```
+
+#### 物化视图
+
+Oracle支持物化视图，但是Mysql不支持。但是可以通过另一张表和触发器来模拟。
+
+### 分区表
+
+分区功能并不是在存储引擎层完成的，但是需要存储引擎的支持。
+
+MySQL数据库至此hi的分区类型为水平分区，并不支持垂直分区。此外，MySQL的分区是局部分区索引，一个分区中既存放了数据由存放了索引。
+
+> 水平分区将一个表不同行分配到不同的物理文件中，垂直分区将一个表的不同列分配到不同的物理文件中
+
+> 全局分区是指数据存放在各个分区中，但是所有数据的索引放在一个对象中。
+
+```sql
+# 查看当前数据库是否启动了分区功能
+show variables like '%partition%'\G;
+
+# 或者
+show plugins;
+```
