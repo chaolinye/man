@@ -920,3 +920,58 @@ show variables like '%partition%'\G;
 # 或者
 show plugins;
 ```
+
+MySQL 支持的几种类型分区：
+
+- RANGE 分区：行数据基于属于一个给定连续区间的列值被放入分区。
+- LIST 分区：和 RANGE 分区类似，只是面向的是离散的值
+- HASH 分区：根据用户自定义的表达式的返回值来进行分区，返回值不能为负数
+- KEY 分区：根据 MySQL 数据库提供的哈希函数来进行分区。
+
+不论创建何种类型的分区，如果表中存在主键或唯一索引时，分区列必须是唯一索引的一个组成部分。如果没有主键和唯一索引，可以指定任何一列为分区列。
+
+#### 分区类型
+
+- RANGE 分区
+
+```sql
+CREATE TABLE employees (
+    id INT NOT NULL,
+    fname VARCHAR(30),
+    lname VARCHAR(30),
+    hired DATE NOT NULL DEFAULT '1970-01-01',
+    separated DATE NOT NULL DEFAULT '9999-12-31',
+    job_code INT NOT NULL,
+    store_id INT NOT NULL
+)
+PARTITION BY RANGE (store_id) (
+    PARTITION p0 VALUES LESS THAN (6),
+    PARTITION p1 VALUES LESS THAN (11),
+    PARTITION p2 VALUES LESS THAN (16),
+    PARTITION p3 VALUES LESS THAN (21)
+);
+
+
+# 查看分区信息
+select * from information_schema.PARTITIONS where table_schema=database() AND table_name = 'employees'\G;
+```
+
+RANGE 分区主要用于日期列的分区
+
+```sql
+CREATE TABLE employees (
+    id INT NOT NULL,
+    fname VARCHAR(30),
+    lname VARCHAR(30),
+    hired DATE NOT NULL DEFAULT '1970-01-01',
+    separated DATE NOT NULL DEFAULT '9999-12-31',
+    job_code INT,
+    store_id INT
+)
+PARTITION BY RANGE ( YEAR(separated) ) (
+    PARTITION p0 VALUES LESS THAN (1991),
+    PARTITION p1 VALUES LESS THAN (1996),
+    PARTITION p2 VALUES LESS THAN (2001),
+    PARTITION p3 VALUES LESS THAN MAXVALUE
+);
+```
