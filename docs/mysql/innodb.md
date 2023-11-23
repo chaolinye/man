@@ -975,3 +975,180 @@ PARTITION BY RANGE ( YEAR(separated) ) (
     PARTITION p3 VALUES LESS THAN MAXVALUE
 );
 ```
+
+- LIST 分区
+
+```sql
+CREATE TABLE employees (
+    id INT NOT NULL,
+    fname VARCHAR(30),
+    lname VARCHAR(30),
+    hired DATE NOT NULL DEFAULT '1970-01-01',
+    separated DATE NOT NULL DEFAULT '9999-12-31',
+    job_code INT,
+    store_id INT
+)
+PARTITION BY LIST(store_id) (
+    PARTITION pNorth VALUES IN (3,5,6,9,17),
+    PARTITION pEast VALUES IN (1,2,10,11,19,20),
+    PARTITION pWest VALUES IN (4,12,13,14,18),
+    PARTITION pCentral VALUES IN (7,8,15,16)
+);
+```
+
+- HASH 分区
+
+```sql
+CREATE TABLE employees (
+    id INT NOT NULL,
+    fname VARCHAR(30),
+    lname VARCHAR(30),
+    hired DATE NOT NULL DEFAULT '1970-01-01',
+    separated DATE NOT NULL DEFAULT '9999-12-31',
+    job_code INT,
+    store_id INT
+)
+PARTITION BY HASH( YEAR(hired) )
+PARTITIONS 4;
+```
+
+- KEY 分区
+
+```sql
+CREATE TABLE k1 (
+    id INT NOT NULL PRIMARY KEY,
+    name VARCHAR(20)
+)
+PARTITION BY KEY()
+PARTITIONS 2;
+```
+
+- COLUMNS 分区
+
+> RANGE、LIST、HASH、KEY 分区都要求数据必须是整型
+
+COLUMNS 分区可以直接使用非整型的数据进行分区，可以视为 RANGE 和 LIST 的一种进化
+
+```sql
+CREATE TABLE employees_by_lname (
+    id INT NOT NULL,
+    fname VARCHAR(30),
+    lname VARCHAR(30),
+    hired DATE NOT NULL DEFAULT '1970-01-01',
+    separated DATE NOT NULL DEFAULT '9999-12-31',
+    job_code INT NOT NULL,
+    store_id INT NOT NULL
+)
+PARTITION BY RANGE COLUMNS (lname)  (
+    PARTITION p0 VALUES LESS THAN ('g'),
+    PARTITION p1 VALUES LESS THAN ('m'),
+    PARTITION p2 VALUES LESS THAN ('t'),
+    PARTITION p3 VALUES LESS THAN (MAXVALUE)
+);
+```
+
+```sql
+CREATE TABLE customers_1 (
+    first_name VARCHAR(25),
+    last_name VARCHAR(25),
+    street_1 VARCHAR(30),
+    street_2 VARCHAR(30),
+    city VARCHAR(15),
+    renewal DATE
+)
+PARTITION BY LIST COLUMNS(city) (
+    PARTITION pRegion_1 VALUES IN('Oskarshamn', 'Högsby', 'Mönsterås'),
+    PARTITION pRegion_2 VALUES IN('Vimmerby', 'Hultsfred', 'Västervik'),
+    PARTITION pRegion_3 VALUES IN('Nässjö', 'Eksjö', 'Vetlanda'),
+    PARTITION pRegion_4 VALUES IN('Uppvidinge', 'Alvesta', 'Växjo')
+);
+```
+
+#### 子分区（subpartitioning）
+
+子分区是在分区的基础上在进行分区，也被称为复合分区（compoiste partitioning）。允许在 RANGE 和 LIST 分区上再进行 HASH 或 KEY 的子分区。
+
+```sql
+CREATE TABLE ts (id INT, purchased DATE)
+    PARTITION BY RANGE( YEAR(purchased) )
+    SUBPARTITION BY HASH( TO_DAYS(purchased) )
+    SUBPARTITIONS 2 (
+        PARTITION p0 VALUES LESS THAN (1990),
+        PARTITION p1 VALUES LESS THAN (2000),
+        PARTITION p2 VALUES LESS THAN MAXVALUE
+    );
+```
+
+#### 分区中的 NULL 值
+
+Mysql 数据库的分区总是视 NULL 值小于任何一个非 NULL 值，这和数据库中处理 NULL 值的 ORDERY BY 操作是一样的
+
+RANGE 分区把 NULL 值放在最左边分区
+
+LIST 分区必须显式指定哪个分区中放入 NULL 值
+
+HASH 和 KEY 分区函数中 NULL 值返回 0
+
+#### 分区和性能
+
+对于 OLAP 的应用，分区的确是可以很好地提高查询的性能。
+
+对于 OLTP 的应用，分区应该非常小心。对于一张大表，一般的 B+ 树需要 2-3 次的磁盘IO。因此 B+ 树可以很好地完成操作，不需要分区的帮助，并且设计不好的分区会带来严重的性能问题。
+
+> 100W 和 1000W 行的数据本身构成的 B+ 树的层次都是一样的，可能都是 2 层。
+
+#### 在表和分区间交流数据
+
+MySQL 5.6 支持分区或子分区中的数据与另一个非分区的表中数据进行交换
+
+```sql
+ALTER TABLE pt
+    EXCHANGE PARTITION p
+    WITH TABLE nt;
+```
+
+## 索引和算法
+
+> 索引太多，应用程序的性能可能会受到影响。而索引太小，对查询性能又会产生影响。要找到一个平衡点。
+
+### InnoDB 索引概述
+
+支持的常见索引：
+
+- B+ 树索引
+- 全文索引
+- 哈希索引
+
+InnoDB 存储引擎支持的哈希索引是自适应的，InnoDB 会根据表的使用情况自动为表生成哈希索引，不能人为干预是否在一张表中生成哈希索引。
+
+> B+ 树中的 B 不是代表 binary，而是 balance。
+
+B+ 树索引并不能找到一个给定键值的具体行，而是数据行所在的页，把页读到内存中再查找具体的行数据。
+
+### 数据结构和算法
+
+#### 二分查找法
+
+每页 Page Directory 中的槽是按主键的顺序存放的，对于某一条具体记录的查询是通过对 Page Directory 进行二分查找得到的。
+
+#### 二叉查找树和平衡二叉树
+    
+二叉查找树会因为左右子树差异太多导致查询效率不高，因此引入了平衡二叉树，平衡二叉树的插入、更新、删除都需要额外的左旋或者右旋来维护平衡性，一般多用于内存结构，所以开销还可以接受
+
+#### B+ 树
+
+B+ 树是为磁盘或者其它直接存取设备设计的一种平衡二叉树。
+
+在 B+ 树中，所有记录节点都是按键值的大小顺序存放在同一层的叶子节点上，由各叶子节点指针进行连接。
+
+![](../images/bplus_insert.png)
+
+旋转发生在 Leaf Page 已满，但是其左右兄弟没有满的情况下，并不会急于去做拆分页的操作，而是将记录移到所在页的兄弟节点上（左兄弟优先）
+
+![](../images/bplush_delete.png)
+
+B+ 树使用填充因子来控制树的删除变化，50% 是填充因子可设的最小值。
+
+### B+ 树索引
+
+
