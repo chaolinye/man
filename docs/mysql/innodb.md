@@ -1151,4 +1151,88 @@ B+ 树使用填充因子来控制树的删除变化，50% 是填充因子可设�
 
 ### B+ 树索引
 
+B+ 索引在数据库中有一个特点是高扇出性，因此在数据库中，B+ 树的高度一般都在 2~4 层，这也就是说查找某个键值的行记录时最多只需要 2 到 4 次 IO。
 
+数据库中的 B+ 树索引可以分为聚集索引和辅助索引。聚集索引与辅助索引不同的是，叶子节点存放的是否是一整行的信息。
+
+#### 聚集索引
+
+聚集索引的叶子节点称为数据页，存放的是完整的每行的数据，而在非数据页的索引页中，存放的仅仅是键值及指向数据页的偏移量。
+
+聚集索引的存储并不是物理上连续的，而是逻辑上连续的。
+- 页之间通过双向链表链接，页按照主键的顺序排序；
+- 页中的记录也是通过双向链表进行维护的，物理存储上可以不按照主键存储。
+
+聚集索引的另一个好处是，它对于主键的排序查找和范围查找速度非常快。
+
+#### 辅助索引
+
+叶子节点并不包含行记录的全部数据，除了包含键值，还包含主键
+
+#### B+ 树索引的分裂
+
+B+ 树索引页的分裂并不总是从页的中间记录开始，这样可能会导致页空间的浪费。比如自增的插入。
+
+InnoDB 的 Page Header 通过以下部分用来保存插入的顺序信息，以决定是向左还是向右进行分裂：
+- PAGE_LAST_INSERT
+- PAGE_DIRECTION
+- PAGE_N_DIRECTION
+
+若插入是随机的，则取页的中间记录作为分裂点的记录。
+
+#### B+ 树索引的管理
+
+- 索引管理
+
+```sql
+CREATE [UNIQUE | FULLTEXT | SPATIAL] INDEX index_name
+    [index_type]
+    ON tbl_name (key_part,...)
+    [index_option]
+    [algorithm_option | lock_option] ...
+
+key_part:
+    col_name [(length)] [ASC | DESC]
+
+index_option: {
+    KEY_BLOCK_SIZE [=] value
+  | index_type
+  | WITH PARSER parser_name
+  | COMMENT 'string'
+}
+
+index_type:
+    USING {BTREE | HASH}
+
+algorithm_option:
+    ALGORITHM [=] {DEFAULT | INPLACE | COPY}
+
+lock_option:
+    LOCK [=] {DEFAULT | NONE | SHARED | EXCLUSIVE}
+```
+
+创建删除索引
+
+方式一：
+
+```sql
+ALTER TABLE tbl_name
+    | ADD {INDEX | KEY} [index_name]
+    [index_type] (key_part,...) [index_option] ...
+
+ALTER TABLE tbl_name
+    | DROP {INDEX | KEY} index_name
+```
+
+方式二：
+
+```sql
+CREATE [UNIQUE | FULLTEXT | SPATIAL] INDEX index_name
+    [index_type]
+    ON tbl_name (key_part,...)[index_option]
+    [algorithm_option | lock_option] ...
+
+
+DROP INDEX index_name ON tbl_name
+    [algorithm_option | lock_option] ...
+```
