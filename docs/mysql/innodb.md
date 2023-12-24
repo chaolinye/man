@@ -1232,7 +1232,29 @@ CREATE [UNIQUE | FULLTEXT | SPATIAL] INDEX index_name
     ON tbl_name (key_part,...)[index_option]
     [algorithm_option | lock_option] ...
 
-
 DROP INDEX index_name ON tbl_name
     [algorithm_option | lock_option] ...
 ```
+
+也可以只索引一个列的开头部分数据
+
+```sql
+alter table t add key idx_b (b(100));
+```
+
+查看表的索引信息
+
+```sql
+show index from t\G
+```
+
+其中 Cardinality 值非常关键，优化器会根据这个值来判断是否使用这个索引。但是这个值并不是实时更新的。如果需要更新索引 Cardinality 信息，可以使用 `ANALYZE TABLE t\G`
+
+> 建议在一个非高峰时间，对应用程序下的几张核心表做 ANALYZE TABLE 操作，这能使优化器和索引更好地工作。
+
+
+
+
+
+
+
