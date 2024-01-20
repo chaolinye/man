@@ -10,6 +10,7 @@
     - [Rust](/docs/rust/)
     - [数据结构与算法](/docs/algorithm/)
     - [English](/docs/english/)
+    - [计算机体系结构](/docs/computer-arch/)
 
 - 框架
     - [Mybatis](/docs/mybatis/)
