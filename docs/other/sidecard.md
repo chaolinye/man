@@ -3,3 +3,4 @@
 - [有趣的玩意](./funny.md)
 - [工具箱](./tool.md)
 - [Word 技巧](./word.md)
+- [电脑选配](./select-computer.md)
