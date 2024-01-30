@@ -20,6 +20,10 @@
 
 ## 显示器
 
+[视频](https://www.bilibili.com/video/BV1oW411U76W)
+
+![](../images/screen.svg ":size=80%")
+
 ## 机械键盘
 
 [视频](https://www.bilibili.com/video/BV1tt41147Fr)
