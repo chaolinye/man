@@ -1,0 +1,431 @@
+<svg xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:svgjs="http://svgjs.dev/svgjs" width="1092.5" height="1081.5" style="background-color: rgb(241, 241, 241);"><title>mouse-select</title><g class="smm-container" transform="matrix(1,0,0,1,-951.0000000000009,45.499999999999886)"><g class="smm-line-container"><path d="M 1382,8L 1414.4,8L 1414.4,8L 1436,8" stroke-dasharray="none" stroke-width="2" stroke="#1e3556" fill="none" opacity="1" style=""></path><path d="M 1664,8L 1696.4,8L 1696.4,-15Q 1696.4,-20 1701.4,-20L 1718,-20" stroke-dasharray="none" stroke-width="2" stroke="#1e3556" fill="none" opacity="1" style=""></path><path d="M 1664,8L 1696.4,8L 1696.4,31Q 1696.4,36 1701.4,36L 1718,36" stroke-dasharray="none" stroke-width="2" stroke="#1e3556" fill="none" opacity="1" style=""></path><path d="M 1424,148L 1456.4,148L 1456.4,97Q 1456.4,92 1461.4,92L 1478,92" stroke-dasharray="none" stroke-width="2" stroke="#1e3556" fill="none" opacity="1" style=""></path><path d="M 1424,148L 1456.4,148L 1456.4,148L 1478,148" stroke-dasharray="none" stroke-width="2" stroke="#1e3556" fill="none" opacity="1" style=""></path><path d="M 1424,148L 1456.4,148L 1456.4,199Q 1456.4,204 1461.4,204L 1478,204" stroke-dasharray="none" stroke-width="2" stroke="#1e3556" fill="none" opacity="1" style=""></path><path d="M 1762,92L 1794.4,92L 1794.4,92L 1816,92" stroke-dasharray="none" stroke-width="2" stroke="#1e3556" fill="none" opacity="1" style=""></path><path d="M 1706,148L 1738.4,148L 1738.4,148L 1760,148" stroke-dasharray="none" stroke-width="2" stroke="#1e3556" fill="none" opacity="1" style=""></path><path d="M 1678,204L 1710.4,204L 1710.4,204L 1732,204" stroke-dasharray="none" stroke-width="2" stroke="#1e3556" fill="none" opacity="1" style=""></path><path d="M 1410,316L 1442.4,316L 1442.4,265Q 1442.4,260 1447.4,260L 1464,260" stroke-dasharray="none" stroke-width="2" stroke="#1e3556" fill="none" opacity="1" style=""></path><path d="M 1410,316L 1442.4,316L 1442.4,316L 1464,316" stroke-dasharray="none" stroke-width="2" stroke="#1e3556" fill="none" opacity="1" style=""></path><path d="M 1524,260L 1556.4,260L 1556.4,260L 1578,260" stroke-dasharray="none" stroke-width="2" stroke="#1e3556" fill="none" opacity="1" style=""></path><path d="M 1524,316L 1556.4,316L 1556.4,316L 1578,316" stroke-dasharray="none" stroke-width="2" stroke="#1e3556" fill="none" opacity="1" style=""></path><path d="M 1268,840L 1300.4,840L 1300.4,705Q 1300.4,700 1305.4,700L 1322,700" stroke-dasharray="none" stroke-width="2" stroke="#1e3556" fill="none"></path><path d="M 1268,840L 1300.4,840L 1300.4,817Q 1300.4,812 1305.4,812L 1322,812" stroke-dasharray="none" stroke-width="2" stroke="#1e3556" fill="none"></path><path d="M 1268,840L 1300.4,840L 1300.4,919Q 1300.4,924 1305.4,924L 1322,924" stroke-dasharray="none" stroke-width="2" stroke="#1e3556" fill="none"></path><path d="M 1268,840L 1300.4,840L 1300.4,1003Q 1300.4,1008 1305.4,1008L 1322,1008" stroke-dasharray="none" stroke-width="2" stroke="#1e3556" fill="none"></path><path d="M 1410,316L 1442.4,316L 1442.4,367Q 1442.4,372 1447.4,372L 1464,372" stroke-dasharray="none" stroke-width="2" stroke="#1e3556" fill="none" opacity="1" style=""></path><path d="M 1552,372L 1584.4,372L 1584.4,372L 1606,372" stroke-dasharray="none" stroke-width="2" stroke="#1e3556" fill="none" opacity="1" style=""></path><path d="M 1410,512L 1442.4,512L 1442.4,433Q 1442.4,428 1447.4,428L 1464,428" stroke-dasharray="none" stroke-width="2" stroke="#1e3556" fill="none" opacity="1" style=""></path><path d="M 1410,512L 1442.4,512L 1442.4,489Q 1442.4,484 1447.4,484L 1464,484" stroke-dasharray="none" stroke-width="2" stroke="#1e3556" fill="none" opacity="1" style=""></path><path d="M 1410,512L 1442.4,512L 1442.4,535Q 1442.4,540 1447.4,540L 1464,540" stroke-dasharray="none" stroke-width="2" stroke="#1e3556" fill="none" opacity="1" style=""></path><path d="M 1410,512L 1442.4,512L 1442.4,591Q 1442.4,596 1447.4,596L 1464,596" stroke-dasharray="none" stroke-width="2" stroke="#1e3556" fill="none" opacity="1" style=""></path><path d="M 1041,494L 1103.4,494L 1103.4,293Q 1103.4,288 1108.4,288L 1145,288" stroke-dasharray="none" stroke-width="2" stroke="#1e3556" fill="none"></path><path d="M 1041,494L 1103.4,494L 1103.4,835Q 1103.4,840 1108.4,840L 1145,840" stroke-dasharray="none" stroke-width="2" stroke="#1e3556" fill="none"></path><path d="M 1268,288L 1300.4,288L 1300.4,13Q 1300.4,8 1305.4,8L 1322,8" stroke-dasharray="none" stroke-width="2" stroke="#1e3556" fill="none"></path><path d="M 1268,288L 1300.4,288L 1300.4,153Q 1300.4,148 1305.4,148L 1322,148" stroke-dasharray="none" stroke-width="2" stroke="#1e3556" fill="none"></path><path d="M 1268,288L 1300.4,288L 1300.4,311Q 1300.4,316 1305.4,316L 1322,316" stroke-dasharray="none" stroke-width="2" stroke="#1e3556" fill="none"></path><path d="M 1268,288L 1300.4,288L 1300.4,507Q 1300.4,512 1305.4,512L 1322,512" stroke-dasharray="none" stroke-width="2" stroke="#1e3556" fill="none"></path><path d="M 1378,700L 1410.4,700L 1410.4,677Q 1410.4,672 1415.4,672L 1432,672" stroke-dasharray="none" stroke-width="2" stroke="#1e3556" fill="none"></path><path d="M 1378,700L 1410.4,700L 1410.4,723Q 1410.4,728 1415.4,728L 1432,728" stroke-dasharray="none" stroke-width="2" stroke="#1e3556" fill="none"></path><path d="M 1375,812L 1407.4,812L 1407.4,789Q 1407.4,784 1412.4,784L 1429,784" stroke-dasharray="none" stroke-width="2" stroke="#1e3556" fill="none"></path><path d="M 1375,812L 1407.4,812L 1407.4,835Q 1407.4,840 1412.4,840L 1429,840" stroke-dasharray="none" stroke-width="2" stroke="#1e3556" fill="none"></path><path d="M 1396,924L 1428.4,924L 1428.4,901Q 1428.4,896 1433.4,896L 1450,896" stroke-dasharray="none" stroke-width="2" stroke="#1e3556" fill="none"></path><path d="M 1396,924L 1428.4,924L 1428.4,947Q 1428.4,952 1433.4,952L 1450,952" stroke-dasharray="none" stroke-width="2" stroke="#1e3556" fill="none"></path><path d="M 1410,1008L 1442.4,1008L 1442.4,1008L 1464,1008" stroke-dasharray="none" stroke-width="2" stroke="#1e3556" fill="none"></path></g><g class="smm-node-container"><g class="smm-node" transform="matrix(1,0,0,1,960,472.5)" style="cursor: default;"><path d="
+      M10,0
+      L69,0
+      C69,0 79,0 79,10
+      L79,31
+      C79,31 79,41 69,41
+      L10,41
+      C10,41 0,41 0,31
+      L0,10
+      C0,10 0,0 10,0
+      Z
+    " class="smm-node-shape" transform="matrix(1,0,0,1,1,1)" fill="#1e3556" stroke-dasharray="none" stroke-width="2" stroke="#bdc5c9"></path><g transform="matrix(1,0,0,1,16,6)"><g data-width="49" data-height="31" data-offsetx="0"><foreignObject width="49" height="31" x="0" y="0"><div class="smm-richtext-node-wrap" xmlns="http://www.w3.org/1999/xhtml" style="max-width: 500px;"><p><strong style="font-family: 微软雅黑, &quot;Microsoft YaHei&quot;; color: rgb(255, 255, 255); font-size: 24px;">鼠标</strong></p></div><style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+  </style></foreignObject></g></g><rect width="85" height="47" x="-2" y="-2" class="smm-hover-node" rx="5" ry="5" fill="none" stroke="#5ec8f8"></rect></g><g class="smm-node" transform="matrix(1,0,0,1,1145,270)" style="cursor: default;"><path d="
+      M10,0
+      L111,0
+      C111,0 121,0 121,10
+      L121,24
+      C121,24 121,34 111,34
+      L10,34
+      C10,34 0,34 0,24
+      L0,10
+      C0,10 0,0 10,0
+      Z
+    " class="smm-node-shape" transform="matrix(1,0,0,1,1,1)" fill="#a9dada" stroke-dasharray="none" stroke-width="2" stroke="#1e3556"></path><g transform="matrix(1,0,0,1,16,6)"><g data-width="91" data-height="24" data-offsetx="0"><foreignObject width="91" height="24" x="0" y="0"><div class="smm-richtext-node-wrap" xmlns="http://www.w3.org/1999/xhtml" style="max-width: 500px;"><p><span style="font-family: 微软雅黑, &quot;Microsoft YaHei&quot;; color: rgb(255, 255, 255); font-size: 18px;">鼠标的手感</span></p></div></foreignObject></g></g><rect width="127" height="40" x="-2" y="-2" class="smm-hover-node" rx="5" ry="5" fill="none" stroke="#5ec8f8"></rect><rect fill="transparent" width="20" height="36" x="123" y="0"></rect></g><g class="smm-node" transform="matrix(1,0,0,1,1322,-8)" style="cursor: default;" opacity="1"><path d="
+      M5,0
+      L54,0
+      C54,0 59,0 59,5
+      L59,26
+      C59,26 59,31 54,31
+      L5,31
+      C5,31 0,31 0,26
+      L0,5
+      C0,5 0,0 5,0
+      Z
+    " class="smm-node-shape" transform="matrix(1,0,0,1,0.5,0.5)" fill="transparent" stroke-dasharray="none" stroke-width="1" stroke="#1e3556"></path><rect fill="transparent" width="20" height="32" x="60" y="0"></rect><g transform="matrix(1,0,0,1,15.5,5.5)"><g data-width="29" data-height="21" data-offsetx="0"><foreignObject width="29" height="21" x="0" y="0"><div class="smm-richtext-node-wrap" xmlns="http://www.w3.org/1999/xhtml" style="max-width: 500px;"><p><span style="color: rgb(30, 53, 86); font-family: 微软雅黑, &quot;Microsoft YaHei&quot;; font-size: 14px; font-style: normal; text-decoration: none;">手长</span></p></div></foreignObject></g></g><rect width="64" height="36" x="-2" y="-2" class="smm-hover-node" rx="5" ry="5" fill="none" stroke="#5ec8f8"></rect></g><g class="smm-node" transform="matrix(1,0,0,1,1436,-8)" style="cursor: default;" opacity="1"><path d="
+      M5,0
+      L222,0
+      C222,0 227,0 227,5
+      L227,26
+      C227,26 227,31 222,31
+      L5,31
+      C5,31 0,31 0,26
+      L0,5
+      C0,5 0,0 5,0
+      Z
+    " class="smm-node-shape" transform="matrix(1,0,0,1,0.5,0.5)" fill="transparent" stroke-dasharray="none" stroke-width="1" stroke="#1e3556"></path><rect fill="transparent" width="20" height="32" x="228" y="0"></rect><g transform="matrix(1,0,0,1,15.5,5.5)"><g data-width="197" data-height="21" data-offsetx="0"><foreignObject width="197" height="21" x="0" y="0"><div class="smm-richtext-node-wrap" xmlns="http://www.w3.org/1999/xhtml" style="max-width: 500px;"><p><span style="font-size: 14px; font-family: 微软雅黑, &quot;Microsoft YaHei&quot;; color: rgb(30, 53, 86);">中指指尖到手掌根部掌纹的距离</span></p></div></foreignObject></g></g><rect width="232" height="36" x="-2" y="-2" class="smm-hover-node" rx="5" ry="5" fill="none" stroke="#5ec8f8"></rect></g><g class="smm-node" transform="matrix(1,0,0,1,1718,-36)" style="cursor: default;" opacity="1"><path d="
+      M5,0
+      L310,0
+      C310,0 315,0 315,5
+      L315,26
+      C315,26 315,31 310,31
+      L5,31
+      C5,31 0,31 0,26
+      L0,5
+      C0,5 0,0 5,0
+      Z
+    " class="smm-node-shape" transform="matrix(1,0,0,1,0.5,0.5)" fill="transparent" stroke-dasharray="none" stroke-width="1" stroke="#1e3556"></path><g transform="matrix(1,0,0,1,15.5,5.5)"><g data-width="285" data-height="21" data-offsetx="0"><foreignObject width="285" height="21" x="0" y="0"><div class="smm-richtext-node-wrap" xmlns="http://www.w3.org/1999/xhtml" style="max-width: 500px;"><p><span style="font-family: 微软雅黑, &quot;Microsoft YaHei&quot;; color: rgb(30, 53, 86); font-size: 14px;">手长大于18.5cm最好选择120-127mm的鼠标</span></p></div></foreignObject></g></g><rect width="320" height="36" x="-2" y="-2" class="smm-hover-node" rx="5" ry="5" fill="none" stroke="#5ec8f8"></rect></g><g class="smm-node" transform="matrix(1,0,0,1,1718,20)" style="cursor: default;" opacity="1"><path d="
+      M5,0
+      L310,0
+      C310,0 315,0 315,5
+      L315,26
+      C315,26 315,31 310,31
+      L5,31
+      C5,31 0,31 0,26
+      L0,5
+      C0,5 0,0 5,0
+      Z
+    " class="smm-node-shape" transform="matrix(1,0,0,1,0.5,0.5)" fill="transparent" stroke-dasharray="none" stroke-width="1" stroke="#1e3556"></path><g transform="matrix(1,0,0,1,15.5,5.5)"><g data-width="285" data-height="21" data-offsetx="0"><foreignObject width="285" height="21" x="0" y="0"><div class="smm-richtext-node-wrap" xmlns="http://www.w3.org/1999/xhtml" style="max-width: 500px;"><p><span style="font-size: 14px; font-family: 微软雅黑, &quot;Microsoft YaHei&quot;; color: rgb(30, 53, 86);">手长小于18.5cm最好选择115-120mm的鼠标</span></p></div></foreignObject></g></g><rect width="320" height="36" x="-2" y="-2" class="smm-hover-node" rx="5" ry="5" fill="none" stroke="#5ec8f8"></rect></g><g class="smm-node" transform="matrix(1,0,0,1,1322,132)" style="cursor: default;" opacity="1"><path d="
+      M5,0
+      L96,0
+      C96,0 101,0 101,5
+      L101,26
+      C101,26 101,31 96,31
+      L5,31
+      C5,31 0,31 0,26
+      L0,5
+      C0,5 0,0 5,0
+      Z
+    " class="smm-node-shape" transform="matrix(1,0,0,1,0.5,0.5)" fill="transparent" stroke-dasharray="none" stroke-width="1" stroke="#1e3556"></path><rect fill="transparent" width="20" height="32" x="102" y="0"></rect><g transform="matrix(1,0,0,1,15.5,5.5)"><g data-width="71" data-height="21" data-offsetx="0"><foreignObject width="71" height="21" x="0" y="0"><div class="smm-richtext-node-wrap" xmlns="http://www.w3.org/1999/xhtml" style="max-width: 500px;"><p><span style="color: rgb(30, 53, 86); font-family: 微软雅黑, &quot;Microsoft YaHei&quot;; font-size: 14px; font-style: normal; text-decoration: none;">握鼠标姿势</span></p></div></foreignObject></g></g><rect width="106" height="36" x="-2" y="-2" class="smm-hover-node" rx="5" ry="5" fill="none" stroke="#5ec8f8"></rect></g><g class="smm-node" transform="matrix(1,0,0,1,1478,76)" style="cursor: default;" opacity="1"><path d="
+      M5,0
+      L278,0
+      C278,0 283,0 283,5
+      L283,26
+      C283,26 283,31 278,31
+      L5,31
+      C5,31 0,31 0,26
+      L0,5
+      C0,5 0,0 5,0
+      Z
+    " class="smm-node-shape" transform="matrix(1,0,0,1,0.5,0.5)" fill="transparent" stroke-dasharray="none" stroke-width="1" stroke="#1e3556"></path><rect fill="transparent" width="20" height="32" x="284" y="0"></rect><g transform="matrix(1,0,0,1,15.5,5.5)"><g data-width="253" data-height="21" data-offsetx="0"><foreignObject width="253" height="21" x="0" y="0"><div class="smm-richtext-node-wrap" xmlns="http://www.w3.org/1999/xhtml" style="max-width: 500px;"><p><span style="font-family: 微软雅黑, &quot;Microsoft YaHei&quot;; color: rgb(30, 53, 86); font-size: 14px;">捏握：手指头捏着鼠标，手掌不接触鼠标</span></p></div></foreignObject></g></g><rect width="288" height="36" x="-2" y="-2" class="smm-hover-node" rx="5" ry="5" fill="none" stroke="#5ec8f8"></rect></g><g class="smm-node" transform="matrix(1,0,0,1,1816,76)" style="cursor: default;" opacity="1"><path d="
+      M5,0
+      L166,0
+      C166,0 171,0 171,5
+      L171,26
+      C171,26 171,31 166,31
+      L5,31
+      C5,31 0,31 0,26
+      L0,5
+      C0,5 0,0 5,0
+      Z
+    " class="smm-node-shape" transform="matrix(1,0,0,1,0.5,0.5)" fill="transparent" stroke-dasharray="none" stroke-width="1" stroke="#1e3556"></path><g transform="matrix(1,0,0,1,15.5,5.5)"><g data-width="141" data-height="21" data-offsetx="0"><foreignObject width="141" height="21" x="0" y="0"><div class="smm-richtext-node-wrap" xmlns="http://www.w3.org/1999/xhtml" style="max-width: 500px;"><p><span style="color: rgb(30, 53, 86); font-family: 微软雅黑, &quot;Microsoft YaHei&quot;; font-size: 14px;">建议选择左右对称鼠标</span></p></div></foreignObject></g></g><rect width="176" height="36" x="-2" y="-2" class="smm-hover-node" rx="5" ry="5" fill="none" stroke="#5ec8f8"></rect></g><g class="smm-node" transform="matrix(1,0,0,1,1478,132)" style="cursor: default;" opacity="1"><path d="
+      M5,0
+      L222,0
+      C222,0 227,0 227,5
+      L227,26
+      C227,26 227,31 222,31
+      L5,31
+      C5,31 0,31 0,26
+      L0,5
+      C0,5 0,0 5,0
+      Z
+    " class="smm-node-shape" transform="matrix(1,0,0,1,0.5,0.5)" fill="transparent" stroke-dasharray="none" stroke-width="1" stroke="#1e3556"></path><rect fill="transparent" width="20" height="32" x="228" y="0"></rect><g transform="matrix(1,0,0,1,15.5,5.5)"><g data-width="197" data-height="21" data-offsetx="0"><foreignObject width="197" height="21" x="0" y="0"><div class="smm-richtext-node-wrap" xmlns="http://www.w3.org/1999/xhtml" style="max-width: 500px;"><p><span style="font-size: 14px; color: rgb(30, 53, 86); font-family: 微软雅黑, &quot;Microsoft YaHei&quot;;">抓握：手指和手掌部分接触鼠标</span></p></div></foreignObject></g></g><rect width="232" height="36" x="-2" y="-2" class="smm-hover-node" rx="5" ry="5" fill="none" stroke="#5ec8f8"></rect></g><g class="smm-node" transform="matrix(1,0,0,1,1760,132)" style="cursor: default;" opacity="1"><path d="
+      M5,0
+      L166,0
+      C166,0 171,0 171,5
+      L171,26
+      C171,26 171,31 166,31
+      L5,31
+      C5,31 0,31 0,26
+      L0,5
+      C0,5 0,0 5,0
+      Z
+    " class="smm-node-shape" transform="matrix(1,0,0,1,0.5,0.5)" fill="transparent" stroke-dasharray="none" stroke-width="1" stroke="#1e3556"></path><g transform="matrix(1,0,0,1,15.5,5.5)"><g data-width="141" data-height="21" data-offsetx="0"><foreignObject width="141" height="21" x="0" y="0"><div class="smm-richtext-node-wrap" xmlns="http://www.w3.org/1999/xhtml" style="max-width: 500px;"><p><span style="color: rgb(30, 53, 86); font-family: 微软雅黑, &quot;Microsoft YaHei&quot;; font-size: 14px;">建议选择左右对称鼠标</span></p></div></foreignObject></g></g><rect width="176" height="36" x="-2" y="-2" class="smm-hover-node" rx="5" ry="5" fill="none" stroke="#5ec8f8"></rect></g><g class="smm-node" transform="matrix(1,0,0,1,1478,188)" style="cursor: default;" opacity="1"><path d="
+      M5,0
+      L194,0
+      C194,0 199,0 199,5
+      L199,26
+      C199,26 199,31 194,31
+      L5,31
+      C5,31 0,31 0,26
+      L0,5
+      C0,5 0,0 5,0
+      Z
+    " class="smm-node-shape" transform="matrix(1,0,0,1,0.5,0.5)" fill="transparent" stroke-dasharray="none" stroke-width="1" stroke="#1e3556"></path><rect fill="transparent" width="20" height="32" x="200" y="0"></rect><g transform="matrix(1,0,0,1,15.5,5.5)"><g data-width="169" data-height="21" data-offsetx="0"><foreignObject width="169" height="21" x="0" y="0"><div class="smm-richtext-node-wrap" xmlns="http://www.w3.org/1999/xhtml" style="max-width: 500px;"><p><span style="font-family: 微软雅黑, &quot;Microsoft YaHei&quot;; color: rgb(30, 53, 86); font-size: 14px;">趴握：手指和手掌完全接触</span></p></div></foreignObject></g></g><rect width="204" height="36" x="-2" y="-2" class="smm-hover-node" rx="5" ry="5" fill="none" stroke="#5ec8f8"></rect></g><g class="smm-node" transform="matrix(1,0,0,1,1732,188)" style="cursor: default;" opacity="1"><path d="
+      M5,0
+      L180,0
+      C180,0 185,0 185,5
+      L185,26
+      C185,26 185,31 180,31
+      L5,31
+      C5,31 0,31 0,26
+      L0,5
+      C0,5 0,0 5,0
+      Z
+    " class="smm-node-shape" transform="matrix(1,0,0,1,0.5,0.5)" fill="transparent" stroke-dasharray="none" stroke-width="1" stroke="#1e3556"></path><g transform="matrix(1,0,0,1,15.5,5.5)"><g data-width="155" data-height="21" data-offsetx="0"><foreignObject width="155" height="21" x="0" y="0"><div class="smm-richtext-node-wrap" xmlns="http://www.w3.org/1999/xhtml" style="max-width: 500px;"><p><span style="font-size: 14px; font-family: 微软雅黑, &quot;Microsoft YaHei&quot;; color: rgb(30, 53, 86);">建议选择右手工程学鼠标</span></p></div></foreignObject></g></g><rect width="190" height="36" x="-2" y="-2" class="smm-hover-node" rx="5" ry="5" fill="none" stroke="#5ec8f8"></rect></g><g class="smm-node" transform="matrix(1,0,0,1,1322,300)" style="cursor: default;" opacity="1"><path d="
+      M5,0
+      L82,0
+      C82,0 87,0 87,5
+      L87,26
+      C87,26 87,31 82,31
+      L5,31
+      C5,31 0,31 0,26
+      L0,5
+      C0,5 0,0 5,0
+      Z
+    " class="smm-node-shape" transform="matrix(1,0,0,1,0.5,0.5)" fill="transparent" stroke-dasharray="none" stroke-width="1" stroke="#1e3556"></path><rect fill="transparent" width="20" height="32" x="88" y="0"></rect><g transform="matrix(1,0,0,1,15.5,5.5)"><g data-width="57" data-height="21" data-offsetx="0"><foreignObject width="57" height="21" x="0" y="0"><div class="smm-richtext-node-wrap" xmlns="http://www.w3.org/1999/xhtml" style="max-width: 500px;"><p><span style="color: rgb(30, 53, 86); font-family: 微软雅黑, &quot;Microsoft YaHei&quot;; font-size: 14px; font-style: normal; text-decoration: none;">鼠标材质</span></p></div></foreignObject></g></g><rect width="92" height="36" x="-2" y="-2" class="smm-hover-node" rx="5" ry="5" fill="none" stroke="#5ec8f8"></rect></g><g class="smm-node" transform="matrix(1,0,0,1,1464,244)" style="cursor: default;" opacity="1"><path d="
+      M5,0
+      L54,0
+      C54,0 59,0 59,5
+      L59,26
+      C59,26 59,31 54,31
+      L5,31
+      C5,31 0,31 0,26
+      L0,5
+      C0,5 0,0 5,0
+      Z
+    " class="smm-node-shape" transform="matrix(1,0,0,1,0.5,0.5)" fill="transparent" stroke-dasharray="none" stroke-width="1" stroke="#1e3556"></path><rect fill="transparent" width="20" height="32" x="60" y="0"></rect><g transform="matrix(1,0,0,1,15.5,5.5)"><g data-width="29" data-height="21" data-offsetx="0"><foreignObject width="29" height="21" x="0" y="0"><div class="smm-richtext-node-wrap" xmlns="http://www.w3.org/1999/xhtml" style="max-width: 500px;"><p><span style="font-size: 14px; color: rgb(30, 53, 86); font-family: 微软雅黑, &quot;Microsoft YaHei&quot;;">镜面</span></p></div></foreignObject></g></g><rect width="64" height="36" x="-2" y="-2" class="smm-hover-node" rx="5" ry="5" fill="none" stroke="#5ec8f8"></rect></g><g class="smm-node" transform="matrix(1,0,0,1,1578,244)" style="cursor: default;" opacity="1"><path d="
+      M5,0
+      L306,0
+      C306,0 311,0 311,5
+      L311,26
+      C311,26 311,31 306,31
+      L5,31
+      C5,31 0,31 0,26
+      L0,5
+      C0,5 0,0 5,0
+      Z
+    " class="smm-node-shape" transform="matrix(1,0,0,1,0.5,0.5)" fill="transparent" stroke-dasharray="none" stroke-width="1" stroke="#1e3556"></path><g transform="matrix(1,0,0,1,15.5,5.5)"><g data-width="281" data-height="21" data-offsetx="0"><foreignObject width="281" height="21" x="0" y="0"><div class="smm-richtext-node-wrap" xmlns="http://www.w3.org/1999/xhtml" style="max-width: 500px;"><p><span style="font-family: 微软雅黑, &quot;Microsoft YaHei&quot;; color: rgb(30, 53, 86); font-size: 14px;">外观好，手感一般，容易清洁，容易沾染手汗</span></p></div></foreignObject></g></g><rect width="316" height="36" x="-2" y="-2" class="smm-hover-node" rx="5" ry="5" fill="none" stroke="#5ec8f8"></rect></g><g class="smm-node" transform="matrix(1,0,0,1,1464,300)" style="cursor: default;" opacity="1"><path d="
+      M5,0
+      L54,0
+      C54,0 59,0 59,5
+      L59,26
+      C59,26 59,31 54,31
+      L5,31
+      C5,31 0,31 0,26
+      L0,5
+      C0,5 0,0 5,0
+      Z
+    " class="smm-node-shape" transform="matrix(1,0,0,1,0.5,0.5)" fill="transparent" stroke-dasharray="none" stroke-width="1" stroke="#1e3556"></path><rect fill="transparent" width="20" height="32" x="60" y="0"></rect><g transform="matrix(1,0,0,1,15.5,5.5)"><g data-width="29" data-height="21" data-offsetx="0"><foreignObject width="29" height="21" x="0" y="0"><div class="smm-richtext-node-wrap" xmlns="http://www.w3.org/1999/xhtml" style="max-width: 500px;"><p><span style="font-size: 14px; color: rgb(30, 53, 86); font-family: 微软雅黑, &quot;Microsoft YaHei&quot;;">类肤</span></p></div></foreignObject></g></g><rect width="64" height="36" x="-2" y="-2" class="smm-hover-node" rx="5" ry="5" fill="none" stroke="#5ec8f8"></rect></g><g class="smm-node" transform="matrix(1,0,0,1,1578,300)" style="cursor: default;" opacity="1"><path d="
+      M5,0
+      L362,0
+      C362,0 367,0 367,5
+      L367,26
+      C367,26 367,31 362,31
+      L5,31
+      C5,31 0,31 0,26
+      L0,5
+      C0,5 0,0 5,0
+      Z
+    " class="smm-node-shape" transform="matrix(1,0,0,1,0.5,0.5)" fill="transparent" stroke-dasharray="none" stroke-width="1" stroke="#1e3556"></path><g transform="matrix(1,0,0,1,15.5,5.5)"><g data-width="337" data-height="21" data-offsetx="0"><foreignObject width="337" height="21" x="0" y="0"><div class="smm-richtext-node-wrap" xmlns="http://www.w3.org/1999/xhtml" style="max-width: 500px;"><p><span style="font-family: 微软雅黑, &quot;Microsoft YaHei&quot;; color: rgb(30, 53, 86); font-size: 14px;">外观一般，手感极好，容易磨损，容易沾染手汗和指纹</span></p></div></foreignObject></g></g><rect width="372" height="36" x="-2" y="-2" class="smm-hover-node" rx="5" ry="5" fill="none" stroke="#5ec8f8"></rect></g><g class="smm-node" transform="matrix(1,0,0,1,1464,356)" style="cursor: default;" opacity="1"><path d="
+      M5,0
+      L82,0
+      C82,0 87,0 87,5
+      L87,26
+      C87,26 87,31 82,31
+      L5,31
+      C5,31 0,31 0,26
+      L0,5
+      C0,5 0,0 5,0
+      Z
+    " class="smm-node-shape" transform="matrix(1,0,0,1,0.5,0.5)" fill="transparent" stroke-dasharray="none" stroke-width="1" stroke="#1e3556"></path><g transform="matrix(1,0,0,1,15.5,5.5)"><g data-width="57" data-height="21" data-offsetx="0"><foreignObject width="57" height="21" x="0" y="0"><div class="smm-richtext-node-wrap" xmlns="http://www.w3.org/1999/xhtml" style="max-width: 500px;"><p><span style="font-size: 14px; font-family: 微软雅黑, &quot;Microsoft YaHei&quot;; color: rgb(30, 53, 86);">塑料磨砂</span></p></div></foreignObject></g></g><rect width="92" height="36" x="-2" y="-2" class="smm-hover-node" rx="5" ry="5" fill="none" stroke="#5ec8f8"></rect><rect fill="transparent" width="20" height="32" x="88" y="0"></rect></g><g class="smm-node" transform="matrix(1,0,0,1,1606,356)" style="cursor: default;" opacity="1"><path d="
+      M5,0
+      L250,0
+      C250,0 255,0 255,5
+      L255,26
+      C255,26 255,31 250,31
+      L5,31
+      C5,31 0,31 0,26
+      L0,5
+      C0,5 0,0 5,0
+      Z
+    " class="smm-node-shape" transform="matrix(1,0,0,1,0.5,0.5)" fill="transparent" stroke-dasharray="none" stroke-width="1" stroke="#1e3556"></path><g transform="matrix(1,0,0,1,15.5,5.5)"><g data-width="225" data-height="21" data-offsetx="0"><foreignObject width="225" height="21" x="0" y="0"><div class="smm-richtext-node-wrap" xmlns="http://www.w3.org/1999/xhtml" style="max-width: 500px;"><p><span style="font-size: 14px; font-family: 微软雅黑, &quot;Microsoft YaHei&quot;; color: rgb(30, 53, 86);">外观一般，手感一般，防手汗，干爽</span></p></div></foreignObject></g></g><rect width="260" height="36" x="-2" y="-2" class="smm-hover-node" rx="5" ry="5" fill="none" stroke="#5ec8f8"></rect></g><g class="smm-node" transform="matrix(1,0,0,1,1322,496)" style="cursor: default;" opacity="1"><path d="
+      M5,0
+      L82,0
+      C82,0 87,0 87,5
+      L87,26
+      C87,26 87,31 82,31
+      L5,31
+      C5,31 0,31 0,26
+      L0,5
+      C0,5 0,0 5,0
+      Z
+    " class="smm-node-shape" transform="matrix(1,0,0,1,0.5,0.5)" fill="transparent" stroke-dasharray="none" stroke-width="1" stroke="#1e3556"></path><rect fill="transparent" width="20" height="32" x="88" y="0"></rect><g transform="matrix(1,0,0,1,15.5,5.5)"><g data-width="57" data-height="21" data-offsetx="0"><foreignObject width="57" height="21" x="0" y="0"><div class="smm-richtext-node-wrap" xmlns="http://www.w3.org/1999/xhtml" style="max-width: 500px;"><p><span style="color: rgb(30, 53, 86); font-family: 微软雅黑, &quot;Microsoft YaHei&quot;; font-size: 14px; font-style: normal; text-decoration: none;">鼠标重量</span></p></div></foreignObject></g></g><rect width="92" height="36" x="-2" y="-2" class="smm-hover-node" rx="5" ry="5" fill="none" stroke="#5ec8f8"></rect></g><g class="smm-node" transform="matrix(1,0,0,1,1464,412)" style="cursor: default;" opacity="1"><path d="
+      M5,0
+      L200,0
+      C200,0 205,0 205,5
+      L205,26
+      C205,26 205,31 200,31
+      L5,31
+      C5,31 0,31 0,26
+      L0,5
+      C0,5 0,0 5,0
+      Z
+    " class="smm-node-shape" transform="matrix(1,0,0,1,0.5,0.5)" fill="transparent" stroke-dasharray="none" stroke-width="1" stroke="#1e3556"></path><g transform="matrix(1,0,0,1,15.5,5.5)"><g data-width="175" data-height="21" data-offsetx="0"><foreignObject width="175" height="21" x="0" y="0"><div class="smm-richtext-node-wrap" xmlns="http://www.w3.org/1999/xhtml" style="max-width: 500px;"><p><span style="font-size: 14px; font-family: 微软雅黑, &quot;Microsoft YaHei&quot;; color: rgb(30, 53, 86);">120g以上属于“习武之人”</span></p></div></foreignObject></g></g><rect width="210" height="36" x="-2" y="-2" class="smm-hover-node" rx="5" ry="5" fill="none" stroke="#5ec8f8"></rect></g><g class="smm-node" transform="matrix(1,0,0,1,1464,468)" style="cursor: default;" opacity="1"><path d="
+      M5,0
+      L200,0
+      C200,0 205,0 205,5
+      L205,26
+      C205,26 205,31 200,31
+      L5,31
+      C5,31 0,31 0,26
+      L0,5
+      C0,5 0,0 5,0
+      Z
+    " class="smm-node-shape" transform="matrix(1,0,0,1,0.5,0.5)" fill="transparent" stroke-dasharray="none" stroke-width="1" stroke="#1e3556"></path><g transform="matrix(1,0,0,1,15.5,5.5)"><g data-width="175" data-height="21" data-offsetx="0"><foreignObject width="175" height="21" x="0" y="0"><div class="smm-richtext-node-wrap" xmlns="http://www.w3.org/1999/xhtml" style="max-width: 500px;"><p><span style="color: rgb(30, 53, 86); font-family: 微软雅黑, &quot;Microsoft YaHei&quot;; font-size: 14px;">110g属于长时间使用的上限</span></p></div></foreignObject></g></g><rect width="210" height="36" x="-2" y="-2" class="smm-hover-node" rx="5" ry="5" fill="none" stroke="#5ec8f8"></rect></g><g class="smm-node" transform="matrix(1,0,0,1,1464,524)" style="cursor: default;" opacity="1"><path d="
+      M5,0
+      L181,0
+      C181,0 186,0 186,5
+      L186,26
+      C186,26 186,31 181,31
+      L5,31
+      C5,31 0,31 0,26
+      L0,5
+      C0,5 0,0 5,0
+      Z
+    " class="smm-node-shape" transform="matrix(1,0,0,1,0.5,0.5)" fill="transparent" stroke-dasharray="none" stroke-width="1" stroke="#1e3556"></path><g transform="matrix(1,0,0,1,15.5,5.5)"><g data-width="156" data-height="21" data-offsetx="0"><foreignObject width="156" height="21" x="0" y="0"><div class="smm-richtext-node-wrap" xmlns="http://www.w3.org/1999/xhtml" style="max-width: 500px;"><p><span style="font-size: 14px; font-family: 微软雅黑, &quot;Microsoft YaHei&quot;; color: rgb(30, 53, 86);">80-100g是鼠标最佳重量</span></p></div></foreignObject></g></g><rect width="191" height="36" x="-2" y="-2" class="smm-hover-node" rx="5" ry="5" fill="none" stroke="#5ec8f8"></rect></g><g class="smm-node" transform="matrix(1,0,0,1,1464,580)" style="cursor: default;" opacity="1"><path d="
+      M5,0
+      L362,0
+      C362,0 367,0 367,5
+      L367,26
+      C367,26 367,31 362,31
+      L5,31
+      C5,31 0,31 0,26
+      L0,5
+      C0,5 0,0 5,0
+      Z
+    " class="smm-node-shape" transform="matrix(1,0,0,1,0.5,0.5)" fill="transparent" stroke-dasharray="none" stroke-width="1" stroke="#1e3556"></path><g transform="matrix(1,0,0,1,15.5,5.5)"><g data-width="337" data-height="21" data-offsetx="0"><foreignObject width="337" height="21" x="0" y="0"><div class="smm-richtext-node-wrap" xmlns="http://www.w3.org/1999/xhtml" style="max-width: 500px;"><p><span style="font-size: 14px; font-family: 微软雅黑, &quot;Microsoft YaHei&quot;; color: rgb(30, 53, 86);">鼠标前后的重量要均匀，不要出现重心靠前靠后的情况</span></p></div></foreignObject></g></g><rect width="372" height="36" x="-2" y="-2" class="smm-hover-node" rx="5" ry="5" fill="none" stroke="#5ec8f8"></rect></g><g class="smm-node" transform="matrix(1,0,0,1,1145,822)" style="cursor: default;"><path d="
+      M10,0
+      L111,0
+      C111,0 121,0 121,10
+      L121,24
+      C121,24 121,34 111,34
+      L10,34
+      C10,34 0,34 0,24
+      L0,10
+      C0,10 0,0 10,0
+      Z
+    " class="smm-node-shape" transform="matrix(1,0,0,1,1,1)" fill="#a9dada" stroke-dasharray="none" stroke-width="2" stroke="#1e3556"></path><rect fill="transparent" width="20" height="36" x="123" y="0"></rect><g transform="matrix(1,0,0,1,16,6)"><g data-width="91" data-height="24" data-offsetx="0"><foreignObject width="91" height="24" x="0" y="0"><div class="smm-richtext-node-wrap" xmlns="http://www.w3.org/1999/xhtml" style="max-width: 500px;"><p><span style="font-family: 微软雅黑, &quot;Microsoft YaHei&quot;; color: rgb(255, 255, 255); font-size: 18px;">鼠标的硬件</span></p></div></foreignObject></g></g><rect width="127" height="40" x="-2" y="-2" class="smm-hover-node" rx="5" ry="5" fill="none" stroke="#5ec8f8"></rect></g><g class="smm-node" transform="matrix(1,0,0,1,1322,684)" style="cursor: default;"><path d="
+      M5,0
+      L50,0
+      C50,0 55,0 55,5
+      L55,26
+      C55,26 55,31 50,31
+      L5,31
+      C5,31 0,31 0,26
+      L0,5
+      C0,5 0,0 5,0
+      Z
+    " class="smm-node-shape" transform="matrix(1,0,0,1,0.5,0.5)" fill="transparent" stroke-dasharray="none" stroke-width="1" stroke="#1e3556"></path><g transform="matrix(1,0,0,1,15.5,5.5)"><g data-width="25" data-height="21" data-offsetx="0"><foreignObject width="25" height="21" x="0" y="0"><div class="smm-richtext-node-wrap" xmlns="http://www.w3.org/1999/xhtml" style="max-width: 500px;"><p><span style="font-family: 微软雅黑, &quot;Microsoft YaHei&quot;; color: rgb(30, 53, 86); font-size: 14px;">DPI</span></p></div></foreignObject></g></g><rect width="60" height="36" x="-2" y="-2" class="smm-hover-node" rx="5" ry="5" fill="none" stroke="#5ec8f8"></rect><rect fill="transparent" width="20" height="32" x="56" y="0"></rect></g><g class="smm-node" transform="matrix(1,0,0,1,1432,656)" style="cursor: default;"><path d="
+      M5,0
+      L432,0
+      C432,0 437,0 437,5
+      L437,26
+      C437,26 437,31 432,31
+      L5,31
+      C5,31 0,31 0,26
+      L0,5
+      C0,5 0,0 5,0
+      Z
+    " class="smm-node-shape" transform="matrix(1,0,0,1,0.5,0.5)" fill="transparent" stroke-dasharray="none" stroke-width="1" stroke="#1e3556"></path><g transform="matrix(1,0,0,1,15.5,5.5)"><g data-width="407" data-height="21" data-offsetx="0"><foreignObject width="407" height="21" x="0" y="0"><div class="smm-richtext-node-wrap" xmlns="http://www.w3.org/1999/xhtml" style="max-width: 500px;"><p><span style="color: rgb(30, 53, 86); font-family: 微软雅黑, &quot;Microsoft YaHei&quot;; font-size: 14px;">定义：鼠标每移动一英寸（2.54厘米），屏幕上移动多少个像素点</span></p></div></foreignObject></g></g><rect width="442" height="36" x="-2" y="-2" class="smm-hover-node" rx="5" ry="5" fill="none" stroke="#5ec8f8"></rect></g><g class="smm-node" transform="matrix(1,0,0,1,1432,712)" style="cursor: default;"><path d="
+      M5,0
+      L295,0
+      C295,0 300,0 300,5
+      L300,26
+      C300,26 300,31 295,31
+      L5,31
+      C5,31 0,31 0,26
+      L0,5
+      C0,5 0,0 5,0
+      Z
+    " class="smm-node-shape" transform="matrix(1,0,0,1,0.5,0.5)" fill="transparent" stroke-dasharray="none" stroke-width="1" stroke="#1e3556"></path><g transform="matrix(1,0,0,1,15.5,5.5)"><g data-width="270" data-height="21" data-offsetx="0"><foreignObject width="270" height="21" x="0" y="0"><div class="smm-richtext-node-wrap" xmlns="http://www.w3.org/1999/xhtml" style="max-width: 500px;"><p><span style="color: rgb(30, 53, 86); font-family: 微软雅黑, &quot;Microsoft YaHei&quot;; font-size: 14px;">常用的DPI是400-3000，太高人类也不需要</span></p></div></foreignObject></g></g><rect width="305" height="36" x="-2" y="-2" class="smm-hover-node" rx="5" ry="5" fill="none" stroke="#5ec8f8"></rect></g><g class="smm-node" transform="matrix(1,0,0,1,1322,796)" style="cursor: default;"><path d="
+      M5,0
+      L47,0
+      C47,0 52,0 52,5
+      L52,26
+      C52,26 52,31 47,31
+      L5,31
+      C5,31 0,31 0,26
+      L0,5
+      C0,5 0,0 5,0
+      Z
+    " class="smm-node-shape" transform="matrix(1,0,0,1,0.5,0.5)" fill="transparent" stroke-dasharray="none" stroke-width="1" stroke="#1e3556"></path><g transform="matrix(1,0,0,1,15.5,5.5)"><g data-width="22" data-height="21" data-offsetx="0"><foreignObject width="22" height="21" x="0" y="0"><div class="smm-richtext-node-wrap" xmlns="http://www.w3.org/1999/xhtml" style="max-width: 500px;"><p><span style="font-size: 14px; font-family: 微软雅黑, &quot;Microsoft YaHei&quot;; color: rgb(30, 53, 86);">IPS</span></p></div></foreignObject></g></g><rect width="57" height="36" x="-2" y="-2" class="smm-hover-node" rx="5" ry="5" fill="none" stroke="#5ec8f8"></rect><rect fill="transparent" width="20" height="32" x="53" y="0"></rect></g><g class="smm-node" transform="matrix(1,0,0,1,1429,768)" style="cursor: default;"><path d="
+      M5,0
+      L306,0
+      C306,0 311,0 311,5
+      L311,26
+      C311,26 311,31 306,31
+      L5,31
+      C5,31 0,31 0,26
+      L0,5
+      C0,5 0,0 5,0
+      Z
+    " class="smm-node-shape" transform="matrix(1,0,0,1,0.5,0.5)" fill="transparent" stroke-dasharray="none" stroke-width="1" stroke="#1e3556"></path><g transform="matrix(1,0,0,1,15.5,5.5)"><g data-width="281" data-height="21" data-offsetx="0"><foreignObject width="281" height="21" x="0" y="0"><div class="smm-richtext-node-wrap" xmlns="http://www.w3.org/1999/xhtml" style="max-width: 500px;"><p><span style="font-size: 14px; font-family: 微软雅黑, &quot;Microsoft YaHei&quot;; color: rgb(30, 53, 86);">鼠标每秒移动这个数值英寸，会出现掉帧现象</span></p></div></foreignObject></g></g><rect width="316" height="36" x="-2" y="-2" class="smm-hover-node" rx="5" ry="5" fill="none" stroke="#5ec8f8"></rect></g><g class="smm-node" transform="matrix(1,0,0,1,1429,824)" style="cursor: default;"><path d="
+      M5,0
+      L148,0
+      C148,0 153,0 153,5
+      L153,26
+      C153,26 153,31 148,31
+      L5,31
+      C5,31 0,31 0,26
+      L0,5
+      C0,5 0,0 5,0
+      Z
+    " class="smm-node-shape" transform="matrix(1,0,0,1,0.5,0.5)" fill="transparent" stroke-dasharray="none" stroke-width="1" stroke="#1e3556"></path><g transform="matrix(1,0,0,1,15.5,5.5)"><g data-width="123" data-height="21" data-offsetx="0"><foreignObject width="123" height="21" x="0" y="0"><div class="smm-richtext-node-wrap" xmlns="http://www.w3.org/1999/xhtml" style="max-width: 500px;"><p><span style="font-size: 14px; font-family: 微软雅黑, &quot;Microsoft YaHei&quot;; color: rgb(30, 53, 86);">一般60IPS就够用了</span></p></div></foreignObject></g></g><rect width="158" height="36" x="-2" y="-2" class="smm-hover-node" rx="5" ry="5" fill="none" stroke="#5ec8f8"></rect></g><g class="smm-node" transform="matrix(1,0,0,1,1322,908)" style="cursor: default;"><path d="
+      M5,0
+      L68,0
+      C68,0 73,0 73,5
+      L73,26
+      C73,26 73,31 68,31
+      L5,31
+      C5,31 0,31 0,26
+      L0,5
+      C0,5 0,0 5,0
+      Z
+    " class="smm-node-shape" transform="matrix(1,0,0,1,0.5,0.5)" fill="transparent" stroke-dasharray="none" stroke-width="1" stroke="#1e3556"></path><g transform="matrix(1,0,0,1,15.5,5.5)"><g data-width="43" data-height="21" data-offsetx="0"><foreignObject width="43" height="21" x="0" y="0"><div class="smm-richtext-node-wrap" xmlns="http://www.w3.org/1999/xhtml" style="max-width: 500px;"><p><span style="font-size: 14px; color: rgb(30, 53, 86); font-family: 微软雅黑, &quot;Microsoft YaHei&quot;;">回报率</span></p></div></foreignObject></g></g><rect width="78" height="36" x="-2" y="-2" class="smm-hover-node" rx="5" ry="5" fill="none" stroke="#5ec8f8"></rect><rect fill="transparent" width="20" height="32" x="74" y="0"></rect></g><g class="smm-node" transform="matrix(1,0,0,1,1450,880)" style="cursor: default;"><path d="
+      M5,0
+      L194,0
+      C194,0 199,0 199,5
+      L199,26
+      C199,26 199,31 194,31
+      L5,31
+      C5,31 0,31 0,26
+      L0,5
+      C0,5 0,0 5,0
+      Z
+    " class="smm-node-shape" transform="matrix(1,0,0,1,0.5,0.5)" fill="transparent" stroke-dasharray="none" stroke-width="1" stroke="#1e3556"></path><g transform="matrix(1,0,0,1,15.5,5.5)"><g data-width="169" data-height="21" data-offsetx="0"><foreignObject width="169" height="21" x="0" y="0"><div class="smm-richtext-node-wrap" xmlns="http://www.w3.org/1999/xhtml" style="max-width: 500px;"><p><span style="font-size: 14px; font-family: 微软雅黑, &quot;Microsoft YaHei&quot;; color: rgb(30, 53, 86);">鼠标每秒与电脑沟通的次数</span></p></div></foreignObject></g></g><rect width="204" height="36" x="-2" y="-2" class="smm-hover-node" rx="5" ry="5" fill="none" stroke="#5ec8f8"></rect></g><g class="smm-node" transform="matrix(1,0,0,1,1450,936)" style="cursor: default;"><path d="
+      M5,0
+      L381,0
+      C381,0 386,0 386,5
+      L386,26
+      C386,26 386,31 381,31
+      L5,31
+      C5,31 0,31 0,26
+      L0,5
+      C0,5 0,0 5,0
+      Z
+    " class="smm-node-shape" transform="matrix(1,0,0,1,0.5,0.5)" fill="transparent" stroke-dasharray="none" stroke-width="1" stroke="#1e3556"></path><g transform="matrix(1,0,0,1,15.5,5.5)"><g data-width="356" data-height="21" data-offsetx="0"><foreignObject width="356" height="21" x="0" y="0"><div class="smm-richtext-node-wrap" xmlns="http://www.w3.org/1999/xhtml" style="max-width: 500px;"><p><span style="font-size: 14px; font-family: 微软雅黑, &quot;Microsoft YaHei&quot;; color: rgb(30, 53, 86);">会加重CPU负担，一般电竞也就需要 500Hz（2ms响应）</span></p></div></foreignObject></g></g><rect width="391" height="36" x="-2" y="-2" class="smm-hover-node" rx="5" ry="5" fill="none" stroke="#5ec8f8"></rect></g><g class="smm-node" transform="matrix(1,0,0,1,1322,992)" style="cursor: default;"><path d="
+      M5,0
+      L82,0
+      C82,0 87,0 87,5
+      L87,26
+      C87,26 87,31 82,31
+      L5,31
+      C5,31 0,31 0,26
+      L0,5
+      C0,5 0,0 5,0
+      Z
+    " class="smm-node-shape" transform="matrix(1,0,0,1,0.5,0.5)" fill="transparent" stroke-dasharray="none" stroke-width="1" stroke="#1e3556"></path><g transform="matrix(1,0,0,1,15.5,5.5)"><g data-width="57" data-height="21" data-offsetx="0"><foreignObject width="57" height="21" x="0" y="0"><div class="smm-richtext-node-wrap" xmlns="http://www.w3.org/1999/xhtml" style="max-width: 500px;"><p><span style="color: rgb(30, 53, 86); font-family: 微软雅黑, &quot;Microsoft YaHei&quot;; font-size: 14px;">板载内存</span></p></div></foreignObject></g></g><rect width="92" height="36" x="-2" y="-2" class="smm-hover-node" rx="5" ry="5" fill="none" stroke="#5ec8f8"></rect><rect fill="transparent" width="20" height="32" x="88" y="0"></rect></g><g class="smm-node active" transform="matrix(1,0,0,1,1464,992)" style="cursor: default;"><path d="
+      M5,0
+      L320,0
+      C320,0 325,0 325,5
+      L325,26
+      C325,26 325,31 320,31
+      L5,31
+      C5,31 0,31 0,26
+      L0,5
+      C0,5 0,0 5,0
+      Z
+    " class="smm-node-shape" transform="matrix(1,0,0,1,0.5,0.5)" fill="transparent" stroke-dasharray="none" stroke-width="1" stroke="#1e3556"></path><g transform="matrix(1,0,0,1,15.5,5.5)"><g data-width="295" data-height="21" data-offsetx="0"><foreignObject width="295" height="21" x="0" y="0"><div class="smm-richtext-node-wrap" xmlns="http://www.w3.org/1999/xhtml" style="max-width: 500px;"><p><span style="font-size: 14px; font-family: 微软雅黑, &quot;Microsoft YaHei&quot;; color: rgb(30, 53, 86);">记录鼠标的自定义配置，换个地方不用重新设置</span></p></div></foreignObject></g></g><rect width="330" height="36" x="-2" y="-2" class="smm-hover-node" rx="5" ry="5" fill="none" stroke="#5ec8f8"></rect></g></g><g class="smm-associative-line-container"></g><g class="smm-other-container"></g></g><defs><marker markerWidth="10" markerHeight="10" refX="12" refY="5" viewBox="0 0 20 20" orient="auto-start-reverse"><path d="M0,0 L2,5 L0,10 L10,5 Z"></path></marker></defs><style>
+  /* 鼠标hover和激活时渲染的矩形 */
+  .smm-hover-node{
+    display: none;
+    opacity: 0.6;
+    stroke-width: 1;
+  }
+
+  .smm-node:not(.smm-node-dragging):hover .smm-hover-node{
+    display: block;
+  }
+
+  .smm-node.active .smm-hover-node{
+    display: block;
+    opacity: 1;
+    stroke-width: 2;
+  }
+</style></svg>

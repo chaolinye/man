@@ -38,9 +38,19 @@
 
 ![](../images/gamepad.png)
 
+## 鼠标
+
+[视频](https://www.bilibili.com/video/BV13b411z7P7/)
+
+![](../images/mouse-select.svg ":size=80%")
+
 ## 超频
 
 ## 手机
+
+[视频](https://www.bilibili.com/video/BV1Gb411v7a8/)
+
+[手机处理器性能天梯图](https://www.mydrivers.com/zhuanti/tianti/01/index.html)
 
 ## 笔记本电脑
 
