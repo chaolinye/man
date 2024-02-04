@@ -4,6 +4,16 @@
 
 ## 测试软件
 
+[视频](https://www.bilibili.com/video/BV1q7411C7px)
+
+[MSI Afterburner](https://www.msi.com/Landing/afterburner/graphics-cards)：硬件信息和帧率监控软件
+
+[aida64](https://www.aida64.com/downloads): 功能全面的电脑检测软件，用于电脑信息检测和电脑稳定性测试、磁盘测试、内存和缓冲测试、GPU测试、显示器测试
+
+[AS SSD Benchmark](https://as-ssd-benchmark.en.softonic.com/#google_vignette): 硬盘测试软件。
+
+3D Mark: 专业的测试CPU和GPU性能的软件(可以在steam购买)
+
 ## CPU
 
 ## GPU
@@ -57,6 +67,18 @@
 ![](../images/mobile-phone-select.svg ":size=80%")
 
 ## 笔记本电脑
+
+[视频](https://www.bilibili.com/video/BV1No4y1B7eH)
+
+[图吧工具箱--硬件工具箱](https://www.tbtool.cn/)
+
+通过查看硬盘通电次数判断是否是新机（几十次是正常的，如果只有几次或者很多就是翻新的或者旧的）
+
+通过“鼠标设置”关闭“提高指针精确度”选项（只有DPI很低的鼠标才需要开启该选项，该选项会影响游戏体验）
+
+通过“传递优化高级设置”把上传设置调到最新（占用带宽）
+
+笔记本电脑硬件一般CPU和GPU都是焊死在主板上的，无法升级或者更换；最多可以换下硬盘。
 
 ## 组网方案
 
