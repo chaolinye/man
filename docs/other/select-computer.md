@@ -52,6 +52,10 @@
 
 [手机处理器性能天梯图](https://www.mydrivers.com/zhuanti/tianti/01/index.html)
 
+[屏幕PPI计算器](https://www.itpwd.com/tools/ppicalc.php)
+
+![](../images/mobile-phone-select.svg ":size=80%")
+
 ## 笔记本电脑
 
 ## 组网方案
