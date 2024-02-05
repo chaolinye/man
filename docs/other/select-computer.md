@@ -18,7 +18,8 @@
 
 [视频](https://www.bilibili.com/video/BV1nt411B7ky)
 
-[CPU性能天梯图](https://www.mydrivers.com/zhuanti/tianti/cpu/index.html)
+[桌面CPU性能天梯图](https://www.mydrivers.com/zhuanti/tianti/cpu/index.html)
+[笔记本CPU性能天梯图](https://www.mydrivers.com/zhuanti/tianti/cpum/index.html)
 
 ![](../images/cpu-select.svg ":size=80%")
 
