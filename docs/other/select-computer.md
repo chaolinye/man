@@ -16,6 +16,12 @@
 
 ## CPU
 
+[视频](https://www.bilibili.com/video/BV1nt411B7ky)
+
+[CPU性能天梯图](https://www.mydrivers.com/zhuanti/tianti/cpu/index.html)
+
+![](../images/cpu-select.svg ":size=80%")
+
 ## GPU
 
 ## 主板

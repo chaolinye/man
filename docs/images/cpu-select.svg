@@ -1,0 +1,288 @@
+<svg xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:svgjs="http://svgjs.dev/svgjs" width="808.5" height="895.5" style="background-color: rgb(241, 241, 241);"><title>cpu-select</title><g class="smm-container" transform="matrix(1,0,0,1,-951,-46)"><g class="smm-line-container"><path d="M 1044,494L 1106.4,494L 1106.4,245Q 1106.4,240 1111.4,240L 1148,240" stroke-dasharray="none" stroke-width="2" stroke="#1e3556" fill="none"></path><path d="M 1044,494L 1106.4,494L 1106.4,535Q 1106.4,540 1111.4,540L 1148,540" stroke-dasharray="none" stroke-width="2" stroke="#1e3556" fill="none"></path><path d="M 1044,494L 1106.4,494L 1106.4,695Q 1106.4,700 1111.4,700L 1148,700" stroke-dasharray="none" stroke-width="2" stroke="#1e3556" fill="none"></path><path d="M 1044,494L 1106.4,494L 1106.4,855Q 1106.4,860 1111.4,860L 1148,860" stroke-dasharray="none" stroke-width="2" stroke="#1e3556" fill="none"></path><path d="M 1217,240L 1249.4,240L 1249.4,77Q 1249.4,72 1254.4,72L 1271,72" stroke-dasharray="none" stroke-width="2" stroke="#1e3556" fill="none"></path><path d="M 1217,240L 1249.4,240L 1249.4,217Q 1249.4,212 1254.4,212L 1271,212" stroke-dasharray="none" stroke-width="2" stroke="#1e3556" fill="none"></path><path d="M 1217,240L 1249.4,240L 1249.4,347Q 1249.4,352 1254.4,352L 1271,352" stroke-dasharray="none" stroke-width="2" stroke="#1e3556" fill="none"></path><path d="M 1217,240L 1249.4,240L 1249.4,403Q 1249.4,408 1254.4,408L 1271,408" stroke-dasharray="none" stroke-width="2" stroke="#1e3556" fill="none"></path><path d="M 1345,72L 1377.4,72L 1377.4,72L 1399,72" stroke-dasharray="none" stroke-width="2" stroke="#1e3556" fill="none"></path><path d="M 1359,212L 1391.4,212L 1391.4,133Q 1391.4,128 1396.4,128L 1413,128" stroke-dasharray="none" stroke-width="2" stroke="#1e3556" fill="none"></path><path d="M 1359,212L 1391.4,212L 1391.4,189Q 1391.4,184 1396.4,184L 1413,184" stroke-dasharray="none" stroke-width="2" stroke="#1e3556" fill="none"></path><path d="M 1359,212L 1391.4,212L 1391.4,235Q 1391.4,240 1396.4,240L 1413,240" stroke-dasharray="none" stroke-width="2" stroke="#1e3556" fill="none"></path><path d="M 1359,212L 1391.4,212L 1391.4,291Q 1391.4,296 1396.4,296L 1413,296" stroke-dasharray="none" stroke-width="2" stroke="#1e3556" fill="none"></path><path d="M 1331,352L 1363.4,352L 1363.4,352L 1385,352" stroke-dasharray="none" stroke-width="2" stroke="#1e3556" fill="none"></path><path d="M 1331,408L 1363.4,408L 1363.4,408L 1385,408" stroke-dasharray="none" stroke-width="2" stroke="#1e3556" fill="none"></path><path d="M 1219,540L 1251.4,540L 1251.4,489Q 1251.4,484 1256.4,484L 1273,484" stroke-dasharray="none" stroke-width="2" stroke="#1e3556" fill="none"></path><path d="M 1219,540L 1251.4,540L 1251.4,540L 1273,540" stroke-dasharray="none" stroke-width="2" stroke="#1e3556" fill="none"></path><path d="M 1219,540L 1251.4,540L 1251.4,591Q 1251.4,596 1256.4,596L 1273,596" stroke-dasharray="none" stroke-width="2" stroke="#1e3556" fill="none"></path><path d="M 1225,700L 1257.4,700L 1257.4,677Q 1257.4,672 1262.4,672L 1279,672" stroke-dasharray="none" stroke-width="2" stroke="#1e3556" fill="none"></path><path d="M 1225,700L 1257.4,700L 1257.4,723Q 1257.4,728 1262.4,728L 1279,728" stroke-dasharray="none" stroke-width="2" stroke="#1e3556" fill="none"></path><path d="M 1217,860L 1249.4,860L 1249.4,809Q 1249.4,804 1254.4,804L 1271,804" stroke-dasharray="none" stroke-width="2" stroke="#1e3556" fill="none"></path><path d="M 1217,860L 1249.4,860L 1249.4,860L 1271,860" stroke-dasharray="none" stroke-width="2" stroke="#1e3556" fill="none"></path><path d="M 1217,860L 1249.4,860L 1249.4,911Q 1249.4,916 1254.4,916L 1271,916" stroke-dasharray="none" stroke-width="2" stroke="#1e3556" fill="none"></path></g><g class="smm-node-container"><g class="smm-node" transform="matrix(1,0,0,1,960,472.5)" style="cursor: default;"><path d="
+      M10,0
+      L72,0
+      C72,0 82,0 82,10
+      L82,31
+      C82,31 82,41 72,41
+      L10,41
+      C10,41 0,41 0,31
+      L0,10
+      C0,10 0,0 10,0
+      Z
+    " class="smm-node-shape" transform="matrix(1,0,0,1,1,1)" fill="#1e3556" stroke-dasharray="none" stroke-width="2" stroke="#bdc5c9"></path><g transform="matrix(1,0,0,1,16,6)"><g data-width="52" data-height="31" data-offsetx="0"><foreignObject width="52" height="31" x="0" y="0"><div class="smm-richtext-node-wrap" xmlns="http://www.w3.org/1999/xhtml" style="max-width: 500px;"><p><strong style="font-size: 24px; color: rgb(255, 255, 255); font-family: 微软雅黑, &quot;Microsoft YaHei&quot;;">CPU</strong></p></div><style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+  </style></foreignObject></g></g><rect width="88" height="47" x="-2" y="-2" class="smm-hover-node" rx="5" ry="5" fill="none" stroke="#5ec8f8"></rect></g><g class="smm-node" transform="matrix(1,0,0,1,1148,222)" style="cursor: default;"><path d="
+      M10,0
+      L57,0
+      C57,0 67,0 67,10
+      L67,24
+      C67,24 67,34 57,34
+      L10,34
+      C10,34 0,34 0,24
+      L0,10
+      C0,10 0,0 10,0
+      Z
+    " class="smm-node-shape" transform="matrix(1,0,0,1,1,1)" fill="#a9dada" stroke-dasharray="none" stroke-width="2" stroke="#1e3556"></path><rect fill="transparent" width="20" height="36" x="69" y="0"></rect><g transform="matrix(1,0,0,1,16,6)"><g data-width="37" data-height="24" data-offsetx="0"><foreignObject width="37" height="24" x="0" y="0"><div class="smm-richtext-node-wrap" xmlns="http://www.w3.org/1999/xhtml" style="max-width: 500px;"><p><span style="font-family: 微软雅黑, &quot;Microsoft YaHei&quot;; color: rgb(255, 255, 255); font-size: 18px;">性能</span></p></div></foreignObject></g></g><rect width="73" height="40" x="-2" y="-2" class="smm-hover-node" rx="5" ry="5" fill="none" stroke="#5ec8f8"></rect></g><g class="smm-node" transform="matrix(1,0,0,1,1271,56)" style="cursor: default;"><path d="
+      M5,0
+      L68,0
+      C68,0 73,0 73,5
+      L73,26
+      C73,26 73,31 68,31
+      L5,31
+      C5,31 0,31 0,26
+      L0,5
+      C0,5 0,0 5,0
+      Z
+    " class="smm-node-shape" transform="matrix(1,0,0,1,0.5,0.5)" fill="transparent" stroke-dasharray="none" stroke-width="1" stroke="#1e3556"></path><rect fill="transparent" width="20" height="32" x="74" y="0"></rect><g transform="matrix(1,0,0,1,15.5,5.5)"><g data-width="43" data-height="21" data-offsetx="0"><foreignObject width="43" height="21" x="0" y="0"><div class="smm-richtext-node-wrap" xmlns="http://www.w3.org/1999/xhtml" style="max-width: 500px;"><p><span style="font-family: 微软雅黑, &quot;Microsoft YaHei&quot;; color: rgb(30, 53, 86); font-size: 14px;">核心数</span></p></div></foreignObject></g></g><rect width="78" height="36" x="-2" y="-2" class="smm-hover-node" rx="5" ry="5" fill="none" stroke="#5ec8f8"></rect></g><g class="smm-node" transform="matrix(1,0,0,1,1399,56)" style="cursor: default;"><path d="
+      M5,0
+      L145,0
+      C145,0 150,0 150,5
+      L150,26
+      C150,26 150,31 145,31
+      L5,31
+      C5,31 0,31 0,26
+      L0,5
+      C0,5 0,0 5,0
+      Z
+    " class="smm-node-shape" transform="matrix(1,0,0,1,0.5,0.5)" fill="transparent" stroke-dasharray="none" stroke-width="1" stroke="#1e3556"></path><g transform="matrix(1,0,0,1,15.5,5.5)"><g data-width="120" data-height="21" data-offsetx="0"><foreignObject width="120" height="21" x="0" y="0"><div class="smm-richtext-node-wrap" xmlns="http://www.w3.org/1999/xhtml" style="max-width: 500px;"><p><span style="color: rgb(30, 53, 86); font-family: 微软雅黑, &quot;Microsoft YaHei&quot;; font-size: 14px;">核数*每核超线程数</span></p></div></foreignObject></g></g><rect width="155" height="36" x="-2" y="-2" class="smm-hover-node" rx="5" ry="5" fill="none" stroke="#5ec8f8"></rect></g><g class="smm-node" transform="matrix(1,0,0,1,1271,196)" style="cursor: default;"><path d="
+      M5,0
+      L82,0
+      C82,0 87,0 87,5
+      L87,26
+      C87,26 87,31 82,31
+      L5,31
+      C5,31 0,31 0,26
+      L0,5
+      C0,5 0,0 5,0
+      Z
+    " class="smm-node-shape" transform="matrix(1,0,0,1,0.5,0.5)" fill="transparent" stroke-dasharray="none" stroke-width="1" stroke="#1e3556"></path><rect fill="transparent" width="20" height="32" x="88" y="0"></rect><g transform="matrix(1,0,0,1,15.5,5.5)"><g data-width="57" data-height="21" data-offsetx="0"><foreignObject width="57" height="21" x="0" y="0"><div class="smm-richtext-node-wrap" xmlns="http://www.w3.org/1999/xhtml" style="max-width: 500px;"><p><span style="font-family: 微软雅黑, &quot;Microsoft YaHei&quot;; color: rgb(30, 53, 86); font-size: 14px;">核心频率</span></p></div></foreignObject></g></g><rect width="92" height="36" x="-2" y="-2" class="smm-hover-node" rx="5" ry="5" fill="none" stroke="#5ec8f8"></rect></g><g class="smm-node" transform="matrix(1,0,0,1,1413,112)" style="cursor: default;"><path d="
+      M5,0
+      L152,0
+      C152,0 157,0 157,5
+      L157,26
+      C157,26 157,31 152,31
+      L5,31
+      C5,31 0,31 0,26
+      L0,5
+      C0,5 0,0 5,0
+      Z
+    " class="smm-node-shape" transform="matrix(1,0,0,1,0.5,0.5)" fill="transparent" stroke-dasharray="none" stroke-width="1" stroke="#1e3556"></path><g transform="matrix(1,0,0,1,15.5,5.5)"><g data-width="127" data-height="21" data-offsetx="0"><foreignObject width="127" height="21" x="0" y="0"><div class="smm-richtext-node-wrap" xmlns="http://www.w3.org/1999/xhtml" style="max-width: 500px;"><p><span style="font-family: 微软雅黑, &quot;Microsoft YaHei&quot;; color: rgb(30, 53, 86); font-size: 14px;">频率越高，计算越快</span></p></div></foreignObject></g></g><rect width="162" height="36" x="-2" y="-2" class="smm-hover-node" rx="5" ry="5" fill="none" stroke="#5ec8f8"></rect></g><g class="smm-node" transform="matrix(1,0,0,1,1413,168)" style="cursor: default;"><path d="
+      M5,0
+      L236,0
+      C236,0 241,0 241,5
+      L241,26
+      C241,26 241,31 236,31
+      L5,31
+      C5,31 0,31 0,26
+      L0,5
+      C0,5 0,0 5,0
+      Z
+    " class="smm-node-shape" transform="matrix(1,0,0,1,0.5,0.5)" fill="transparent" stroke-dasharray="none" stroke-width="1" stroke="#1e3556"></path><g transform="matrix(1,0,0,1,15.5,5.5)"><g data-width="211" data-height="21" data-offsetx="0"><foreignObject width="211" height="21" x="0" y="0"><div class="smm-richtext-node-wrap" xmlns="http://www.w3.org/1999/xhtml" style="max-width: 500px;"><p><span style="font-size: 14px; font-family: 微软雅黑, &quot;Microsoft YaHei&quot;; color: rgb(30, 53, 86);">基本频率：处理简单场景时的频率</span></p></div></foreignObject></g></g><rect width="246" height="36" x="-2" y="-2" class="smm-hover-node" rx="5" ry="5" fill="none" stroke="#5ec8f8"></rect></g><g class="smm-node" transform="matrix(1,0,0,1,1413,224)" style="cursor: default;"><path d="
+      M5,0
+      L264,0
+      C264,0 269,0 269,5
+      L269,26
+      C269,26 269,31 264,31
+      L5,31
+      C5,31 0,31 0,26
+      L0,5
+      C0,5 0,0 5,0
+      Z
+    " class="smm-node-shape" transform="matrix(1,0,0,1,0.5,0.5)" fill="transparent" stroke-dasharray="none" stroke-width="1" stroke="#1e3556"></path><g transform="matrix(1,0,0,1,15.5,5.5)"><g data-width="239" data-height="21" data-offsetx="0"><foreignObject width="239" height="21" x="0" y="0"><div class="smm-richtext-node-wrap" xmlns="http://www.w3.org/1999/xhtml" style="max-width: 500px;"><p><span style="font-size: 14px; font-family: 微软雅黑, &quot;Microsoft YaHei&quot;; color: rgb(30, 53, 86);">睿频：处理复杂场景时的频率（游戏）</span></p></div></foreignObject></g></g><rect width="274" height="36" x="-2" y="-2" class="smm-hover-node" rx="5" ry="5" fill="none" stroke="#5ec8f8"></rect></g><g class="smm-node" transform="matrix(1,0,0,1,1413,280)" style="cursor: default;"><path d="
+      M5,0
+      L208,0
+      C208,0 213,0 213,5
+      L213,26
+      C213,26 213,31 208,31
+      L5,31
+      C5,31 0,31 0,26
+      L0,5
+      C0,5 0,0 5,0
+      Z
+    " class="smm-node-shape" transform="matrix(1,0,0,1,0.5,0.5)" fill="transparent" stroke-dasharray="none" stroke-width="1" stroke="#1e3556"></path><g transform="matrix(1,0,0,1,15.5,5.5)"><g data-width="183" data-height="21" data-offsetx="0"><foreignObject width="183" height="21" x="0" y="0"><div class="smm-richtext-node-wrap" xmlns="http://www.w3.org/1999/xhtml" style="max-width: 500px;"><p><span style="font-size: 14px; font-family: 微软雅黑, &quot;Microsoft YaHei&quot;; color: rgb(30, 53, 86);">超频：强行加电压，加快频率</span></p></div></foreignObject></g></g><rect width="218" height="36" x="-2" y="-2" class="smm-hover-node" rx="5" ry="5" fill="none" stroke="#5ec8f8"></rect></g><g class="smm-node" transform="matrix(1,0,0,1,1271,336)" style="cursor: default;"><path d="
+      M5,0
+      L54,0
+      C54,0 59,0 59,5
+      L59,26
+      C59,26 59,31 54,31
+      L5,31
+      C5,31 0,31 0,26
+      L0,5
+      C0,5 0,0 5,0
+      Z
+    " class="smm-node-shape" transform="matrix(1,0,0,1,0.5,0.5)" fill="transparent" stroke-dasharray="none" stroke-width="1" stroke="#1e3556"></path><rect fill="transparent" width="20" height="32" x="60" y="0"></rect><g transform="matrix(1,0,0,1,15.5,5.5)"><g data-width="29" data-height="21" data-offsetx="0"><foreignObject width="29" height="21" x="0" y="0"><div class="smm-richtext-node-wrap" xmlns="http://www.w3.org/1999/xhtml" style="max-width: 500px;"><p><span style="font-family: 微软雅黑, &quot;Microsoft YaHei&quot;; color: rgb(30, 53, 86); font-size: 14px;">架构</span></p></div></foreignObject></g></g><rect width="64" height="36" x="-2" y="-2" class="smm-hover-node" rx="5" ry="5" fill="none" stroke="#5ec8f8"></rect></g><g class="smm-node" transform="matrix(1,0,0,1,1385,336)" style="cursor: default;"><path d="
+      M5,0
+      L152,0
+      C152,0 157,0 157,5
+      L157,26
+      C157,26 157,31 152,31
+      L5,31
+      C5,31 0,31 0,26
+      L0,5
+      C0,5 0,0 5,0
+      Z
+    " class="smm-node-shape" transform="matrix(1,0,0,1,0.5,0.5)" fill="transparent" stroke-dasharray="none" stroke-width="1" stroke="#1e3556"></path><g transform="matrix(1,0,0,1,15.5,5.5)"><g data-width="127" data-height="21" data-offsetx="0"><foreignObject width="127" height="21" x="0" y="0"><div class="smm-richtext-node-wrap" xmlns="http://www.w3.org/1999/xhtml" style="max-width: 500px;"><p><span style="font-size: 14px; font-family: 微软雅黑, &quot;Microsoft YaHei&quot;; color: rgb(30, 53, 86);">架构越新，性能越好</span></p></div></foreignObject></g></g><rect width="162" height="36" x="-2" y="-2" class="smm-hover-node" rx="5" ry="5" fill="none" stroke="#5ec8f8"></rect></g><g class="smm-node" transform="matrix(1,0,0,1,1271,392)" style="cursor: default;"><path d="
+      M5,0
+      L54,0
+      C54,0 59,0 59,5
+      L59,26
+      C59,26 59,31 54,31
+      L5,31
+      C5,31 0,31 0,26
+      L0,5
+      C0,5 0,0 5,0
+      Z
+    " class="smm-node-shape" transform="matrix(1,0,0,1,0.5,0.5)" fill="transparent" stroke-dasharray="none" stroke-width="1" stroke="#1e3556"></path><rect fill="transparent" width="20" height="32" x="60" y="0"></rect><g transform="matrix(1,0,0,1,15.5,5.5)"><g data-width="29" data-height="21" data-offsetx="0"><foreignObject width="29" height="21" x="0" y="0"><div class="smm-richtext-node-wrap" xmlns="http://www.w3.org/1999/xhtml" style="max-width: 500px;"><p><span style="font-size: 14px; font-family: 微软雅黑, &quot;Microsoft YaHei&quot;; color: rgb(30, 53, 86);">缓存</span></p></div></foreignObject></g></g><rect width="64" height="36" x="-2" y="-2" class="smm-hover-node" rx="5" ry="5" fill="none" stroke="#5ec8f8"></rect></g><g class="smm-node" transform="matrix(1,0,0,1,1385,392)" style="cursor: default;"><path d="
+      M5,0
+      L166,0
+      C166,0 171,0 171,5
+      L171,26
+      C171,26 171,31 166,31
+      L5,31
+      C5,31 0,31 0,26
+      L0,5
+      C0,5 0,0 5,0
+      Z
+    " class="smm-node-shape" transform="matrix(1,0,0,1,0.5,0.5)" fill="transparent" stroke-dasharray="none" stroke-width="1" stroke="#1e3556"></path><g transform="matrix(1,0,0,1,15.5,5.5)"><g data-width="141" data-height="21" data-offsetx="0"><foreignObject width="141" height="21" x="0" y="0"><div class="smm-richtext-node-wrap" xmlns="http://www.w3.org/1999/xhtml" style="max-width: 500px;"><p><span style="font-family: 微软雅黑, &quot;Microsoft YaHei&quot;; color: rgb(30, 53, 86); font-size: 14px;">一二三级缓存越大越好</span></p></div></foreignObject></g></g><rect width="176" height="36" x="-2" y="-2" class="smm-hover-node" rx="5" ry="5" fill="none" stroke="#5ec8f8"></rect></g><g class="smm-node" transform="matrix(1,0,0,1,1148,522)" style="cursor: default;"><path d="
+      M10,0
+      L59,0
+      C59,0 69,0 69,10
+      L69,24
+      C69,24 69,34 59,34
+      L10,34
+      C10,34 0,34 0,24
+      L0,10
+      C0,10 0,0 10,0
+      Z
+    " class="smm-node-shape" transform="matrix(1,0,0,1,1,1)" fill="#a9dada" stroke-dasharray="none" stroke-width="2" stroke="#1e3556"></path><rect fill="transparent" width="20" height="36" x="71" y="0"></rect><g transform="matrix(1,0,0,1,16,6)"><g data-width="39" data-height="24" data-offsetx="0"><foreignObject width="39" height="24" x="0" y="0"><div class="smm-richtext-node-wrap" xmlns="http://www.w3.org/1999/xhtml" style="max-width: 500px;"><p><span style="font-family: 微软雅黑, &quot;Microsoft YaHei&quot;; color: rgb(255, 255, 255); font-size: 18px;">Intel</span></p></div></foreignObject></g></g><rect width="75" height="40" x="-2" y="-2" class="smm-hover-node" rx="5" ry="5" fill="none" stroke="#5ec8f8"></rect></g><g class="smm-node" transform="matrix(1,0,0,1,1273,468)" style="cursor: default;"><path d="
+      M5,0
+      L471,0
+      C471,0 476,0 476,5
+      L476,26
+      C476,26 476,31 471,31
+      L5,31
+      C5,31 0,31 0,26
+      L0,5
+      C0,5 0,0 5,0
+      Z
+    " class="smm-node-shape" transform="matrix(1,0,0,1,0.5,0.5)" fill="transparent" stroke-dasharray="none" stroke-width="1" stroke="#1e3556"></path><g transform="matrix(1,0,0,1,15.5,5.5)"><g data-width="446" data-height="21" data-offsetx="0"><foreignObject width="446" height="21" x="0" y="0"><div class="smm-richtext-node-wrap" xmlns="http://www.w3.org/1999/xhtml" style="max-width: 500px;"><p><span style="font-family: 微软雅黑, &quot;Microsoft YaHei&quot;; color: rgb(30, 53, 86); font-size: 14px;">CPU性能主要看以上四个参数，往往更新架构的i3可能比老的i5性能更好</span></p></div></foreignObject></g></g><rect width="481" height="36" x="-2" y="-2" class="smm-hover-node" rx="5" ry="5" fill="none" stroke="#5ec8f8"></rect></g><g class="smm-node" transform="matrix(1,0,0,1,1273,524)" style="cursor: default;"><path d="
+      M5,0
+      L434,0
+      C434,0 439,0 439,5
+      L439,26
+      C439,26 439,31 434,31
+      L5,31
+      C5,31 0,31 0,26
+      L0,5
+      C0,5 0,0 5,0
+      Z
+    " class="smm-node-shape" transform="matrix(1,0,0,1,0.5,0.5)" fill="transparent" stroke-dasharray="none" stroke-width="1" stroke="#1e3556"></path><g transform="matrix(1,0,0,1,15.5,5.5)"><g data-width="409" data-height="21" data-offsetx="0"><foreignObject width="409" height="21" x="0" y="0"><div class="smm-richtext-node-wrap" xmlns="http://www.w3.org/1999/xhtml" style="max-width: 500px;"><p><span style="font-size: 14px; font-family: 微软雅黑, &quot;Microsoft YaHei&quot;; color: rgb(30, 53, 86);">Intel出售给其它厂商的没有包装的CPU，叫做散片，价格比较便宜</span></p></div></foreignObject></g></g><rect width="444" height="36" x="-2" y="-2" class="smm-hover-node" rx="5" ry="5" fill="none" stroke="#5ec8f8"></rect></g><g class="smm-node" transform="matrix(1,0,0,1,1273,580)" style="cursor: default;"><path d="
+      M5,0
+      L465,0
+      C465,0 470,0 470,5
+      L470,26
+      C470,26 470,31 465,31
+      L5,31
+      C5,31 0,31 0,26
+      L0,5
+      C0,5 0,0 5,0
+      Z
+    " class="smm-node-shape" transform="matrix(1,0,0,1,0.5,0.5)" fill="transparent" stroke-dasharray="none" stroke-width="1" stroke="#1e3556"></path><g transform="matrix(1,0,0,1,15.5,5.5)"><g data-width="440" data-height="21" data-offsetx="0"><foreignObject width="440" height="21" x="0" y="0"><div class="smm-richtext-node-wrap" xmlns="http://www.w3.org/1999/xhtml" style="max-width: 500px;"><p><span style="font-family: 微软雅黑, &quot;Microsoft YaHei&quot;; color: rgb(30, 53, 86); font-size: 14px;">酷睿系统只要后续带K或者X的CPU才支持超频，而且要配对更贵的主板</span></p></div></foreignObject></g></g><rect width="475" height="36" x="-2" y="-2" class="smm-hover-node" rx="5" ry="5" fill="none" stroke="#5ec8f8"></rect></g><g class="smm-node" transform="matrix(1,0,0,1,1148,682)" style="cursor: default;"><path d="
+      M10,0
+      L65,0
+      C65,0 75,0 75,10
+      L75,24
+      C75,24 75,34 65,34
+      L10,34
+      C10,34 0,34 0,24
+      L0,10
+      C0,10 0,0 10,0
+      Z
+    " class="smm-node-shape" transform="matrix(1,0,0,1,1,1)" fill="#a9dada" stroke-dasharray="none" stroke-width="2" stroke="#1e3556"></path><rect fill="transparent" width="20" height="36" x="77" y="0"></rect><g transform="matrix(1,0,0,1,16,6)"><g data-width="45" data-height="24" data-offsetx="0"><foreignObject width="45" height="24" x="0" y="0"><div class="smm-richtext-node-wrap" xmlns="http://www.w3.org/1999/xhtml" style="max-width: 500px;"><p><span style="font-size: 18px; font-family: 微软雅黑, &quot;Microsoft YaHei&quot;; color: rgb(255, 255, 255);">AMD</span></p></div></foreignObject></g></g><rect width="81" height="40" x="-2" y="-2" class="smm-hover-node" rx="5" ry="5" fill="none" stroke="#5ec8f8"></rect></g><g class="smm-node" transform="matrix(1,0,0,1,1279,656)" style="cursor: default;"><path d="
+      M5,0
+      L152,0
+      C152,0 157,0 157,5
+      L157,26
+      C157,26 157,31 152,31
+      L5,31
+      C5,31 0,31 0,26
+      L0,5
+      C0,5 0,0 5,0
+      Z
+    " class="smm-node-shape" transform="matrix(1,0,0,1,0.5,0.5)" fill="transparent" stroke-dasharray="none" stroke-width="1" stroke="#1e3556"></path><g transform="matrix(1,0,0,1,15.5,5.5)"><g data-width="127" data-height="21" data-offsetx="0"><foreignObject width="127" height="21" x="0" y="0"><div class="smm-richtext-node-wrap" xmlns="http://www.w3.org/1999/xhtml" style="max-width: 500px;"><p><span style="color: rgb(30, 53, 86); font-family: 微软雅黑, &quot;Microsoft YaHei&quot;; font-size: 14px;">锐龙系列都可以超频</span></p></div></foreignObject></g></g><rect width="162" height="36" x="-2" y="-2" class="smm-hover-node" rx="5" ry="5" fill="none" stroke="#5ec8f8"></rect></g><g class="smm-node" transform="matrix(1,0,0,1,1279,712)" style="cursor: default;"><path d="
+      M5,0
+      L96,0
+      C96,0 101,0 101,5
+      L101,26
+      C101,26 101,31 96,31
+      L5,31
+      C5,31 0,31 0,26
+      L0,5
+      C0,5 0,0 5,0
+      Z
+    " class="smm-node-shape" transform="matrix(1,0,0,1,0.5,0.5)" fill="transparent" stroke-dasharray="none" stroke-width="1" stroke="#1e3556"></path><g transform="matrix(1,0,0,1,15.5,5.5)"><g data-width="71" data-height="21" data-offsetx="0"><foreignObject width="71" height="21" x="0" y="0"><div class="smm-richtext-node-wrap" xmlns="http://www.w3.org/1999/xhtml" style="max-width: 500px;"><p><span style="font-size: 14px; font-family: 微软雅黑, &quot;Microsoft YaHei&quot;; color: rgb(30, 53, 86);">很少有散片</span></p></div></foreignObject></g></g><rect width="106" height="36" x="-2" y="-2" class="smm-hover-node" rx="5" ry="5" fill="none" stroke="#5ec8f8"></rect></g><g class="smm-node" transform="matrix(1,0,0,1,1148,842)" style="cursor: default;"><path d="
+      M10,0
+      L57,0
+      C57,0 67,0 67,10
+      L67,24
+      C67,24 67,34 57,34
+      L10,34
+      C10,34 0,34 0,24
+      L0,10
+      C0,10 0,0 10,0
+      Z
+    " class="smm-node-shape" transform="matrix(1,0,0,1,1,1)" fill="#a9dada" stroke-dasharray="none" stroke-width="2" stroke="#1e3556"></path><rect fill="transparent" width="20" height="36" x="69" y="0"></rect><g transform="matrix(1,0,0,1,16,6)"><g data-width="37" data-height="24" data-offsetx="0"><foreignObject width="37" height="24" x="0" y="0"><div class="smm-richtext-node-wrap" xmlns="http://www.w3.org/1999/xhtml" style="max-width: 500px;"><p><span style="font-size: 18px; font-family: 微软雅黑, &quot;Microsoft YaHei&quot;; color: rgb(255, 255, 255);">选择</span></p></div></foreignObject></g></g><rect width="73" height="40" x="-2" y="-2" class="smm-hover-node" rx="5" ry="5" fill="none" stroke="#5ec8f8"></rect></g><g class="smm-node" transform="matrix(1,0,0,1,1271,788)" style="cursor: default;"><path d="
+      M5,0
+      L363,0
+      C363,0 368,0 368,5
+      L368,26
+      C368,26 368,31 363,31
+      L5,31
+      C5,31 0,31 0,26
+      L0,5
+      C0,5 0,0 5,0
+      Z
+    " class="smm-node-shape" transform="matrix(1,0,0,1,0.5,0.5)" fill="transparent" stroke-dasharray="none" stroke-width="1" stroke="#1e3556"></path><g transform="matrix(1,0,0,1,15.5,5.5)"><g data-width="338" data-height="21" data-offsetx="0"><foreignObject width="338" height="21" x="0" y="0"><div class="smm-richtext-node-wrap" xmlns="http://www.w3.org/1999/xhtml" style="max-width: 500px;"><p><span style="font-family: 微软雅黑, &quot;Microsoft YaHei&quot;; color: rgb(30, 53, 86); font-size: 14px;">家用办公，不怎么玩游戏：建议选择带核心显卡的CPU</span></p></div></foreignObject></g></g><rect width="373" height="36" x="-2" y="-2" class="smm-hover-node" rx="5" ry="5" fill="none" stroke="#5ec8f8"></rect></g><g class="smm-node" transform="matrix(1,0,0,1,1271,844)" style="cursor: default;"><path d="
+      M5,0
+      L265,0
+      C265,0 270,0 270,5
+      L270,26
+      C270,26 270,31 265,31
+      L5,31
+      C5,31 0,31 0,26
+      L0,5
+      C0,5 0,0 5,0
+      Z
+    " class="smm-node-shape" transform="matrix(1,0,0,1,0.5,0.5)" fill="transparent" stroke-dasharray="none" stroke-width="1" stroke="#1e3556"></path><g transform="matrix(1,0,0,1,15.5,5.5)"><g data-width="240" data-height="21" data-offsetx="0"><foreignObject width="240" height="21" x="0" y="0"><div class="smm-richtext-node-wrap" xmlns="http://www.w3.org/1999/xhtml" style="max-width: 500px;"><p><span style="font-size: 14px; font-family: 微软雅黑, &quot;Microsoft YaHei&quot;; color: rgb(30, 53, 86);">游戏用户：建议选择核心频率高的CPU</span></p></div></foreignObject></g></g><rect width="275" height="36" x="-2" y="-2" class="smm-hover-node" rx="5" ry="5" fill="none" stroke="#5ec8f8"></rect></g><g class="smm-node" transform="matrix(1,0,0,1,1271,900)" style="cursor: default;"><path d="
+      M5,0
+      L222,0
+      C222,0 227,0 227,5
+      L227,26
+      C227,26 227,31 222,31
+      L5,31
+      C5,31 0,31 0,26
+      L0,5
+      C0,5 0,0 5,0
+      Z
+    " class="smm-node-shape" transform="matrix(1,0,0,1,0.5,0.5)" fill="transparent" stroke-dasharray="none" stroke-width="1" stroke="#1e3556"></path><g transform="matrix(1,0,0,1,15.5,5.5)"><g data-width="197" data-height="21" data-offsetx="0"><foreignObject width="197" height="21" x="0" y="0"><div class="smm-richtext-node-wrap" xmlns="http://www.w3.org/1999/xhtml" style="max-width: 500px;"><p><span style="font-size: 14px; font-family: 微软雅黑, &quot;Microsoft YaHei&quot;; color: rgb(30, 53, 86);">生产力用途：核心线程越多越好</span></p></div></foreignObject></g></g><rect width="232" height="36" x="-2" y="-2" class="smm-hover-node" rx="5" ry="5" fill="none" stroke="#5ec8f8"></rect></g></g><g class="smm-associative-line-container"></g><g class="smm-other-container"></g></g><defs><marker markerWidth="10" markerHeight="10" refX="12" refY="5" viewBox="0 0 20 20" orient="auto-start-reverse"><path d="M0,0 L2,5 L0,10 L10,5 Z"></path></marker></defs><style>
+  /* 鼠标hover和激活时渲染的矩形 */
+  .smm-hover-node{
+    display: none;
+    opacity: 0.6;
+    stroke-width: 1;
+  }
+
+  .smm-node:not(.smm-node-dragging):hover .smm-hover-node{
+    display: block;
+  }
+
+  .smm-node.active .smm-hover-node{
+    display: block;
+    opacity: 1;
+    stroke-width: 2;
+  }
+</style></svg>
