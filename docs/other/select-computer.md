@@ -34,6 +34,10 @@
 
 ![](../images/screen.svg ":size=80%")
 
+[显示器连接线视频](https://www.bilibili.com/video/BV1rJ411z7Z6)
+
+![](../images/screen-interface.svg ":size=80%")
+
 ## 机械键盘
 
 [视频](https://www.bilibili.com/video/BV1tt41147Fr)
