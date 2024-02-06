@@ -19,6 +19,7 @@
 [视频](https://www.bilibili.com/video/BV1nt411B7ky)
 
 [桌面CPU性能天梯图](https://www.mydrivers.com/zhuanti/tianti/cpu/index.html)
+
 [笔记本CPU性能天梯图](https://www.mydrivers.com/zhuanti/tianti/cpum/index.html)
 
 ![](../images/cpu-select.svg ":size=80%")
@@ -28,6 +29,7 @@
 [视频](https://www.bilibili.com/video/BV1Ct411Z7nL)
 
 [桌面显卡性能天梯图](https://www.mydrivers.com/zhuanti/tianti/gpu/index.html)
+
 [笔记本核显性能排行榜](https://rank.kkj.cn/Computer101.shtml)
 
 ![](../images/gpu-select.svg ":size=80%")
