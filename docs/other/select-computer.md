@@ -45,6 +45,7 @@
 ## 显示器
 
 [视频](https://www.bilibili.com/video/BV1oW411U76W)
+[显示器刷新率测试](https://testufo.com/)
 
 ![](../images/screen.svg ":size=80%")
 
@@ -73,6 +74,11 @@
 ![](../images/mouse-select.svg ":size=80%")
 
 ## 超频
+
+[视频](https://www.bilibili.com/video/BV1yb411Y7Wr)
+[显示器刷新率测试](https://testufo.com/)
+
+![](../images/over-clock.svg ":size=80%")
 
 ## 手机
 
