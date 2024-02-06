@@ -25,6 +25,13 @@
 
 ## GPU
 
+[视频](https://www.bilibili.com/video/BV1Ct411Z7nL)
+
+[桌面显卡性能天梯图](https://www.mydrivers.com/zhuanti/tianti/gpu/index.html)
+[笔记本核显性能排行榜](https://rank.kkj.cn/Computer101.shtml)
+
+![](../images/gpu-select.svg ":size=80%")
+
 ## 主板
 
 ## 内存条
