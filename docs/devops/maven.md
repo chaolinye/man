@@ -279,6 +279,23 @@ java -jar ${MAVEN_HOME}/lib/maven-artifact-3.3.9.jar [versions...]
 
 区别在于 `-DskipTest` 会执行 `testCompile` 阶段，而 `-Dmaven.test.skip` 不会 
 
+
+### pom install to local repository
+
+在某些场景，需要把 pom install 到本地仓库以解决依赖错误问题。比如某个多模块module工程
+
+```
+- parent pom
+  - module A
+  - module B
+```
+
+其中 `module A` 依赖于 `module B`, `module A` 下 compile，会从本地仓库获取到 `module B` 依赖包，但是 `module B` 依赖的 `parent pom` 在本地仓库获取不到，导致解析失败。这是因为一般的 `mvn install` 并不会安装 pom 构件到本地仓库。安装 pom 构件到本地仓库的名字
+
+```bash
+mvn install:install-file -Dpackaging=pom -Dfile=pom.xml -DpomFile=pom.xml
+```
+
 ## References
 
 - [Maven 构建生命周期](https://maven.apache.org/guides/introduction/introduction-to-the-lifecycle.html)
