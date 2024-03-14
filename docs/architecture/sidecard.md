@@ -6,3 +6,4 @@
 - [分布式系统指标](./system-metric)
 - [重构](./refactor)
 - [软件设计](./software-design)
+- [架构模式](./arch-pattern)
