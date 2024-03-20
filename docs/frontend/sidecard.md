@@ -7,3 +7,4 @@
 - issue
     - [string-replace-loader 修复三方库 bug](./string-replace-loader)
 - [require.context 导入文件夹](./require-context)
+- [工具](./tool)
