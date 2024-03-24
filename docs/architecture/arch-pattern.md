@@ -290,6 +290,61 @@ Mediator Topology
 
 #### MVC
 
+![](../images/mvc.png)
+
+优点：
+
+- 三种组件关注点分离
+- 有利于团队分工
+- 有名
+
+缺点：
+
+- Controller 容易变得臃肿
+- 被用得太多出现了歧义
+- 前端体验不高
+
 #### MVP
 
+![](../images/mvp.png)
+
+MVP的两个变种：
+
+- Passive View
+- Supervising Controller
+
+优点：
+
+- 更关注于前端，三种组件关注点更精确
+- 容易测试
+- 适用于原生应用
+
+缺点：
+
+- Presenter容易变得臃肿
+- 日常开发还是有些麻烦
+- 原生应用的开发需求变少
+
 #### MVVM 架构
+
+![](../images/mvvm.png)
+
+优点：
+
+- 在有框架的支持下，效率极高
+- 关注点进一步分离
+- 前端领域逻辑更容易测试
+
+缺点：
+
+- 对于简单的应用可能有点过重
+- 数据绑定难以调试
+
+#### 三种架构模型对比
+
+| | MVC | MVP | MVVM |
+| :--: | :--: | :--: | :--: |
+| 用户交互被谁负责 | Controller | View | View |
+| 控制UI的代码 | 较少 | 最多 | 较少 |
+| View是否知道Model | 知道 | Supervising Controller 模式知道，Passive View不知道 | 不知道 |
+| View更新 | 手动 | 手动 | 自动 |
