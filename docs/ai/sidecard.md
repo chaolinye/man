@@ -1,2 +1,3 @@
 - [README]()
 - [大模型](./llm.md)
+- [动手实战人工智能](https://aibydoing.com/intro)

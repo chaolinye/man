@@ -35,3 +35,4 @@ git config --global credential.helper stroe --file ~/.my-credentials
 ## Reference
 
 - [Pro Git 2](https://bingohuang.gitbooks.io/progit2/content/07-git-tools/sections/credentials.html)
+- [如何管理多个 Git 身份](https://garrit.xyz/posts/2023-10-13-organizing-multiple-git-identities)
