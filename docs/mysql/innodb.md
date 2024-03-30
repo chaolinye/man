@@ -1182,7 +1182,7 @@ InnoDB 的 Page Header 通过以下部分用来保存插入的顺序信息，以
 
 #### B+ 树索引的管理
 
-- 索引管理
+##### 索引管理
 
 ```sql
 CREATE [UNIQUE | FULLTEXT | SPATIAL] INDEX index_name
@@ -1252,9 +1252,128 @@ show index from t\G
 
 > 建议在一个非高峰时间，对应用程序下的几张核心表做 ANALYZE TABLE 操作，这能使优化器和索引更好地工作。
 
+Cardinality 除以 表的行数应尽可能接近 1， 如果非常小，那么需要考虑是否可以删除此索引。
+
+##### Fast Index Creation
+
+对于索引的增加或者删除这类DDL操作，mysql 5.5版本之前（不包括5.5）操作过程为：
+- 创建一张新的表，表结构为修改后的结构
+- 把原表数据导入新表
+- 删除原表
+- 把新表重名为原来的表名
+
+整个过程表不可访问，如果是个大表，会需要很长的时间。
+
+InnoDB 1.0.x 版本开始支持 Fast Index Creation的索引创建方式：对于辅助索引的创建，InnoDB对表加一个S 锁，在创建过程中，不需要重建表，速度会提高很多，过程中表也可以查询，只是无法更新；对于删除辅助索引就更简单了，只需将辅助索引的空间标记为可用，同时删除表的索引定义即可。
+
+FIC方式只限定于辅助索引，对于主键的创建和删除同样需要重建一张表。
+
+##### Online DDL
+
+MySQL 5.6 版本开始支持 Online DDL，其允许辅助索引创建的同时，还允许 DML 更新操作，极大地提供了数据库的可用性。
+
+此外，不仅仅是辅助索引，其它DDL操作也支持：
+- 辅助索引的创建与删除
+- 改变自增长值
+- 添加或删除外键索引
+- 列的重命名
+
+InnoDB实现 Online DDL 的原理是在执行创建或者删除操作的同时，将 INSERT、UPDATE、DELETE这类DML操作日志写入到一个缓存中，待完成索引创建后再重做应用到表示，以此达到数据的一致性。这个缓存的大小由参数 innodb_online_alter_log_max_size 控制，默认的大小为 128MB。
+
+### Cardinality
+
+对于什么时候添加B+树索引，一般的经验是，在访问表中很少一部分时使用B+树索引才有意义。
+
+对于性别、地区、类型字段，可取值的范围很小，称为低选择性，这时添加B+树索引完全没有必要。
+相反，如果某个字段的取值范围很广，几乎没有重复，即属于高选择性。
+
+可通过 `show index from table_name` 的 Cardinality 列来判断选择性，`Cardinality/n_rows_in_table` 越接近1，选择性越高.
+
+Cardinality 是个预估值，是通过采样的方法来完成的。
+
+Innodb 内部更新 Cardinality 的策略为：
+- 表中 1/16 的数据已发生过变化
+- stat_modified_counter 》 20 0000 0000
 
 
+采样的策略：默认随机取8个叶子节点来统计每个页不同记录的个数，然后 `Cardinality=(P1+P2+...+P8)*left_node_nums/8`，由于随机性，每次采样得到的 Cardinality 值可能是不同的。
 
+`show index from table_name` 会触发随机采样，即使表数据没有变化，每次得到的 Cardinality 也可能不同。如果叶子节点小于等于8个，每次得到的就是相同的。
 
+会触发Cardinality重新计算的语句：
+- analyze table
+- show table status
+- show index
+- 访问 information_schema 下的表 tables 和 statistics 时
 
+采样相关参数的配置请查看 [官方文档](https://dev.mysql.com/doc/refman/5.7/en/analyze-table.html)
 
+### B+树索引的使用
+
+#### 不同应用中B+树索引的使用
+
+OLTP 应用往往只需要获取表中少部分的数据，很适合使用B+树索引；
+
+OLAP 大部分场景都是需要获取大部分数据的，不适合使用B+树索引；不过，通常还是会需要对时间字段进行索引的，因为大多数统计需要根据时间维度进行数据的筛选。
+
+#### 联合索引
+
+联合索引是只对表的多个列进行索引。
+
+在多个列的过滤时通过联合索引可以取到更少的数据行，性能更好；
+
+同时也可以用于左侧部分列的过滤，一举多得；当然理论上可能层次比单个列的索引多
+
+此外，联合索引还适用于左侧列过滤，右侧列排序的场景，可以无需filesort。
+
+#### 覆盖索引
+
+即从辅助索引中就可以得到查询的记录，无需查询聚集索引中的记录，可以减少大量的IO操作。
+
+```mysql
+select count(*) from table_name
+```
+
+比如以上语句，innodb大概率会选择辅助索引来统计。
+
+> explain 结果中的 Extra 列为 Using index 就代表进行了覆盖索引操作
+
+当查询条件和返回字段都只涉及辅助索引的列或者主键时，就会使用覆盖索引。
+
+#### 优化器选择不适用索引的情况
+
+这种情况多发生于范围查找、JOIN链接操作等情况下。
+
+对于不能进行索引覆盖的情况，优化器选择辅助索引的情况是，通过辅助索引查找的数据是少量的。如果当前访问的数据占整个表数据的较大部分时（一般是20%左右），优化会选择通过聚集索引来查找数据。
+
+这是由当前传统机械硬盘特性所决定的，即利用顺序读来替换随机读的查找。如果使用的是固态硬盘，可尝试使用关键字`FORCE INDEX` 来强制使用某个索引，如：
+
+```mysql
+select * from table_name force index(order_id)
+where order_id > 10000 and order_id < 20000
+```
+
+#### 索引提示
+
+显示告诉优化器使用哪个索引
+
+主要有两种情况可能需要用到 INDEX HINT：
+
+- MySQL 数据库的优化器错误地选择了某个索引，导致SQL语句运行的很慢。这种情况随着mysql的迭代已经非常少见，优化器在绝大部分情况下工作得都非常有效和正确。
+
+- 某 SQL 语句可以选择的索引非常多，这时优化器选择执行计划时间的开销可能会大于SQL语句本身。例如，优化器分析Range查询本身就是比较耗时的操作。
+
+```mysql
+select * from table_name use index(order_id)
+where order_id > 10000 and order_id < 20000
+```
+
+USE INDEX 只是告诉优化器可以选择该索引，但是实际上优化器还是会再根据自己的判断来选择，如果确定使用某个索引，更可靠的是使用 FORCE INDEX。
+
+index hint 更多内容详见[官方文档](https://dev.mysql.com/doc/refman/5.7/en/index-hints.html)
+
+#### Multi-Range Read 优化
+
+目的是为了减少磁盘的随机访问。
+
+- 
