@@ -1374,6 +1374,381 @@ index hint 更多内容详见[官方文档](https://dev.mysql.com/doc/refman/5.7
 
 #### Multi-Range Read 优化
 
-目的是为了减少磁盘的随机访问。
+目的是为了减少磁盘的随机访问。可适用于 range，ref，eq_ref 类型的查询
 
-- 
+MRR的好处：
+
+- MRR使数据访问变得较为顺序。在查询辅助索引时，首先根据得到的查询结果，按照主键进行排序，并按照主键排序的顺序进行书签查找
+- 减少缓冲池中页被替换的次数
+- 批量处理对键值的查询操作
+
+MRR的工作方式：
+
+- 将查询得到的辅助索引键值放于一个缓存中，这时数据是根据辅助索引键值排序的
+- 将缓存中的键值根据 rowId 进行排序
+- 根据 rowId 的排序顺序来访问实际的数据文件
+
+启用 MRR:
+
+```mysql
+# mrr_cost_based 表示是否通过 cost based 的方法启用 mrr，设置为 off，表示总是启用
+set @@optimizer_switch='mrr=on,mrr_cost_based=off'
+```
+
+当使用了 MRR，explain 结果中的 Extra 列可以看到 `Using MRR` 提醒
+
+更多内容详见[官方文档](https://dev.mysql.com/doc/refman/5.7/en/mrr-optimization.html)
+
+#### Index Condition Pushdown(ICP) 优化
+
+将WHERE的部分过滤操作放在存储引擎层，以提高性能。
+
+支持 range、ref、eq_ref、ref_or_null 类型的查询，对应的 Extra 列提示是 `Using Index Condition`
+
+使用 ICP 优化的WHERE过滤条件是该索引可以覆盖到的范围。
+
+更多内容详见[官方文档](https://dev.mysql.com/doc/refman/5.7/en/index-condition-pushdown-optimization.html)
+
+### 哈希算法
+
+#### Innodb 存储引擎中的哈希算法
+
+冲突机制采用链表方式，哈希函数采用除法散列。对于除法散列，数组的大小取值为略大于2倍的缓存池页数量的质数。例如：当前innodb_buffer_pool_size大小为10M，即共有640个16KB的页，则需要略大于640*2=1280的质数，也就是1399.
+
+页是通过 space_id 和 offset 来标识的
+
+则关键字=space_id<<20+space_id+offset，然后通过除法散列到各个槽中去
+
+#### 自适应哈希索引
+
+由 Innodb 存储引擎控制的，DBA无法干预
+
+可通过 `show engine innodb status` 查看当前自适应哈希的使用状况
+
+自适应函数只会用于等值的查找，对于范围查找就无能为力了。
+
+通过 `innodb_adaptive_hash_index` 来禁用或启用，默认为开启
+
+更多内容详见[官方文档](https://dev.mysql.com/doc/refman/5.7/en/innodb-adaptive-hash.html)
+
+### 全文检索
+
+#### InnoDB 全文检索
+
+全文检索通常使用倒排索引（inverted index）来实现。
+
+在事务提交时将分词插入到 FTS Index Cache中，然后再批量更新写入到磁盘中。
+
+FTS Index Cache 是一个红黑树结果，其根据（word，ilist）进行排序。
+
+参数 innodb_ft_cache_size 用来控制 FTS Index Cache 的大小，默认值为 32M。
+
+有全文索引的表会自动加上一个列 `FTS_DOC_ID BIGINT UNSIGNED NOT NULL`及其 Unique Index。
+
+对于删除操作，其在事务提交时，不删除磁盘 Auxiliary Table 中的记录，而只是删除 FTS Cache Index 中的记录，最后也只是记录其 FTS Document ID 并将其保存在 DELETE auxiliary table 中。这样会导致索引越来越大，可以手动执行 OPTIMIZE TABLE 彻底删除。
+
+```mysql
+# 查看分词信息
+SET GLOBAL innodb_ft_aux_table='test/fts_a';
+select * from information_schema.INNODB_FT_INDEX_TABLE:
+
+# 查看被删除的文档ID
+select * from innodb_ft_deleted;
+
+# 彻底删除（限制只清理已删除的文档ID，不触发 Cardinlity 的统计等）
+set global innodb_optimize_fulltext_only=1;
+optimize table test.fts_a;
+set global innodb_optimize_fulltext_only=0;
+```
+
+stopword list 表示该列表中的 word 不需要对其进行索引分词操作。innodb 默认的 stopword list 是 information_schema.INNODB_FT_DEFAULT_STOPWORD。可以通过参数 innodb_ft_server_stopword_table 来自定义 stopword list
+
+```mysql
+create table user_stopword (value VARCHAR(30))；
+set global innodb_ft_server_stopword_table = "test/user_stopword"
+```
+
+当前Innodb的全文索引存在以下限制：
+
+- 每张表只能有一个全文检索的索引
+- 由多列组合而成的全文检索的索引列必须使用相同的字符集与排序规则。
+- 不支持没有单词界定符（delimiter）的语言，如中文、日语、韩语等.
+
+#### 全文检索
+
+语法:
+
+```
+MATCH (col1,col2,...) AGAINST (expr [search_modifier])
+
+search_modifier:
+  {
+       IN NATURAL LANGUAGE MODE
+     | IN NATURAL LANGUAGE MODE WITH QUERY EXPANSION
+     | IN BOOLEAN MODE
+     | WITH QUERY EXPANSION
+  }
+```
+
+各种查询模式：
+
+- Natural Language
+
+    默认模式
+
+    ```mysql
+    select * from fts_a where match(body) against ('Porridge' IN NATURAL LANGUAGE MODE);
+
+    # 简写
+    select * from fts_a where match(body) against ('Porridge');
+    ```
+
+    结果按相关性倒序
+
+    ```mysql
+    # 查看相关性
+    select fts_doc_id,body,MATCH(body) against ('Porridge') as relevance from fts_a;
+    ```
+
+    参数 innodb_ft_min_token_size 和 innodb_ft_max_token_size 控制查询字符的长度，如果不在这个范围内，会忽略该词的搜索。
+
+- Boolean
+
+    ```mysql
+    select * from fts_a where match(body) against ('+Pease -hot' in boolean mode);
+    ```
+
+更多内容详见[官方文档](https://dev.mysql.com/doc/refman/5.7/en/fulltext-search.html)
+
+## 锁
+
+锁是数据库系统区别于文件系统的一个关键特性。数据库系统使用锁是为了这次会对共享资源进行并发访问，提供数据的完整性和一致性。
+
+不同数据库对于锁的实现完全不同。Innodb 存储引擎锁的实现和 Oracle 数据库非常类似，提供一致性的非锁定读、行级锁支持。行级锁没有相关额外的开销，并可以同时得到并发性和一致性。
+
+### lock 与 latch
+
+在数据库中， lock和latch都可以被称为“锁”
+
+| | lock | latch |
+| :--: | :--: | :--: |
+| 对象 | 事务 | 线程 |
+| 保护 | 数据库内容 | 内存数据结构 |
+| 持续时间 | 整个事务过程 | 临界资源 |
+| 模式 | 行锁、表锁、意向锁 | 读写锁、互斥量 |
+| 死锁 | 通过 waits-for graph、time out 等机制进行死锁检测与处理 | 无死锁检测与处理机制。仅通过应用程序加锁的顺序保证无死锁的情况发生 |
+| 存在于 | Lock Manager 的哈希表中 | 每个数据结构的对象中 |
+
+查看 latch 信息： `show engine innodb mutex` 
+
+查看 lock 信息：`show engine innodb status` 及 information_schema 下的 innodb_trx、innodb_locks、 innodb_lock_waits 来观察锁的信息。
+
+### InnoDB 存储引擎中的锁
+
+[官方文档](https://dev.mysql.com/doc/refman/5.7/en/innodb-locking.html)
+
+#### 锁的类型
+
+Innodb存储引擎实现了如下两种标准的行级锁
+- 共享锁（S Lock），允许事务读一行数据
+- 排它锁（X Lock），允许事务删除或更新一行数据
+
+为了支持在不同粒度上进行加锁操作，InnoDB支持一种额外的锁方式，称为意向锁。意向锁是将锁定的对象分为多个层次，意向锁意味着事务希望在更细粒度上进行加锁。
+
+InnoDB支持意向锁设计比较简练，其意向锁即为表级别的锁。设计目的主要是为了在一个事务中掲示下一层将被请求的锁类型。其支持两种意向锁：
+- 意向共享锁（IS Lock），事务想要获得一张表中某几行的共享锁。
+- 意向排他锁（IX Lock），事务想要获得一张表中某几行的排它锁
+
+| | X	| IX |	S |	IS |
+| :-- | :-- | :-- | :-- | :-- |
+| X	| Conflict |	Conflict |	Conflict |	Conflict |
+| IX	| Conflict |	Compatible |	Conflict |	Compatible |
+| S	| Conflict |	Conflict |	Compatible |	Compatible |
+| IS	| Conflict |	Compatible |	Compatible |	Compatible |
+
+可以 `show engine innodb status` 查看当前锁请求的信息
+
+也可以通过 `show full processlist` 来判断
+
+最好还是通过  `information_schema` 下的 `innodb_trx`、`innodb_locks`、 `innodb_lock_waits` 来观察锁的信息。
+
+```mysql
+# 查看事务信息，可以获取到哪个事务处于 lock wait 状态，以及 wait 的锁是哪个
+select * from information_schema.innodb_trx\G
+
+# 获取锁信息，根据锁的 lock_data 判断锁之间的wait关系
+select * from information_schema.innodb_locks\G
+
+# 直接查看当前事务之前的wait关系
+select * from information_schema.innodb_lock_waits\G
+```
+
+#### 一致性非锁定读
+
+指 Innodb 通过行多版本控制的方法来读取当前执行时间数据库中行的数据，这种方法无需加锁。
+
+这种方法读取的是快照数据。快照数据其实就是当前行数据之前的历史版本，每行记录可能有多个版本，一般称为行多版本技术，由此带来的并发控制，称为多版本并发控制(MVCC)。
+
+MVCC 是通过 undo 段来完成的
+
+在事件隔离级别 READ COMMITTED 和 REPEATABLE READ（默认）下，Innodb都使用非锁定的一致性读。然而，对于快照数据的定义却不相同。READ COMMITTED 级别，总是读取被锁定行的最新一份快照数据；REPEATABLE READ 级别，总是读取事务开始时的行数据版本。
+
+#### 一致性锁定读
+
+```mysql
+select ... for update
+select ... lock in share mode
+```
+
+#### 自增长与锁
+
+Innodb，每个有自增长值的表都有一个自增长计数器。
+
+插入数据有三种模式，通过 innodb_autoic_lock_mode 控制：
+
+- 0。通过 `select max(auto_inc_col) from t for update` 获取计数器的值，这种实现方式称做 AUTO-INC Locking。这种锁其实是采用了一种特殊的表锁机制，并不会等事务完成才释放，插入数据后立即释放。但并发插入性能还是较差，特别是对于 insert ... select 这种批量插入
+
+- 1（默认值）。对于简单的能确定插入数量的插入语句，会用互斥量（mutex）去对内存中的计数器进行累加的操作，对于无法确定插入数量的插入语句，还是使用 AUTO-INC Locking方式。在这种方式下 statement-based 方式的 replication 还是能很好地工作。
+
+- 2。所有插入语句都使用互斥量的方式。性能最高的方式，然后自增长的值可能不是连续的。此外更重要的是基于 statement-base replication 会出现不一致问题，因此使用这个模式，应该使用 row-base replication。
+
+更多内容详见[官方文档](https://dev.mysql.com/doc/refman/5.7/en/innodb-auto-increment-handling.html)
+
+#### 外键和锁
+
+对于外键值的插入或更新，首先需要查询父表中的记录，这时使用的是 `select ... lock in share mode` 方式，即主动对父表加一个S锁。
+
+### 锁的算法。
+
+#### 行数的3中算法
+
+- Record Lock：单个行记录上的锁
+- Gap Lock：间隙锁，锁定一个范围，但不包括记录本身
+- Next-Key Lock：Gap Lock+Record Lock，锁定一个范围，并且锁定记录本身。
+
+Next-Key 的设计目的是为了解决 Phantom Problem
+
+当查询的索引含有唯一属性，Next-Key Lock会降级为 Record Lock
+
+```mysql
+create table z (a INT, b INT, PRIMARY KEY(a), KEY(b));
+insert into z select 1,1;
+insert into z select 3,1;
+insert into z select 5,3;
+insert into z select 7,6;
+insert into z select 10,8;
+
+select * from z where b = 3 for update;
+```
+
+查询会访问到辅助索引和聚集索引。聚集索引有唯一性，只需要加 Record Lock；辅助索引，需要加上 `(1,3]` 的 Next-Key Lock以及加上 `(3,6)` 的 gap lock。
+
+Gap Lock 的作用是为了阻止多个事务将记录插入到同一个范围内，导致 Phantom Problem 问题。
+
+#### 解决 Phantom Problem
+
+Phantom Problem 是指在同一个事务下，连续执行两次同样的 SQL 语句可能导致不同的结果，第二次的 SQL 语句可能会返回之前不存在的行。
+
+可以通过 Next-Key Locking 机制在应用层面首先唯一性的检查
+
+```mysql
+select * from table where col=xxx lock in share mode;
+
+if not found any row:
+    # unique for insert value
+    INSERT INTO table VALUES(...);
+```
+
+这种唯一性检查机制不会存在一致性问题，可能会导致死锁，这种情况也是只有一个事务的插入操作会成功，而其余的事务会抛出死锁的错误。
+
+### 锁问题
+
+#### 脏读
+
+所谓脏数据是指事务对缓存池中行记录的修改，并且还没有被提交。READ UNCOMMITTED 隔离级别会出现。
+
+#### 不可重复读
+
+在一个事务中两次读到的数据是不一样的情况。
+
+和脏读的区别是：脏读是读到未提交的数据，而不可重复读读到的是已经提交的数据，但是其违反了数据库事务一致性的要求。
+
+一般来说，不可重复读是可以接受的。因此很多数据库厂商的默认隔离级别设置为 READ COMMITTED，这种隔离级别允许不可重复读的现象。
+
+在 Innodb 中，通过使用 Next-KEY Lock 算法来避免不可重复读的问题。在 MySQL 官方文档中将不可重复读的问题定义为 Phantom Problem。Innodb 的默认事务隔离级别时 READ REPEATABLE，采用 Next-Key Lock 算法，避免了不可重复读的现象。
+
+#### 丢失更新现象。
+
+一个事务的更新操作会被另一个事务的更新操作所覆盖。
+
+数据库本身不会出现丢失更新问题，丢失更新更多是应用程序逻辑的问题，最常见的场景是：根据读取的值进行更新，这种场景可以通过用 `select ... for update`来读取解决这个问题。
+
+### 阻塞
+
+因为不同锁之间的兼容性关系，在有些时刻一个事务中的锁需要等待另一个事务中的锁释放它占用的字段。阻塞并不是一件坏事，其是为了确保事务可以并发且正确地运行。
+
+参数 innodb_lock wait timeout 用来控制等待的时间（默认是50秒），
+innodb_rollback_on_timeout 用来设定是否在等待超时时对进行中的事务进行回滚操作（默认是OFF）。
+
+需要注意，默认情况下超时不会自动回滚，也是抛出错误，既没有commit，也没有 rollback。而这时十分危险的状态，因此用户必须判断是否需要commit还是rollback，之后再进行下一步的操作
+
+### 死锁
+
+死锁是指两个或两个以上的事务在执行过程中，因争夺资源而造成的一种互相等待的现象。
+
+解决死锁最简单的一种方法就是超时，然后将死锁的一个事务回滚，尽量回滚做了更少事情的事务（undo log 较少，回滚更快）。
+
+除了超时机制，当前数据库还普遍采用 wait-for graph 的方式来进行死锁检测，这种方式更加的主动。Innodb就是用的这种方式。这种方式需要保存两种信息：
+
+- 锁的信息链表
+- 事务等待链表
+
+通过上述链表可以构造出一张图，若图中存在环路，就代表存在死锁。在每个事务请求锁并发生等待时都会判断是否存在回路，若存在则有所。通常innodb会选择回滚undo量最小的事务。
+
+### 锁升级
+
+锁升级是将当前锁的粒度降低。比如把一个表的1000个行锁升级为一个页锁，或者将页锁升级为表所。
+
+Innodb存储引擎不存在锁升级的问题。因为其不是根据每个记录来产生行锁的，而是根据每个事务访问的每个页对锁进行管理的，采用的是位图的方式。因此不管一个事务锁住页中的一个记录还是多个记录，其开销通常都是一致的。
+
+## 事务
+
+事务是数据库区别于文件系统的重要特性之一。
+
+事务会把数据库从一种一致性状态转换为另一种一致状态。
+
+innodb 的事务完全符合 ACID 的特性
+- 原子性（atomicity）
+- 一致性（consistency）
+- 隔离性（isolation）
+- 持久性（durability）
+
+前一章的锁就是用于实现事务的隔离性。
+
+### 事务的分类
+
+- 扁平事务
+    最简单的事务，所有操作要么都执行，要么都回滚
+- 带保存点的扁平事务
+    允许在事务执行过程中回滚到同一事务中较早的一个状态。
+- 链事务
+    带保存点的扁平事务在每个保存点并不会真正保存，如果系统崩溃就是得重新开始。链事务每个保存点会真正提交，锁也会释放，回滚也只限于前一个保存点。
+- 嵌套事务
+    层次结构。子事务可以提交也可以回滚，但其提交不是真正的提交，要等待父事务提交才会真正提交，父事务回滚会引起其所有子事务一起回滚，即使是已经提交的子事务。
+- 分布式事务
+
+innodb 支持扁平事务、带有保存点的扁平事务、链事务、分布式事务。不原生支持嵌套事务，可以通过带有保存点的事务来模拟串行的嵌套事务。
+
+### 事务的实现
+
+事务隔离性由前一章的锁来实现。原子性、一致性、持久性通过数据库的 redo log 和 undo log 来完成。redo log 称为重做日志，用来保证事务的原子性和持久性。undo log 用来保证事务的一致性。
+
+undo 并不是 redo 的逆过程。redo 和 undo 的作用都可以视为是一种恢复操作，redo 恢复提交事务修改的页操作，而 undo 回滚行记录到某个特定版本。redo通常是物理日志，记录的是页的物理修改操作。undo是逻辑日志，根据每行记录进行记录。
+
+#### redo
+
+用来实现事务的持久性，即事务 ACID 中的 D。
+
+## 备份与恢复
+
+## 性能调优
