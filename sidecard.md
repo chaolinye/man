@@ -1,7 +1,7 @@
 - [首页]()
 - [Useful Tools](/docs/useful-tool.md)
 - [技术方法论](/docs/methodology.md)
-- [程序员所要知道的数字](/docs/programmer-number.md)
+- [程序员所要知道的数字](/docs/home/programmer-number.md)
 - [配置中心对比](/docs/config-center.md)
 - [命名](/docs/home/naming.md)
 - [写好 README](/docs/home/hello-readme.md)
