@@ -1747,7 +1747,56 @@ undo 并不是 redo 的逆过程。redo 和 undo 的作用都可以视为是一�
 
 #### redo
 
-用来实现事务的持久性，即事务 ACID 中的 D。
+用来实现事务的持久性，即事务 ACID 中的 D。由两部分组成：1.重做日志缓存（redo log buffer）；2.重做日志文件（redo log file）
+
+redo log 用来保证事务的持久性，undo log 用来帮助事务回滚及MVCC的功能。redo log 都是顺序写的，数据库运行时不需要读；undo log 是需要进行随机读写的
+
+参数 innodb_flush_log_at_trx_commit 用来控制重做日志刷新到磁盘的策略。默认值为1，表示事务提交时调用 fsync；0 表示事务提交时不进行写入重做日志文件操作，仅在 master thread 中完成；2 表示事务提交时将重做日志缓冲写入重做日志文件，但仅写入文件系统的缓存中，不进行 fsync 操作。
+
+重做日志和二进制日志的差异
+
+- 重做日志是在Innodb存储引擎层产生，而二进制日志是在 MySQL 数据库的上层产生的。
+- 日志内容形式不一样。二进制日志是一种逻辑日志，其记录的是sql语句；而重做日志是物理格式日志，其记录的是对每个页的修改。
+- 写入磁盘的时间点不一样。二进制日志只在事务提交完成后进行一次写入，而重做日志在事务进行中不断被写入。
+
+重做日志都是以 512 字节存储的。这意味着重做日志缓冲、重做日志文件都是以快的方式进行保存的，称之为重做日志块（redo log block）。由于重做日志块的大小和磁盘的扇区大小一样，都是 512 字节，因此重做日志的写入可保证原子性，不需要 doublewrite 技术。
+
+![](../images/redo_log_block.png)
+
+重做日志除了日志本身以外，还有日志块头（12字节）和日志块尾（8字节）组成。故每个重做日志块实际可以存储的大小为 492 字节。
+
+log group 是重做日志组，其中有多个重做日志文件。InnoDB实际只有一个 log group。log group 由多个相同大小的重做日志文件组成。InnoDB 1.2之前重做日志文件总大小要小于4G，InnoDB 1.2 之后提高为 512G。
+
+log buffer 根据一定的规则将内存中的 log block 刷新到磁盘。具体规则：1.事务提交时；2.当 log buffer 中有一半的内存空间已经被使用时；3.log checkpoint 时
+
+log block 被追加到 redo log file 的最后，当一个 redo log file 被写满时，会接着写入下一个 redo log file，其使用方式为 round-robin
+
+每个 redo log file 的前 2KB 的部分不保存 log block 信息，而是保存一些状态信息，所以 redo log file 的写入并不是都是顺序写入。
+
+重做日志格式：
+
+![](../images/redo_log_format.png)
+
+> Innodb 1.2 版本，一共有51种重做日志类型。
+
+![](../images/redo_log_format_insert_delete.png)
+
+LSN 是 Log Sequence Number 的缩写，其代表的是日志序列号。在 InnoDB 存储引擎中， LSN 占用 8 字节，并且单调递增。LSN 表示的含义有：
+
+- 重做日志写入的总量
+- checkpoint 的位置
+- 页的版本
+
+LSN表示事务写入重做日志的字节的总量。在页中，LSN表示该页最后刷新时的LSN的大小。数据库进行恢复操作时，通过日志的LSN和页的LSN的大小来判断是否需要重做。
+ 
+可以通过 `SHOW ENGINE INNODB STATUS` 查看 LSN 的情况
+
+- Log sequence number 表示当前的 LSN，Log flushed up to 表示刷新到重做日志文件的 LSN，Last checkpoint at 表示刷新到磁盘的LSN。
+
+Innodb 在启动时都会尝试进行恢复操作。因为重做日志记录的是物理日志，因此恢复的速度比较快。由于checkpoint（redo log file header有记录）表示刷新到磁盘页上的LSN，因此仅需恢复checkpoint开始的部分。
+重做日志记录的操作是幂等的，可重复执行。
+
+#### undo
 
 ## 备份与恢复
 
