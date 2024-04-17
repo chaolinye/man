@@ -1798,6 +1798,108 @@ Innodb 在启动时都会尝试进行恢复操作。因为重做日志记录的�
 
 #### undo
 
+[文档](https://dev.mysql.com/doc/refman/5.7/en/innodb-undo-logs.html)
+
+与 redo 不同，undo 存放在数据库内部的一个特殊段（segment）中，这个段成为 undo 段。undo 段位于共享表空间中。
+
+undo是逻辑日志，因此只是将数据库逻辑地恢复到原来的样子。所有修改都被逻辑地取消了，但是数据结构和页本身在回滚之后可能不大相同。
+
+当Innodb回滚时，它实际上做的是与先前相反的工作。对于每个 insert，innodb 会完成一个 delete；对于每个 delte，innodb 会完成一个 insert；对于每个 update，innodb会执行一个相反的update。
+
+除了回滚操作，undo 的另一个作用是 mvcc，即在 innodb 中 MVCC 的实现是通过 undo 来完成的。当用户读取一行记录时，若该记录已经被其它事务占用，当前事务可以通过 undo 读取之前的行版本信息，以此实现非锁定读取。
+
+此外，undo log 会产生 redo log，这是因为 undo log 也需要持久性的保护
+
+innodb 对 unod 同样采用段的方式管理。首先 innodb 有 rollback segment，每个 rollback segment 中记录了 1024 个 undo log segment，而在每个 undo log segment 中进行 undo 页的申请。从1.1版本开始 innodb 支持最大 128 个 rollback segment，故其支持同时在线的事务限制为 128 * 1024。
+
+相关参数：
+
+- innodb_undo_directory : 设置 rollback segment 文件所在的路径，默认是 `.`,表示当前 innodb 存储引擎的目录，也就是 `datadir`
+- innodb_undo_logs : 设置 rollback segment 的个数，默认值为 128
+- innodb_undo_tablespaces : 用来构成 rollback segment 文件的数量
+
+事务提交后并不能马上删除 undo log 及 undo log 所在的页。这是因为可能还有其它事务需要通过 undo log 来得到行记录之前的版本。故事务提交时将 undo log 放入一个链表中，是否可以最终删除 undo log 及 undo log 所在页由purge线程来判断。
+
+此外，若为每个事务分配一个单独的 undo 页会非常浪费存储空间，因此在 innodb 的设计中对 undo 页可以进行重用。具体来说，当事务提交时，首先将 undo log 放入链表，然后判断 undo 页的使用空间是否小于 3/4，若是则表示该 undo 页可以被重用，之后新的 undo log 记录在当前 undo log 的后面。
+
+可以通过 `show engine innodb status` 中的 `History list length` 来查看链表中 undo log 的数量。
+
+在 innodb 中，undo log 分为
+
+- insert undo log
+- update undo log
+
+insert undo log 是指在 insert 操作中产生的 undo log，可以在事务提交后直接删除，不需要进行 purge 操作。insert undo log 只需要记录所有主键的列和值，在进行 rollback 操作时，根据这些值可以定位到具体的记录，然后进行删除即可。
+
+![](../images/undo_log.png)
+
+update undo log 记录的是对 delete 和 update 操作产生的undo log。该 undo log 可能需要提供 MVCC 机制，因此不能在事务提交时就删除。update undo log 需要记录更多的内容，必须要 update 操作导致发送改变的列和值。type_cmpl 可能的值如下：
+
+- 12 TRX_UNDO_UPD_EXIST_REC 更新 non-delete-mark的记录
+- 13 TRX_UNDO_UPD_DEL_REC 将 delete 的记录标记为 not delete
+- 14 TRX_UNDO_DEL_MARK_REC 将记录标记为 delete
+
+delete 操作并不直接删除记录，而只是将记录标记为已删除，也就是将记录的delete flag 设置为 1。而记录最终的删除是在 purge 操作中完成的。
+
+update 主键的操作其实分两步完成。首先将原主键记录标记为已删除，因此需要产生一个类型为 TRX_UNDO_DEL_MARK_REC 的 undo log，之后插入一条新的记录，因此需要产生一个类型为 TRX_UNDO_INSERT_REC 的 undo log。
+
+#### purge
+
+参数 innodb_purge_batch_size 用来设置每次 purge 操作需要清理的 undo page 数量，默认值为300.
+
+#### group commit
+
+为了提供事务提交时 fsync redo log 的效率，提供了 group commit 的功能，即一次 fsync 可以刷新确保多个事务日志被写入文件。
+
+### 事务控制语句
+
+在 mysql 命令行的默认设置下，事务都是自动提交的（auto commit）的。
+
+显示地开启一个事务需要使用命令 `BEGIN`、 `START TRANSACTION`，或者执行命令 `SET AUTOCOMMIT = 0`，禁用当前会话的自动提交。
+
+- `COMMIT`: 提交事务
+- `ROLLBACK`: 回滚
+- `SAVEPOINT identifier`: 创建一个保存点
+- `RELEASE SAVEPOINT identifier`: 删除一个保存点
+- `ROLLBACK TO [SAVEPOINT] identifier`: 回滚到某个保存点
+- `SET TRANSACTION`: 设置隔离级别
+
+Innodb 中的事务都是原子的，这种保护还延伸到单个语句，一个语句要么完全成功，要么完全回滚（语句回滚）。因此一条语句失败并抛出异常时，并不会导致先前已经执行的语句自动回滚，所有的执行都会得到保留，必须由用户自己来决定是否对其进行提交或回滚的操作。
+
+### 隐式提交的 sql 语句
+
+- DDL 语句
+- 修改 mysql 架构的操作：CREATE USER、GRANT等。
+- 管理语句：ANALYZE TABLE 等
+
+!> TRUNCATE TABLE 语句是 DDL，因此虽然和对整张表执行 DELETE 的结果是一样的，但它是不能被回滚的，同时会自动提交事务。
+
+### 对事务操作的统计
+
+计算 TPS 的方法是：（com_commit + com_rollback）/ time 。 利用这种方法进行计算的前提是：所有事件必须都是显式提交的。隐式提交不会计算到这两个变量中。
+
+或者用 (handler_commit + handler_rollback) / time
+
+### 事务的隔离级别
+
+InnoDB中选择 REPEATABLE READ 的事务隔离级别并不会有任何性能的损失。同样地，即使使用 READ COMMITTED 的隔离级别，也不会得到性能的大幅度提升。
+
+### 分布式事务
+
+[文档](https://dev.mysql.com/doc/refman/5.7/en/xa.html)
+
+### 不好的事务习惯
+
+- 在循环中提交：导致大量的 fsync，性能差
+- 使用自动提交
+- 使用自动回滚：抛出异常时自动回滚
+
+### 长事务
+
+回滚的代价高，重新开始事务的代价也高。
+
+对于长事务的问题，有时可以通过转化为小批量的事务来进行处理。
+
 ## 备份与恢复
 
 ## 性能调优
