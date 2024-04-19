@@ -1902,4 +1902,192 @@ InnoDB中选择 REPEATABLE READ 的事务隔离级别并不会有任何性能的
 
 ## 备份与恢复
 
+### 概述
+
+根据备份的方法划分
+
+- Hot Backup（热备） -- 数据库运行中直接备份
+- Cold Backup（冷备） -- 数据库停止时备份
+- Warm Backup（温备） -- 数据库运行中进行，但是会对当前数据库的操作有所影响，如加一个全局读锁以保证备份数据的一致性。
+
+根据备份后文件的内容划分
+
+- 逻辑备份 -- 一般是可读的文本文件，如 mysqldump 和 select * into outfile 方法。
+- 裸文件备份 -- 复制数据库的物理文件
+
+根据备份数据库的内容来分：
+
+- 完全备份
+- 增量备份
+- 日志备份 -- 二进制日志
+
+对于mysql，官方没有提供真正的增量备份的方法，大部分是通过二进制日志完成增量备份的工作，效率较低。对于真正的增量备份，只需要记录当前每页最后的检查点的LSN，如果大于之前全备时的 LSN，则备份该页，这也是 xtrabackup 工具增量备份的原理。
+
+对于 innodb，因为支持 MVCC 功能，因此实现一致的备份比较简单。对于 mysqldump 可以添加 --single-transaction 选项获得innodb的一致性备份（一般都要加上）。
+
+### 冷备
+
+对于 innodb 的冷备，只需要备份 mysql 数据库的 frm 文件，共享表空间文件，独立表空间文件（*.ibd），重做日志文件。另外建议定期备份mysql数据库的配置文件 my.cnf。
+
+### 逻辑备份
+
+#### mysqldump
+
+[文档](https://dev.mysql.com/doc/refman/5.7/en/mysqldump.html)
+
+通常用来完成 dump 数据库的备份及不同数据库之间的移植。
+
+语法： `mysqldump [argrments] >file_name`
+
+```bash
+# 备份所有数据库
+mysqldump -all-databases >dump.sql
+# 备份指定的多个数据库
+mysqldump --databases db1 db2 db3 >dump.sql
+# 备份某个数据库
+mysqldump --single-transaction test >test_backup.sql
+# 备份某个数据库，加上 create database
+mysqldump --single-transaction --add-drop-database test >test_backup.sql
+# 建立一个 replication，包含 CHANGE MASTER 语句
+mysqldump --single-transaction --master-date=1 test >test_backup.sql
+```
+
+#### select ... into outfile
+
+[文档](https://dev.mysql.com/doc/refman/5.7/en/select-into.html)
+
+```mysql
+select * into outfile '/home/mysql/a.txt' from a;
+```
+
+#### 逻辑备份的恢复
+
+mysqldump备份文件就是导出的sql语句，一般只需要执行这个文件就可以了
+
+```bash
+mysql -uroot -p <test_backup.sql
+# 或者
+mysql> source /home/mysql/test_backup.sql
+```
+
+通过 mysqldump-tab 或者通过 select into outfile 导出的数据可以通过命令 load data infile 来导入
+
+[文档](https://dev.mysql.com/doc/refman/5.7/en/load-data.html)
+
+```mysql
+load data infile '/home/mysql/a.txt' into table a;
+```
+
+mysqlimport 是 load data infile 的命令接口，可以用来导入多张表，并且支持并发导入。
+
+```bash
+mysqlimport --use-threads=2 test /home/mysql/t.txt /home/mysql/s.txt
+```
+
+### 二进制日志备份与恢复
+
+推荐的二进制日志的服务器配置：
+
+```
+[mysqld]
+log-bin = mysql-bin
+sync-binlog = 1
+innodb_support_xa = 1
+```
+
+在备份二进制日志文件前，可以通过 flush logs 命令来生成一个新的二进制日志文件，然后备份之前的二进制日志。
+
+可以通过 mysqlbinlog 恢复二进制日志
+
+```bash
+mysqlbinlog binlog.[0-10]* | mysql -u root -p test
+```
+
+### 热备
+
+xtrabackup 是 percona 公司开发的开源热备工具。
+
+增量备份：
+
+1. 完成一个全备，并记录此时检查点的 LSN
+2. 在进行增量备份时，比较表空间中每个页的LSN是否大于上次备份时的LSN
+
+```bash
+# full backup
+./xtrabackup --backup --target-dir=/backup/base
+# incremental backup
+./xtrabackup --backup --target-dir=/backup/delta --incremental-basedir=/backup/base
+
+# prepare
+./xtracbackup --prepare --target-dir=/backup/bash
+# apply incremental backup
+./xtrabackup --prepare --target-dir=/backup/bash --incremental-dir=/backup/delta
+```
+
+### 快照备份
+
+mysql 本身不支持快照功能，因此快照备份时是通过文件系统支持的快照功能对数据库进行备份。
+
+一般使用写时复制（copy-on-write）技术来创建快照。
+
+在对 innodb 存储引擎文件做快照时，数据库无需关闭。虽然此时数据库中可能还有任务需要往磁盘上写数据，但这不会妨碍备份的正确性。因为 innodb 是事务安全的引擎，在下次恢复时，数据库会自动检查表空间中页的状态，并决定是否应用重做日志，恢复就好像数据库被意外重启了。
+
+### 复制
+
+详见 [其它章节](./replication.md)
+
 ## 性能调优
+
+### 选择合适的 CPU
+
+OLAP是CPU密集型的操作，OLTP是IO密集型的操作。
+
+多核CPU中，可以通过修改参数 innodb_read_io_threads 和 innodb_write_io_threads 来增大 IO 的线程。
+
+### 内存的重要性
+
+内存的大小是最能直接反映数据库的性能。内存的大小直接影响了数据库的性能。内存足够大，那么所有对数据文件的操作都可以在内存中进行。
+
+如果判断当前数据库的内存是否已经达到瓶颈了呢。可以通过查看当前服务器的状态，比较物理磁盘的读取和内存读取的比例来判断缓冲池的命中率，通常 innodb 存储引擎的缓冲池的命中率不应该小于 99%。
+
+```mysql
+show global status like 'innodb%read%'\G;
+```
+
+![](../images/innodb_buffer_rate.png)
+
+### 硬盘对数据库性能的影响
+
+### 合理地设置 RADID
+
+### 操作系统的选择
+
+### 不同的文件系统对数据库性能的影响
+
+### 选择合适的基准测试工具
+
+#### sysbench
+
+对于 inndob 的应用来说，可能更关心磁盘和oltp的性能，因此主要测试 fileio 和 oltp 这两个项目。
+
+```bash
+# 查看有哪些项目
+sysbench
+# 参看 fileio 磁盘测试选项
+sysbench --test=fileio help
+# 准备测试文件
+sysbench --test=fileio --file-num=16 --file-total-size=2G prepare
+# 实际测试
+sysbench --test=fileio --file-total-size=2G --file-test-mode=rndrd --max-time=180 --max-requests=10000000 --num-threads=16 --init-rng=on --file-num=16 --file-extra-flags=direct --file-fsync-freq=0 --file-block-size=16384
+# 清理测试产生的文件
+sysbench --test=fileio --file-num=16 --file-total-size=2G cleanup
+
+# oltp 测试，准备阶段
+sysbench --test=oltp --oltp-table-size=80000000 --db-driver=mysql --mysql-socket=/tmp/mysql.sock --mysql-user=root prepare
+# 测试阶段
+sysbench --test=oltp --oltp-table-size=80000000 --oltp-read-only=off --init-rng=on --num-threads=16 --max-requests=0 --oltp-dist-type=uniform --max-time=3600 --mysql-user=root --mysql-socket=/tmp/mysql.sock --db-driver=mysql run > res
+```
+
+#### mysql-tpcc
+
+## InnoDB 存储引擎源代码的编译和调试
