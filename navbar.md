@@ -22,6 +22,7 @@
 - 中间件
     - [MySQL](/docs/mysql/)
     - [Redis](/docs/redis/)
+    - [Elasticsearch](/docs/es/)
     - [MQ](/docs/mq/)
     - [Load Balance](/docs/lb/)
     - [ELK](/docs/elk/)
