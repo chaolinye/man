@@ -89,4 +89,65 @@ To increase availability, you can create one or more copies (called replicas) fo
 
 ### Downloading and starting Elasticsearch
 
-[Docker 按照 ElasticSearch](https://www.elastic.co/guide/en/elasticsearch/reference/current/docker.html#_configure_and_start_the_cluster)
+[Docker 安装 ElasticSearch](https://www.elastic.co/guide/en/elasticsearch/reference/current/docker.html#_configure_and_start_the_cluster)
+
+## Diving into the functionality
+
+逻辑布局和物理布局
+
+![](../images/es-layout.png)
+
+### 逻辑布局：Index and Document
+
+Document 是自包含和层次结构的
+Document 是 schema-free 的，可以没有预定义的schema，但和其它文档数据库不同的是，es 的 document 是有schema的，只是这个schema会自动生成，但是自动生成的 schema 可能不是想要的，所以也支持预定义 schema。
+
+Elasticsearch index vs. Lucene index ：An Elasticsearch index is broken down into chunks: shards. A shard is a Lucene index.
+
+Index 的关键配置：refresh_interval(indexd 数据多久可被search)、shard 的数量
+
+### 物理布局：nodes and shards
+
+By default, each index is made up of five primary shards, each with one replica, for a 
+total of ten shards.
+
+a shard is a directory of files where Lucene stores the data for your index. A shard is also the 
+smallest unit that Elasticsearch moves from node to node. 
+
+A node is an instance of Elasticsearch. Multiple nodes can join the same cluster. With a cluster of multiple nodes, the same data 
+can be spread across multiple servers. 
+
+WHAT HAPPENS WHEN YOU INDEX A DOCUMENT?
+
+![](../images/es-index-document.png)
+
+You can change the number of replicas per shard at any time because replicas can always be created or removed. But you have to decide on the number of shards before creating the index. 
+
+search 在 shards 和 replicas 中请求的过程：
+
+![](../images/es-request-forward.png)
+
+### 索引新数据
+
+[ES Index API](https://www.elastic.co/guide/en/elasticsearch/reference/8.1/docs-index_.html)
+
+- `PUT /<index_name>/_doc/<_id>` : 指定 _id 创建 document，如果已存在，则部分更新
+
+- `POST /<index_name>/_doc/`： 创建 document
+
+> PUT 是幂等的，POST 是非幂等的
+
+使用 curl 创建 document
+
+```bash
+curl -XPUT 'localhost:9200/get-together/_doc/1?pretty' -d '{ 
+"name": "Elasticsearch Denver", 
+"organizer": "Lee" 
+}'
+```
+
+
+
+
+
+
