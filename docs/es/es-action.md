@@ -679,13 +679,166 @@ the term being searched for **isn’t analyzed**, it must match a term in the do
 
 Returns documents that contain one or more exact terms in a provided field. The terms query is the same as the term query, except you can search for multiple values.
 
-可以通过 `minimum_should_match parameter` 参数指定至少要匹配的个数
-
 #### Combining queries
 
 [官方文档](https://www.elastic.co/guide/en/elasticsearch/reference/8.1/compound-queries.html)
 
 ##### Bool query
 
+A query that matches documents matching boolean combinations of other queries. The bool query maps to Lucene BooleanQuery. 
 
+![](../images/es-bool-query.png)
 
+- `must` 类似于 `query1 AND query2 AND query3`
+- `must_not` 类似于 `NOT query1 AND NOT query2 AND NOT query3`
+- `should` 类似于 `query1 OR query2 OR query3`
+
+可以通过 `minimum_should_match` 参数指定 should 至少要匹配的个数
+
+```
+POST _search
+{
+  "query": {
+    "bool" : {
+      "must" : {
+        "term" : { "user.id" : "kimchy" }
+      },
+      "filter": {
+        "term" : { "tags" : "production" }
+      },
+      "must_not" : {
+        "range" : {
+          "age" : { "gte" : 10, "lte" : 20 }
+        }
+      },
+      "should" : [
+        { "term" : { "tags" : "env1" } },
+        { "term" : { "tags" : "deployed" } }
+      ],
+      "minimum_should_match" : 1,
+      "boost" : 1.0
+    }
+  }
+}
+```
+
+bool filter
+
+```
+POST _search
+{
+  "query": {
+    "filter": {
+      "bool" : {
+        "must" : {
+          "term" : { "user.id" : "kimchy" }
+        },
+        "must_not" : {
+          "range" : {
+            "age" : { "gte" : 10, "lte" : 20 }
+          }
+        },
+        "should" : [
+          { "term" : { "tags" : "env1" } },
+          { "term" : { "tags" : "deployed" } }
+        ],
+        "minimum_should_match" : 1,
+        "boost" : 1.0
+      }
+    }
+  }
+}
+```
+
+#### Match and multi_match queries
+
+##### Match query
+
+[官方文档](https://www.elastic.co/guide/en/elasticsearch/reference/8.1/query-dsl-match-query.html)
+
+Returns documents that match a provided text, number, date or boolean value. The provided text is `analyzed before matching`.
+
+The match query is **the standard query for performing a full-text search**, including options for fuzzy matching.
+
+The `match` and `multi_match` queries behave similarly to the `term` query, except that they analyze the field being passed in. 
+
+Similar to the term query, the match query is a hash map, containing the field you’d like to search as well as the string you want to search for, which can be either a field, or the special _all field to search all fields at once. 
+
+```
+GET /_search
+{
+  "query": {
+    "match": {
+      "message": {
+        "query": "this is a test"
+      }
+    }
+  }
+}
+```
+
+By default, the match query uses Boolean behavior and the `or` operator. 
+
+```
+GET /_search
+{
+  "query": {
+    "match": {
+      "message": {
+        "query": "this is a test",
+        "operator": "and"
+      }
+    }
+  }
+}
+```
+
+##### match_phrase query
+
+短语查询在文档中搜索特定短语时很有用，其中一些每个单词的位置之间的回旋余地大小。这个回旋余地称为 `slop` ，它是一个数字表示短语中标记之间的距离。
+假设你试图记住聚会小组的名称;你还记得它有“企业”和“伦敦”的字样在其中，但你不记得名字的其余部分。好吧，您可以搜索短语“enterprise london”，将 slop 设置为 2 或 3，而不是默认值 0，以查找包含这句话，而不必确切知道小组的标题：
+
+```
+{
+  "query": {
+    "match_phrase": {
+      "message": "enterprise london",
+      "slop": 1
+    }
+  },
+  "fields": ["name", "description"]
+}
+```
+
+##### match_phrase_prefix query
+
+Returns documents that contain the words of a provided text, in the same order as provided. The last term of the provided text is treated as a prefix, matching any words that begin with that term.
+
+```
+GET /_search
+{
+  "query": {
+    "match_phrase_prefix": {
+      "message": {
+        "query": "quick brown f"
+      }
+    }
+  }
+}
+```
+
+##### multi_match query 
+
+The `multi_match` query builds on the `match` query to allow multi-field queries:
+
+```
+GET /_search
+{
+  "query": {
+    "multi_match" : {
+      "query":    "this is a test", 
+      "fields": [ "subject", "message" ] 
+    }
+  }
+}
+```
