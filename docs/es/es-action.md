@@ -842,3 +842,137 @@ GET /_search
   }
 }
 ```
+
+### Beyond match and filter queries
+
+#### Range query and filter
+
+[官方文档](https://www.elastic.co/guide/en/elasticsearch/reference/8.1/query-dsl-range-query.html#range-query-notes)
+
+Returns documents that contain terms within a provided range. can be used for numbers, dates, and even strings.
+
+```
+GET /_search
+{
+  "query": {
+    "range": {
+      "age": {
+        "gte": 10,
+        "lte": 20,
+        "boost": 2.0  // 在多个查询条件中调整权重
+      }
+    }
+  }
+}
+
+GET /_search
+{
+  "query": {
+    "range": {
+      "timestamp": {
+        "gte": "now-1d/d",
+        "lt": "now/d"
+      }
+    }
+  }
+}
+```
+
+the range query doesn’t need to be a query. In fact, for better performance, it should be a filte
+
+#### Prefix query and filter
+
+[官方文档](https://www.elastic.co/guide/en/elasticsearch/reference/8.1/query-dsl-prefix-query.html)
+
+Returns documents that contain a specific prefix in a provided field.
+
+Similar to the term query, the prefix query and filter allow you to search for a term containing the given prefix, where the prefix isn’t analyzed while searching.
+
+```
+GET /_search
+{
+  "query": {
+    "prefix": {
+      "user.id": {
+        "value": "ki"
+      }
+    }
+  }
+}
+
+# 简短语法
+GET /_search
+{
+  "query": {
+    "prefix" : { "user" : "ki" }
+  }
+}
+```
+
+the prefix query is a good choice for `autocompletion of a partial term` that a user enters if the term is part of the index. 
+
+#### Wildcard query
+
+[官方文档](https://www.elastic.co/guide/en/elasticsearch/reference/8.1/query-dsl-wildcard-query.html)
+
+Returns documents that contain terms matching a wildcard pattern. 
+
+any number of characters (including none of them) for the `*` wildcard, or a single character for the `?` wildcard
+
+when a string is analyzed, spaces are stripped out by default, so ? can’t match a space if spaces aren’t indexed
+
+```
+GET /_search
+{
+  "query": {
+    "wildcard": {
+      "user.id": {
+        "value": "ki*y",
+        "boost": 1.0,
+        "rewrite": "constant_score" // 决定转换成怎样的 Lucene 查询
+      }
+    }
+  }
+}
+```
+
+Because of this overhead and performance considerations, be careful to test the wildcard query on a copy of your data before putting these queries into production
+
+#### Querying for field existence with filters
+
+```
+# 存在某个字段
+GET /_search
+{
+  "query": {
+    "exists": {
+      "field": "user"
+    }
+  }
+}
+
+# 不存在某个字段
+GET /_search
+{
+  "query": {
+    "bool": {
+      "must_not": {
+        "exists": {
+          "field": "user.id"
+        }
+      }
+    }
+  }
+}
+```
+
+### Choosing the best query for the job
+
+![](../images/es-query-choose1.png)
+
+![](../images/es-query-choose2.png)
+
+## Analyzing your date
+
+
+
