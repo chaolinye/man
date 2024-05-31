@@ -974,5 +974,193 @@ GET /_search
 
 ## Analyzing your date
 
+[官方文档](https://www.elastic.co/guide/en/elasticsearch/reference/8.1/analysis-overview.htmln)
 
+### What is analysis?
 
+Analysis is the process Elasticsearch performs on the body of a document before the document is sent off to be indexed. 
+
+contains:
+
+- Character filtering: Transform the characters using a character filter.
+- Breaking text into tokens: Break apart the text into a set of one or more tokens
+- Token filtering: Transform each token using a token filter
+- Token indexing: Store those tokens into the index
+
+![](../images/es-analysis-process.png)
+
+### Using analyzers for your documents
+
+[官方文档](https://www.elastic.co/guide/en/elasticsearch/reference/8.1/configuring-analyzers.html)
+
+There are two ways to specify analyzers that can be used by your fields:
+- when the index is created, as settings for that particular index; or
+- as global analyzers in the configuration file for Elasticsearch.
+
+```
+# 指定 index 的默认 analyzer
+PUT my-index-000001
+{
+  "settings": {
+    "analysis": {
+      "analyzer": {
+        "default": {
+          "type": "simple"
+        }
+      }
+    }
+  }
+}
+
+# 指定某个字段的 analyzer
+PUT my-index-000001
+{
+  "mappings": {
+    "properties": {
+      "title": {
+        "type": "text",
+        "analyzer": "whitespace"
+      }
+    }
+  }
+}
+```
+
+### Analyzing text with the analyze API
+
+Using the analysis API to test the analysis process can be extremely helpful when tracking down how information is being stored in your Elasticsearch indices.
+
+```
+# 测试 analyzer
+POST _analyze
+{
+  "analyzer": "whitespace",
+  "text":     "The quick brown fox."
+}
+
+# 测试各部件
+POST _analyze
+{
+  "tokenizer": "standard",
+  "filter":  [ "lowercase", "asciifolding" ],
+  "text":      "Is this déja vu?"
+}
+```
+
+## Exploring your data with Aggregations
+
+[官方文档](https://www.elastic.co/guide/en/elasticsearch/reference/8.1/search-aggregations.html)
+
+An aggregation summarizes your data as metrics, statistics, or other analytics. 
+
+Elasticsearch organizes aggregations into three categories:
+
+- Metric aggregations that calculate metrics, such as a sum or average, from field values.
+- Bucket aggregations that group documents into buckets, also called bins, based on field values, ranges, or other criteria.
+- Pipeline aggregations that take input from other aggregations instead of documents or fields.
+
+```
+GET /my-index-000001/_search
+{
+  "aggs": {
+    "my-agg-name": {
+      "terms": {
+        "field": "my-field"
+      }
+    }
+  }
+}
+
+# 结合 query 控制 aggs 的范围
+GET /my-index-000001/_search
+{
+  "query": {
+    "range": {
+      "@timestamp": {
+        "gte": "now-1d/d",
+        "lt": "now/d"
+      }
+    }
+  },
+  "aggs": {
+    "my-agg-name": {
+      "terms": {
+        "field": "my-field"
+      }
+    }
+  }
+}
+
+# 通过 size 控制只返回 aggs 结果
+GET /my-index-000001/_search
+{
+  "size": 0,
+  "aggs": {
+    "my-agg-name": {
+      "terms": {
+        "field": "my-field"
+      }
+    }
+  }
+}
+
+# 多个 aggs
+GET /my-index-000001/_search
+{
+  "aggs": {
+    "my-first-agg-name": {
+      "terms": {
+        "field": "my-field"
+      }
+    },
+    "my-second-agg-name": {
+      "avg": {
+        "field": "my-other-field"
+      }
+    }
+  }
+}
+
+# sub aggs
+GET /my-index-000001/_search
+{
+  "aggs": {
+    "my-agg-name": {
+      "terms": {
+        "field": "my-field"
+      },
+      "aggs": {
+        "my-sub-agg-name": {
+          "avg": {
+            "field": "my-other-field"
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+### Metrix aggregation
+
+[官方文档](https://www.elastic.co/guide/en/elasticsearch/reference/8.1/search-aggregations-metrics.html)
+
+![](../images/es-metrics-aggs-use-cases.png)
+
+### Bucket aggregation
+
+[官方文档](https://www.elastic.co/guide/en/elasticsearch/reference/8.1/search-aggregations-metrics.html)
+
+![](../images/es-bucket-agg-use-cases.png)
+
+### Pipeline aggregation
+
+[官方文档](https://www.elastic.co/guide/en/elasticsearch/reference/8.1/search-aggregations-pipeline.html)
+
+sub aggregation
+
+## Scripting
+
+[官方文档](https://www.elastic.co/guide/en/elasticsearch/reference/8.1/modules-scripting-using.html)
+
+Elasticsearch 很多地方支持使用脚本，比如更新，聚合等
