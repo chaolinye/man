@@ -296,6 +296,22 @@ java -jar ${MAVEN_HOME}/lib/maven-artifact-3.3.9.jar [versions...]
 mvn install:install-file -Dpackaging=pom -Dfile=pom.xml -DpomFile=pom.xml
 ```
 
+### install 三方jar 到本地仓库
+
+[官方文档](https://maven.apache.org/guides/mini/guide-3rd-party-jars-local.html)
+
+比如把GaussDB100的驱动包 `gsjdbc100-V100R003C20SPC113.jar` 安装到本地仓库
+
+```bash
+mvn install:install-file -Dfile=./gsjdbc100-V100R003C20SPC113.jar -DgroupId=com.huawei.gauss -DartifactId=driver -Dversion=1.5.0 -Dpackaging=jar
+```
+
+会生成这样三个文件
+
+![](../images/maven-install-local.png)
+
+!> 如果引用这个本地仓库包解析失败，可能是生成的 `driver-1.5.0.pom` 文件自动生成了对其它包的依赖，需要删掉；或者需要把 `_remote.properties` 删除
+
 ## References
 
 - [Maven 构建生命周期](https://maven.apache.org/guides/introduction/introduction-to-the-lifecycle.html)
