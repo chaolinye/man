@@ -312,6 +312,7 @@ mvn install:install-file -Dfile=./gsjdbc100-V100R003C20SPC113.jar -DgroupId=com.
 
 !> 如果引用这个本地仓库包解析失败，可能是生成的 `driver-1.5.0.pom` 文件自动生成了对其它包的依赖，需要删掉；或者需要把 `_remote.properties` 删除
 
+
 ## References
 
 - [Maven 构建生命周期](https://maven.apache.org/guides/introduction/introduction-to-the-lifecycle.html)
