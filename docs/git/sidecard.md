@@ -9,3 +9,4 @@
 - [Git 分支管理策略](./git-branch-stratege)
 - [Git Patch 和邮件](./git-patch)
 - [本地检视](./local-review)
+- [git-review 提交模式](./git-review)
