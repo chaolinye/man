@@ -6,3 +6,4 @@
 - [原子化CSS](https://antfu.me/posts/reimagine-atomic-css-zh)
 - [浏览器的67个调试技巧](https://alan.norbauer.com/articles/browser-debugging-tricks)
 - [Web 文件系统-OPFS](https://hughfenghen.github.io/posts/2024/03/14/web-storage-and-opfs/)
+- [200行 JavaScript 代码实现虚拟 DOM](https://lazamar.github.io/virtual-dom/)
