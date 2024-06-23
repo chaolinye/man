@@ -8,3 +8,4 @@
     - [OAuth2.0](./oauth)
     - [LDAP](./ldap)
 - [@ExceptionHandler 源码导读](./exception-handler)
+- [bean 的解析](./bean-parse)
