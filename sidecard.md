@@ -7,3 +7,4 @@
 - [写好 README](/docs/home/hello-readme.md)
 - [读书方法](/docs/home/how-read.md)
 - [研发工作优秀实践](/docs/home/work-practice)
+- [职场建议](https://noahkagan.com/brutally-honest-career-advice-to-my-younger-self/)
