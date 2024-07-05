@@ -34,7 +34,29 @@
 
 ## 专业的商业图表制作
 
+![](../images/excel-chapter-8.1-mind.png)
+
+![](../images/excel-base-figure.svg)
+
+![](../images/excel-super-figure.svg)
+
+![](../images/excel-chapter-8.2-mind.png)
+
+![](../images/excel-chapter-8.3-mind.png)
+
+![](../images/excel-chapter-8.4-mind.png)
+
 ## Excel高手的效率秘籍
+
+### 函数速查表
+
+![](../images/excel-chapter-9.1-mind.png)
+![](../images/excel-chapter-9.2-mind.png)
+![](../images/excel-chapter-9.3-mind.png)
+![](../images/excel-chapter-9.4-mind.png)
+![](../images/excel-chapter-9.5-mind.png)
+![](../images/excel-chapter-9.6-mind.png)
+![](../images/excel-chapter-9.7-mind.png)
 
 ## References
 
