@@ -5,3 +5,4 @@
 - [Word 技巧](./word.md)
 - [电脑选配](./select-computer.md)
 - [Excel基础](./excel.md)
+- [工作型PPT](./ppt.md)
