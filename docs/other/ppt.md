@@ -8,6 +8,8 @@
 
 ![](../images/ppt-template.svg)
 
+![](../images/ppt-template-format.svg)
+
 ## 美化之快
 
 ## 文字之快
