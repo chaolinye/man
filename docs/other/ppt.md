@@ -12,6 +12,8 @@
 
 ## 美化之快
 
+![](../images/ppt-typesetting.svg)
+
 ## 文字之快
 
 ## 素材之快

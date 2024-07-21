@@ -9,7 +9,7 @@
 
     ![](../images/spring-boot-binding-env.png)
 
-3. 在 application.yml 中引用环境变量。直接使用 `${ENV_NAME}` 来引用
+3. 在 application.yml 中引用环境变量。直接使用 `${ENV_NAME}` 来引用 
 
 ## 关于复杂类型的多配置源合并
 
