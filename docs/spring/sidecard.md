@@ -9,3 +9,5 @@
     - [LDAP](./ldap)
 - [@ExceptionHandler 源码导读](./exception-handler)
 - [bean 的解析](./bean-parse)
+- [Spring Boot 外部化配置](./spring-boot-external-configuration.md)
+- [Spring Boot 动态修改日志级别](https://www.itmuch.com/spring-boot/change-logger-level/)
