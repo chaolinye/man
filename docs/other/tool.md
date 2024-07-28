@@ -19,6 +19,7 @@
 - [油猴](https://www.tampermonkey.net/index.php?browser=chrome&locale=zh): 浏览器插件，允许用户自定义并增强您最喜爱的网页的功能。（比自己写插件简单很多）
 - [Automa](https://www.automa.site/): 网站自动化操作，可以解决一些重复操作。
 - [talk](https://tlk.li/): 一个开源的 Web 应用，基于 WebRTC 技术的多人群聊软件，支持视频、音频和文字聊天。(无需注册，安全)
+- [RSS 在线阅读器](https://rss.app/myfeeds)
 
 
 ## AI 工具
