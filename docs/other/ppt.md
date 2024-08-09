@@ -16,6 +16,16 @@
 
 ## 文字之快
 
+字体风格气质
+
+![](../images/ppt-front.png)
+
+工作类PPT字体搭配
+
+![](../images/ppt-front-work.png)
+
+![](../images/ppt-font-quick.svg)
+
 ## 素材之快
 
 ## 配色之快
