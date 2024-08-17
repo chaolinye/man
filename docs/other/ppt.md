@@ -28,6 +28,12 @@
 
 ## 素材之快
 
+素材资源网站:
+
+![](../images/ppt-asset.png)
+
+![](../images/ppt-assets.svg)
+
 ## 配色之快
 
 ## 动画之快
