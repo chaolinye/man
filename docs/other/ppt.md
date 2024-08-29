@@ -40,6 +40,8 @@
 
 ## 动画之快
 
+![](../images/ppt-animation.svg)
+
 ## 图表之快
 
 ## 文案之快
