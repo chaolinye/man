@@ -52,7 +52,11 @@
 
 ## 逻辑之快
 
+![](../images/ppt-logic.svg)
+
 ## 习惯之快
+
+![](../images/ppt-habit.svg)
 
 ## References
 
