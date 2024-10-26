@@ -79,7 +79,7 @@ apt-get update
 
 # 查找并安装软件
 apt search wget
-apt-get -y wget
+apt-get install -y wget
 
 # 安装本地 deb 包
 dpkg -i some.deb
