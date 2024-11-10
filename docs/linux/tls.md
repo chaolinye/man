@@ -161,8 +161,235 @@ sm4-ofb           zlib
 > 在使用 tomcat 或 Java 客户端或 android 时，一般都是使用 KeyStore   
 > KeyStore 的特点是可以存储多个服务器密码，有密码保护，二进制
 
+其中 JKS 和 JCEKS 属于 Java 体系独有规范，PKCS12 属于公共标准
 
+openssl 能够生成 PKCS12 格式的密钥库
 
+PKCS12 格式文件，可以包含多个证书/私钥对，指定多个受信任的 server（也可以不包含证书），每个 server 有一个 aliase name。我们来看最简单的只包含一个 alias 的文件生成：
+
+```bash
+# 导出时需要指定一个密码
+openssl pkcs12 -export -in ca.crt -inkey ca.key -out ca.p12
+```
+
+另外，jdk 中包含一个 keytool 命令，可以完成整个的证书生成过程
+
+- 生成自签名证书、服务端认证、客户端信任
+
+```bash
+# 生成密钥对，默认是 JKS 格式，注意要求输入名字时要输入域名，里面包含了自签名证书
+keytool -genkey -alias server -keyalg RSA -keystore server.keystore
+
+# 查看 keystore 文件
+keytool -list -v -keystore server.keystore
+
+# 导出证书，cer 格式是微软对 crt 格式的一个复制，赋予了某些特别操作，此处的证书是 der 二进制编码
+keytool -exportcert -keystore server.keystore -alias server -file server.cer
+# 添加 -rfc 选项导出 PEM ASCII 编码证书
+keytool -exportcert -keystore server.keystore -alias server -rfc -file server.cer
+
+# 查看证书
+keytool -printcert -file server.cer
+
+# 客户端导入信任证书（SSL 客户端使用）
+keytool -importcert -keystore client_trust.keystore -file server.cer -alias client_trust_server
+```
+
+tomcat server.xml 配置 ssl
+
+```xml
+<!-- Define a SSL Coyote HTTP/1.1 Connector on port 8443 -->
+<Connector
+           protocol="org.apache.coyote.http11.Http11NioProtocol"
+           port="8443" maxThreads="200"
+           scheme="https" secure="true" SSLEnabled="true"
+           keystoreFile="${user.home}/.keystore" keystorePass="changeit"
+           clientAuth="false" sslProtocol="TLS"/>
+```
+
+java 客户端请求前配置：
+
+```java
+System.setProperty("java.protocol.handler.pkgs", "com.sun.net.ssl.internal.www.protocol");
+System.setProperty("java.protocol.handler.pkgs", "com.ibm.net.ssl.internal.www.protocol");
+
+String trustStorePath = "~/client_trust.keystore";
+
+String trustStorePassword = "123456";
+
+System.setProperty("javax.net.ssl.trustStore", trustStorePath);
+System.setProperty("javax.net.ssl.trustStorePassword", trustStorePassword);
+```
+
+tomcat 客户端请求前配置：
+
+```xml
+<Connector
+           protocol="org.apache.coyote.http11.Http11NioProtocol"
+           port="9000" maxThreads="8000"
+           truststoreFile="${catalina.home}/conf/client_trust.keystore"
+           URIEncoding="UTF-8"
+           />
+``
+
+- CA 签名证书
+
+```bash
+# 通过 keystore 生成 CSR 文件，用于给提供给权威机构生成正式证书
+keytool -certreq -keyalg RSA -alias server -file server.csr -keystore server.keystore
+# 通过 openssl 生成 crt 证书
+openssl x509 -req -CA ca.crt -CAkey ca.key -CAcreateserial -in server.csr -out server.crt
+# 导入 keystore
+keytool -importcert -keystore server.keystore -file server.crt -alias server 
+```
+
+- JDK 导入自定义根证书
+
+把 ca.crt 拷贝导 $JAVA_HOME/jre/lib/security 下，运行以下命令：
+
+```bash
+keytool -importcert -alias venustest -keystore cacerts -file venus.cer -storepass changeit
+```
+
+一般密码默认为 changeit，并选择信任该证书
+
+> `$JAVA_HOME/jre/lib/security/cacerts` 是 jdk 的信任密钥库
+
+```
+$ keytool
+密钥和证书管理工具
+
+命令:
+
+ -certreq            生成证书请求
+ -changealias        更改条目的别名
+ -delete             删除条目
+ -exportcert         导出证书
+ -genkeypair         生成密钥对
+ -genseckey          生成密钥
+ -gencert            根据证书请求生成证书
+ -importcert         导入证书或证书链
+ -importpass         导入口令
+ -importkeystore     从其他密钥库导入一个或所有条目
+ -keypasswd          更改条目的密钥口令
+ -list               列出密钥库中的条目
+ -printcert          打印证书内容
+ -printcertreq       打印证书请求的内容
+ -printcrl           打印 CRL 文件的内容
+ -storepasswd        更改密钥库的存储口令
+
+使用 "keytool -command_name -help" 获取 command_name 的用法
+```
+
+## 证书格式
+
+### 证书格式
+
+常见有两种：`crt` 和 `cer`
+
+- crt 是 Unix 和类 Unix 的证书格式
+- cer 是微软的，常见于 windows 系统
+
+> crt 和 cer 内容是一样，唯一的区别只是 windows 会对不同后缀的证书的点击操作做出不同的响应
+
+### 证书编码格式
+
+常见也有两种 `pem` 和 `der`
+- pem 是 ASCII Base64 编码
+- der 是二进制编码
+
+> cer 一般都是 der 编码
+
+```bash
+# 查看 pem 编码证书
+openssl x509 -text -in server.crt
+# 查看 der 编码证书
+openssl x509 -inform der -text -in server.crt
+
+# pem 转 der
+openssl x509 -in server.crt -outform der -out server.der
+# der 转 pem
+openssl x509 -in server.crt -inform der -outform pem -out server.pem
+```
+
+> 证书文件后缀既可以使用编码后缀也可以使用格式后缀
+
+### 证书存储格式
+
+常见的也有两种 `pem` 和 `keystore`
+
+> 存储多个证书和密钥，并加以密码保存
+
+- pem 不仅仅是中编码格式，也是种最广泛的存储格式
+- keystore 主要见于 Java 体系，其中又包含的常见格式有 JKS 和 pkcs12
+
+> 推荐使用行业标准的 pkcs12 标准库
+
+```bash
+# PEM 转 pkcs12 格式 keystore，注意定义 -name 选项，这将作为 keystore 识别实体的参数
+openssl pkcs12 -export -in server.crt -inkey server.key -passin pass:111111 -password pass:111111 -name server -out server.p12
+
+# pkcs12 格式 keystore 转 jks 格式 keystore
+keytool -importkeystore -scrkeystore server.p12 -destkeystore server.keystore \
+-srcstoretype pkcs12 -deststoretype jks -srcalias server -destalias server \
+-deststorepass 111111 -srcstorepass 111111
+
+# pkcs12 转 pem
+openssl pkcs12 -in server.p12 -out server.pem
+# pkcs12 提取 pem 格式证书
+openssl pkcs12 -in server.p12 -clcerts -nokeys -password pass:111111 -out server.crt
+# pkcs12 提取 pem 格式密钥
+openssl pkcs12 -in server.p12 -nocerts -password pass:111111 -passout pass:111111 -out server.key
+```
+
+> 除了涉及 JKS 格式的要用 jdk 自带的 keytool 工具，其它都可以使用 openssl 完成
+
+## 配置证书
+
+- [证书配置文件生成器](https://ssl-config.mozilla.org/)
+- [配置文件模板](https://github.com/SSLMate/tlsconfigguide)
+
+## 进一步的安全措施
+
+以下措施可以进一步保证通信安全
+
+### HTTP Strict Transport Security (HSTS)
+
+- 访问网站时，用户很少直接在地址栏输入https://，总是通过点击链接，或者3xx重定向，从HTTP页面进入HTTPS页面。攻击者完全可以在用户发出HTTP请求时，劫持并篡改该请求。
+
+- 另一种情况是恶意网站使用自签名证书，冒充另一个网站，这时浏览器会给出警告，但是许多用户会忽略警告继续访问。
+
+"HTTP严格传输安全"（简称 HSTS）的作用，就是**强制浏览器只能发出HTTPS请求，并阻止用户接受不安全的证书**。
+
+它在网站的响应头里面，加入一个强制性声明。比如:
+
+```
+Strict-Transport-Security: max-age=31536000; includeSubDomains
+```
+
+上面这段头信息有两个作用。
+
+```
+（1）在接下来的一年（即31536000秒）中，浏览器只要向example.com或其子域名发送HTTP请求时，必须采用HTTPS来发起连接。用户点击超链接或在地址栏输入http://www.example.com/，浏览器应当自动将http转写成https，然后直接向https://www.example.com/发送请求。
+
+（2）在接下来的一年中，如果example.com服务器发送的证书无效，用户不能忽略浏览器警告，将无法继续访问该网站
+```
+
+HSTS 很大程度上解决了 SSL 剥离攻击。只要浏览器曾经与服务器建立过一次安全连接，之后浏览器会强制使用HTTPS，即使链接被换成了HTTP。
+
+该方法的主要不足是，用户首次访问网站发出HTTP请求时，是不受HSTS保护的。
+
+如果想要全面分析网站的安全程度，可以使用 Mozilla 的 [Observatory](https://developer.mozilla.org/en-US/observatory)
+
+### Cookie
+
+另一个需要注意的地方是，确保浏览器只在使用 HTTPS 时，才发送Cookie。
+
+网站响应头里面，`Set-Cookie`字段加上`Secure`标志即可。
+
+```
+Set-Cookie: LSID=DQAAAK...Eaem_vYg; Secure
+```
 
 ## Refrences
 
