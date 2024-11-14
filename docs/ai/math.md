@@ -13,13 +13,7 @@
 
 全概率公式: P(B) = P(AB) / P(A)
 
-$
-\sum_{
-\begin{subarray}{l}
-   i\in\Lambda\\
-   0<j<n
-\end{subarray}}
-$
+$\textstyle\sum_{i=1}^n$
 
 ## 微积分
 
