@@ -74,7 +74,7 @@ bpf
 
 #### 性能指标
 
-![](../images/cpu_perf_metric.jpg “:size=50%")
+![](../images/cpu_perf_metric.jpg ":size=50%")
 
 ##### 平均负载
 
@@ -237,7 +237,7 @@ Linux 中的软中断包括网络收发、定时、调度、RCU锁等各种类�
 
 #### 性能工具
 
-![](../images/cpu_perf_tool.jpg)
+![](../images/cpu_perf_tool.jpg ":size=50%")
 
 #### 分析思路
 
@@ -265,11 +265,11 @@ Linux 中的软中断包括网络收发、定时、调度、RCU锁等各种类�
 
 #### 性能指标
 
-![](../images/io_perf_metric.jpg “:size=50%")
+![](../images/io_perf_metric.jpg ":size=50%")
 
 #### 性能工具
 
-![](../images/io_perf_tool.jpg)
+![](../images/io_perf_tool.jpg ":size=50%")
 
 #### 分析思路
 
@@ -279,11 +279,11 @@ Linux 中的软中断包括网络收发、定时、调度、RCU锁等各种类�
 
 #### 性能指标
 
-![](../images/network_perf_metric.jpg “:size=50%")
+![](../images/network_perf_metric.jpg ":size=50%")
 
 #### 性能工具
 
-![](../images/network_perf_tool.jpg)
+![](../images/network_perf_tool.jpg ":size=50%")
 
 #### 分析思路
 
