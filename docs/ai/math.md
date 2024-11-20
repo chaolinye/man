@@ -9,11 +9,11 @@
 
 ## 概率统计
 
-条件概率：P(B|A) = P(AB) / P(A)
+条件概率：`P(B|A) = P(AB) / P(A)`
 
-全概率公式: P(B) = P(AB) / P(A)
+全概率公式: `P(B) = P(AB) / P(A)`
 
-$\textstyle\sum_{i=1}^n$
+$$\displaystyle\sum_{i=1}^n$$
 
 ## 微积分
 
