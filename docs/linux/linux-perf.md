@@ -54,6 +54,8 @@ read a line
 ^C
 ```
 
+![](../images/dynamic-probe.png)
+
 ## 工具
 
 ![](../images/linux_observability_tools.png ":size=50%" )
