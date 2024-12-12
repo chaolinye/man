@@ -27,3 +27,7 @@ yum install -y python39
 cd /usr/bin && ln -s python3 python
 ```
 
+## 虚拟环境 Conda
+
+[conda 基本操作及原理](http://www.arclub.cc/?news/346.html)
+
