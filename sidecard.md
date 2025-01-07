@@ -9,3 +9,4 @@
 - [研发工作优秀实践](/docs/home/work-practice)
 - [职场建议](https://noahkagan.com/brutally-honest-career-advice-to-my-younger-self/)
 - [技术文章摘抄](https://learn.lianglianglee.com/)
+- [读书清单](/docs/home/book-list.md)
