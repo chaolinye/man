@@ -234,7 +234,32 @@ BEGIN {
 
 内建函数 system(expression) 用于执行命令, 命令由 expression 给出, system 的返回值 就是命令的退出状态.
 
+```awk
+# 文件包含程序分析
+$1 == "#include" { gsub(/"/, "", $2); system("cat " $2); next }
+                { print }
+```
 
+用 AWK 制作 Shell 命令
+
+```bash
+# field - print named fields of each input line
+#   usage:  field n n n ... file file file ...
+awk '
+BEGIN {
+        for (i = 1; ARGV[i] ~ /^[0-9]+$/; i++) { # collect numbers
+            fld[++nf] = ARGV[i]
+            ARGV[i] = "" 
+        }
+        if (i >= ARGC)   # no file names so force stdin
+            ARGV[ARGC++] = "-"
+}
+{   
+    for (i = 1; i <= nf; i++)
+            printf("%s%s", $fld[i], i < nf ? " " : "\n")
+}
+' $*
+```
 
 ## 实用一行手册
 
