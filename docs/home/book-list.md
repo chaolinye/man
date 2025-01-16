@@ -7,7 +7,7 @@
 ## 语言
 
 - [X] [The C programming language](https://book.douban.com/subject/1139336/)
-- [ ] [The AWK Programming Language](https://github.com/wuzhouhui/awk)
+- [X] [The AWK Programming Language](https://github.com/wuzhouhui/awk)
 
 ## 计算机体系结构
 
