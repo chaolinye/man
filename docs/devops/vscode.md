@@ -29,4 +29,4 @@
 ## References
 
 - [Windows Keyboard](https://code.visualstudio.com/shortcuts/keyboard-shortcuts-windows.pdf)
-- [Mac Keyboard](https://code.visualstudio.com/shortcuts/keyboard-shortcuts-windows.pdf)
+- [Mac Keyboard](https://code.visualstudio.com/shortcuts/keyboard-shortcuts-macos.pdf)
