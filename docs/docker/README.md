@@ -70,11 +70,14 @@ Docker 相对于 LXC 的价值在于
 
 ```json
 {
-  "registry-mirrors": [
-    "https://9cpn8tt6.mirror.aliyuncs.com"
-  ]
+    "registry-mirrors": [
+        "https://docker.1ms.run",
+        "https://docker.xuanyuan.me"
+    ]
 }
 ```
+
+[轩辕镜像](https://docker.xuanyuan.me/)
 
 ## 容器化思维
 
