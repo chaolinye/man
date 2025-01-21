@@ -17,3 +17,4 @@
 - [编程高手必学的内存知识](https://jiankunking.com/memory-knowledge-that-programming-masters-must-learn.html)
 - [awk 语言](./awk)
 - [Unix 编程艺术](./unix-art.md)
+- [Vim实用技巧](./practical-vim.md)
