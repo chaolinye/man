@@ -498,6 +498,27 @@ Visual mode   |  44
 
 用列块可视模式可以同时往若干行中插入文本。在编程时我们也时常受惠于此功能。
 
+```
+li.one   a{ background-image: url('/images/sprite.png'); }
+li.two   a{ background-image: url('/images/sprite.png'); }
+li.three a{ background-image: url('/images/sprite.png'); }
+```
+
+把文件 sprite.png从 images/ 目录移到了 components/ 目录
+
+步骤：
+
+- 移动到 images 的 i 上
+- `<C-v>jjeccomponents<ESC>`
+
+效果：
+
+```
+li.one   a{ background-image: url('/components/sprite.png'); }
+li.two   a{ background-image: url('/components/sprite.png'); }
+li.three a{ background-image: url('/components/sprite.png'); }
+```
+
 ## Reference
 
 - [Vim 文档](https://vimhelp.org/)
