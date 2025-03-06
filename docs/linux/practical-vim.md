@@ -1108,7 +1108,59 @@ Vim的自动补全可以在插入模式下触发。
 
 ### 掌握关键字的来龙去脉
 
+#### 缓存区列表
 
+填充自动补全单词列表最简单的方法就是使用当前缓冲区中的单词。基于当前文件关键字的补全功能就是这样实现的，它可以通过 `<C-x><C-n>`（参见 `:h compl-current` ）进行触发
+
+#### 包含文件
+
+Vim本身就理解C语言包含文件的方式，但通过设置 ‘include’ 选项（参见 :h 'include' ），也可以让它了解其他语言的对应提示符。
+
+Vim在发布时本身就支持多种编程语言，因此一般情况下不用修改该项设置
+
+#### 标签文件
+
+Exuberant Ctags这个外部程序，它可以对源码进行扫描，找出里面的关键字，如函数名、类名，以及对应语言的其他重要结构。
+
+标签文件还产出了一项有用的副产品，即一份可用于自动补全的关键字列表。可以用 `<C-x><C-]>`（参见 `:h compl-tag` ）命令将其调出来。
+
+当要补全的单词属于编程语言对象（如函数名或者类名）时，标签自动补全可以很好地过滤非语言因素。
+
+#### 合而为一
+
+普通关键字自动补全，会把来自于缓冲区列表、包含文件以及标签文件的单词列表组合在一起，并生成补全建议。
+
+用 `<C-n>` 组合键就可以触发普通关键字自动补全了，而更具针对性的补全方式则需要先按 `<C-x>`，再按另一个组合键来触发
+
+可以通过 ‘complete’ 选项来定制普通关键字补全时扫描的位置。选项如下：
+
+```
+'complete' 'cpt'	string	(default: ".,w,b,u,t,i")
+			local to buffer
+	This option specifies how keyword completion |ins-completion| works
+	when CTRL-P or CTRL-N are used.  It is also used for whole-line
+	completion |i_CTRL-X_CTRL-L|.  It indicates the type of completion
+	and the places to scan.  It is a comma separated list of flags:
+	.	scan the current buffer ('wrapscan' is ignored)
+	w	scan buffers from other windows
+	b	scan other loaded buffers that are in the buffer list
+	u	scan the unloaded buffers that are in the buffer list
+	U	scan the buffers that are not in the buffer list
+	k	scan the files given with the 'dictionary' option
+	kspell  use the currently active spell checking |spell|
+	k{dict}	scan the file {dict}.  Several "k" flags can be given,
+		patterns are valid too.  For example: >
+			:set cpt=k/usr/dict/*,k~/spanish
+<	s	scan the files given with the 'thesaurus' option
+	s{tsr}	scan the file {tsr}.  Several "s" flags can be given, patterns
+		are valid too.
+	i	scan current and included files
+	d	scan current and included files for defined name or macro
+		|i_CTRL-X_CTRL-D|
+	]	tag completion
+	t	same as "]"
+
+```
 
 ## Reference
 
