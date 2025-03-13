@@ -1090,6 +1090,77 @@ p 命令旨在将寄存器中的文本粘贴到光标之后（参见 :h p ）。
 
 Vim提供的 gp 和 gP 命令也值得关注，因为它们同样可以将文本粘贴至在当前行之前或之后。不同的是，它们会把光标的位置移到被粘贴出来的文本结尾而不是开头。当复制多行文本时，gP 命令尤为管用，
 
+## 工具
+
+## 编译代码，并通过Quickfix列表浏览错误信息
+
+Quickfix列表作为Vim的核心功能，旨在将外部工具融入我们的工作过程当中。简单地来说，Quickfix列表会维护一组由文件名、行号、列号（可选）与消息组成的注释定位信息。从传统意义上讲，这些定位信息是由某个编译器所产生的一组错误信息，但也可能是由语法检查器、静态分析器或者其他工具输出的类似的警告信息。
+
+### 不用离开Vim也能编译代码
+
+使用 `:make` 命令默认触发 make 命令执行 Makefile
+
+Vim除了会显示 make命令的输出结果外，还会解析结果中的每一行内容，并把文件名、行号以及错误信息提取出来。对于每一条出错信息，Vim都会在`quickfix`列表中为其创建一项记录。
+
+运行完:make后，Vim会跳转到quickfix列表的第一项记录。也可以通过 `:make!` 命令不自动跳转，或者通过 `<C-o>` 命令返回原来的位置
+
+### 浏览Quickfix列表
+
+![](../images/vim-quickfix-cmd.png)
+
+> 可以通过附加次数来快速跳转，例如 `:5cnext`
+
+对于每一条用于填充quickfix列表的命令，都有一条对应的命令，把结果保存到位置列表。:make、:grep以及:vimgrep会使用quickfix列表，类似地，`:lmake`、`:lgrep`以及`:lvimgrep`将使用位置列表。二者有何不同呢？区别就在于，在任一特定的时刻，只能有一个quickfix列表，而位置列表却要多少有多少。
+
+任何与位置列表交互的命令（:lnext、:lprev等），仅操作与当前活动窗口相关联的那个位置列表
+
+### 回溯以前的Quickfix列表
+
+运行 `:colder` 命令, 可以回溯quickfix列表之前的某个版本（Vim会保存最近的10个列表）。为了从旧的quickfix列表回到比较新的列表，可以运行 `:cnewer`。
+
+### 定制外部编译器
+
+‘makeprg’选项允许指定运行 :make时调用的程序（参见 :h 'makeprg' ）。
+
+‘errorformat’ 选项允许我们指导Vim如何解析由 :make产生的输出结果（参见 :h 'errorformat'）。
+
+用一条命令设置‘makeprg’与‘errorformat’:  `:compiler nodelint`
+
+:compiler命令会激活一个编译器插件
+
+查看 vim 自带的编译器插件：`:args $VIMRUNTIME/compiler/*.vim`
+
+## 通过grep、vimgrep以及其他工具对整个工程进行查找
+
+### 不必离开Vim也能调用grep
+
+`:grep`命令，它允许在不离开编辑器的情况下调用外部程序。尽管该命令会缺省调用 grep
+
+### 定制grep程序
+
+执行Vim的 :grep命令时，`grepprg` 选项负责指定调用的shell程序（参见 :h 'grepprg' ）。 `grepformat`选项则指示Vim如何解析来自 :grep命令的输出结果（参见 :h 'grepformat' ），缺省配置如下：
+
+```
+grepprg="grep -n $* /dev/null"
+grepformat="%f:%l:%m,%f:%l%m,%f  %l%m"
+```
+
+### 使用Vim内置正则表达式引擎的 Grep
+
+`:vimgrep`命令允许使用Vim内置的正则表达式引擎在多个文件中查找。格式：`:vim[grep][!] /{pattern}/[g][j] {file} …`
+
+例如：`:vim  /going/g  *.txt`
+
+除了可以使用和`*`通配符外，也可以使用`##`符号，它将被扩展成参数列表中的所有文件（:h cmdline-special ）
+
+```
+:args  *.txt
+:vim  /going/g ##
+```
+
+保持模式域为空，这会让:vimgrep使用当前的查找模式, 可以用 `<C-r>/` 把当前模式的内容填充到查找域。
+
+
 ## 自动补全
 
 ### 认识Vim的关键字自动补全
