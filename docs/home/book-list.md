@@ -17,7 +17,7 @@
 ## 操作系统
 
 - [ ] [UNIX/Linux 系统管理技术手册](https://book.douban.com/subject/10747453/)
-- [ ] [Vim实用技巧](https://book.douban.com/subject/26967597/)
+- [x] [Vim实用技巧](https://book.douban.com/subject/26967597/)
 
 ## 系统性能
 
