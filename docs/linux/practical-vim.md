@@ -9,6 +9,13 @@
 
 ## FAQ
 
+### 如何安装插件
+
+1. 找一款合适的插件管理器，例如 [vim-plug](https://github.com/junegunn/vim-plug)
+2. 通过插件管理器安装插件
+3. 常用插件
+    - [ctrlp](https://github.com/ctrlpvim/ctrlp.vim): 文件搜索
+
 ### 设置 tab 转换 空格
 
 在 Vim 中，`sw`、`ts`、`sts`、`et` 是缩进和制表符相关的核心配置选项
