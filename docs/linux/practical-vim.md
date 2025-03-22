@@ -1,5 +1,52 @@
 # Vim 实用技巧
 
+## 常用命令
+
+```bash
+# 浏览当前编辑文件所在目录
+:E
+```
+
+## FAQ
+
+### 设置 tab 转换 空格
+
+在 Vim 中，`sw`、`ts`、`sts`、`et` 是缩进和制表符相关的核心配置选项
+
+- `sw`(shiftwidth): 定义每次缩进操作（如 `>>` 或 `<<`）的 空格数。
+- `ts`(tabstop): 定义 Tab 字符 显示为多少个空格宽度（仅影响显示，不改变实际文件内容）。
+- `sts`(softtabstop): 按下 `<Tab>` 键时插入的 空格数或 Tab 字符数（受 expandtab 影响）。
+	- `:set et`：按 `<Tab>` 插入空格。
+	- `:set noet`：按 `<Tab>` 插入实际 Tab 字符。
+- `et`(expandtab): 是否将 Tab 转换为空格。
+
+```vim
+" 典型配置：用 4 个空格替代 Tab
+set tabstop=4     " Tab 显示为 4 空格
+set shiftwidth=4  " 缩进为 4 空格
+set softtabstop=4 " 按 Tab 插入 4 空格
+set expandtab     " 启用空格替代
+
+" 缩写
+set sw=4 ts=4 sts=4 et
+```
+
+### 文件名模糊搜索工程下的文件
+
+1. 安装 [ctrlp.vim](https://github.com/ctrlpvim/ctrlp.vim) 插件，使用 `<C-p>` 快捷键打开文件名模糊搜索框搜索文件
+
+2. vim 原生命令
+
+```vim
+" 添加当前目录及子目录到 path
+:set path=.,**
+
+:find 关键字<Tab>  " 按 Tab 补全文件名
+
+:vimgrep /关键字/ **/*.*
+:copen  " 打开结果列表，选择后回车跳转
+```
+
 ## vimtutor
 
 ### 第一节
