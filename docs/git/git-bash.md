@@ -28,3 +28,5 @@ Set-ExecutionPolicy Bypass -Scope Process -Force; Invoke-Expression ((New-Object
 ```bash
 eval "$(oh-my-posh init bash --config ~/AppData/Local/Programs/oh-my-posh/themes/iterm2.omp.json)"
 ```
+
+5. 运行 `bash` 命令打开新 bash 查看 prompt 样式
