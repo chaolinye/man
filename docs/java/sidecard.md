@@ -17,3 +17,4 @@
 - [POJO 映射](./map.md)
 - [Java Awesome](./java-awesome.md)
 - [Java Debug](./java-debug.md)
+- [Java 新特性](./java-new-feature.md)
