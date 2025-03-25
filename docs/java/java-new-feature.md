@@ -481,11 +481,199 @@ public static boolean isSquare(Shape shape) {
 
 ## 基于switch模式匹配和封闭类优化错误码的异常处理方式
 
+通过异常抛出和捕获的方式处理错误的方式，性能相对 C 语言的错误码方式差很多。因此新型语言 Go 和 Rust 都不提供异常处理机制，而是拥抱C语言的错误码方式。
+
+Java 异常处理性能较差的原因有：
+
+- 异常对象的构造成本: 当异常被创建（new）时，JVM 会隐式调用 Throwable.fillInStackTrace() 方法，生成当前线程的完整调用栈信息（类名、方法名、行号等）。这个过程需要遍历并记录所有栈帧（Stack Frame），深度越大的调用栈，耗时越长。
+- 异常的捕获与处理流程: Java 的异常处理基于 JVM 的 异常表（Exception Table）。当 try 块中发生异常时，JVM 需要遍历异常表来匹配 catch 块，这一过程涉及栈展开（Unwinding）和上下文切换，比普通的条件判断（如 if-else）更复杂。
+- 对 JIT 优化的干扰: try-catch 块中的代码可能被视为“冷路径”（Cold Path），导致优化优先级降低。
+
+Java 语言也能用错误码的方式，对于返回 `void` 的方法可以返回 int 错误码，对于已有返回值的方法可以泛型封装个包含错误码和返回值的数据类。
+
+```java
+public record Coded<T>(T returned, int errorCode) {
+    // blank
+};
+
+public static Coded<Digest> of(String algorithm) {
+    return switch (algorithm) {
+        case "SHA-256" -> new Coded(sha256, 0);
+        case "SHA-512" -> new Coded(sha512, 0);
+        default -> new Coded(null, -1);
+    };
+}
+
+Coded<Digest> coded = Digest.of("SHA-256");
+if (coded.errorCode() != 0) {
+    // snipped
+} else {
+    coded.returned().digest("Hello, world!".getBytes());
+}
+```
+
+错误码的缺陷：
+- 需要更多的代码
+- 丢弃了调试信息
+- 易碎的数据结构: 需要遵守两条纪律。第一条纪律是错误码的数值必须一致，0代表没有错误，如果是其他的值表示出现了错误；第二条纪律是不能同时设置返回值和错误码。违反了任何一条纪律，都会出现不可预测的错误。
+
+基于封闭类和switch模式匹配的错误码优化方案：
+
+```java
+public sealed interface Returned<T> {
+    record ReturnValue<T>(T returnValue) implements Returned {
+    }
+    
+    record ErrorCode(Integer errorCode) implements Returned {
+    }
+}    
+public static Returned<Digest> of(String algorithm) {
+    return switch (algorithm) {
+        case "SHA-256" -> new ReturnValue(new SHA256());
+        case "SHA-512" -> new ReturnValue(new SHA512());
+        case null, default -> new ErrorCode(-1);
+    };
+}
+
+Returned<Digest> rt = Digest.of("SHA-256");
+switch (rt) {
+    case ReturnValue rv -> {
+            Digest d = (Digest) rv.returnValue();
+            d.digest("Hello, world!".getBytes());
+        }
+    case ErrorCode ec ->
+            System.out.println("Failed to get instance of SHA-256");
+}
+```
+
+类似于 Rust 的错误码方式，但是缺少语法糖，调用端代码量还是比较多，同时也还是没有更多的调试信息 
+
+可以通过错误发生处new异常对象打印出来（通过日志级别控制正常不触发，需要的时候再触发，避免性能影响），同时在调用处理错误码处增加错误信息打印，两者结合来提供更多的调试信息
+
+```java
+public static Returned<Digest> of(String algorithm) {
+    return switch (algorithm) {
+        case "SHA-256" -> new Returned.ReturnValue(new SHA256());
+        case "SHA-512" -> new Returned.ReturnValue(new SHA512());
+        case null -> {
+            System.getLogger("co.ivi.jus.stack.union")
+                    .log(System.Logger.Level.WARNING,
+                        "No algorithm is specified",
+                        new Throwable("the calling stack"));
+            yield new Returned.ErrorCode(-1);
+        }
+        default -> {
+            System.getLogger("co.ivi.jus.stack.union")
+                    .log(System.Logger.Level.INFO,
+                    "Unknown algorithm is specified " + algorithm,
+                            new Throwable("the calling stack"));
+            yield new Returned.ErrorCode(-1);
+        }
+    };
+}
+
+Returned<Digest> rt = Digest.of("SHA-128");
+switch (rt) {
+    case Returned.ReturnValue rv -> {
+            Digest d = (Digest) rv.returnValue();
+            d.digest("Hello, world!".getBytes());
+        }
+    case Returned.ErrorCode ec ->
+        System.getLogger("co.ivi.jus.stack.union")
+                .log(System.Logger.Level.INFO,
+                        "Failed to get instance of SHA-128");
+}
+```
 
 
 ## Flow 反应式编程
 
+常见的同步编程模式，在遇到阻塞调用的时候，会验证影响可以支持的并发度。
+
+```java
+try {
+    Digest messageDigest = Digest.of("SHA-256");
+    byte[] digestValue =
+            messageDigest.digest("Hello, world!".getBytes());
+} catch (NoSuchAlgorithmException ex) {
+    System.out.println("Unsupported algorithm: SHA-256");
+}
+```
+
+回调函数是最基础的异步编程范式，但是很容易出现回调地狱的问题。
+
+```java
+Digest.of("SHA-256",
+    md -> {
+        System.out.println("SHA-256 is not supported");
+        md.digest("Hello, world!".getBytes(),
+            values -> {
+                System.out.println("SHA-256 is available");
+            },
+            errorCode -> {
+                System.out.println("SHA-256 is not available");
+            });
+    },
+    errorCode -> {
+        System.out.println("Unsupported algorithm: SHA-256");
+    });
+```
+
+Flow 反应式编程本质上也是一种异步编程方式。
+
+反应式编程的核心是数据流和变化传递。数据有两种基本的形式： 数据的输入和数据的输出。从这两种基本的形式，能够衍生出三种过程：最初的来源，数据的传递和最终的结局。
+
+反应式编程详见[Reactor](./reactor.md)
+
+反应式编程使用串联的形式，可以避免类似于回调函数一样的堆挤现象
+
+可是，反应式编程模型的缺陷也很要命。其中最要命的缺陷，就是错误很难排查，这是异步编程的通病。
+
+异步编程的最佳范式应该是协程（Fiber）。协程采用和同步编程一样的形式，遇到调用阻塞，自动把资源切换出去，执行其它操作。
+
 ## 空指针处理优化
+
+JDK8 中发布的 `Optional` 工具类是JDK试图降低空指针风险的一个尝试
+
+设计Optional的目的，是希望开发者能够先调用它的Optional.isPresent方法，然后再调用Optional.get方法获得目标对象。
+
+遗憾的是，我们也可以不按照预期的方式使用它。Optional带来了不必要的复杂性，然而它并没有简化开发者的工作，也没有解决掉空指针的问题。
+
+借用封闭类和swtich模式匹配可以实现类似于Rust的空指针处理，强制调用方考虑空指针场景。例子如下：
+
+```java
+public sealed interface Returned<T> {
+    Returned.Undefined UNDEFINED = new Undefined();
+
+    record ReturnValue<T>(T returnValue) implements Returned {
+    }
+
+    record Undefined() implements Returned {
+    }
+}
+
+public final class FullName {
+    // snipped
+    public Returned<String> middleName() {
+        if (middleName == null) {
+            return Returned.UNDEFINED;
+        }
+
+        return new Returned.ReturnValue<>(middleName);
+    }
+    // snipped
+}
+
+private static boolean hasMiddleName(FullName fullName, String middleName) {
+    return switch (fullName.middleName()) {
+        case Returned.Undefined undefined -> false;
+        case Returned.ReturnValue rv -> {
+            String returnedMiddleName = (String)rv.returnValue();
+            yield returnedMiddleName.equals(middleName);
+        }
+    };
+}
+```
 
 ## 模型系统
 
