@@ -675,7 +675,39 @@ private static boolean hasMiddleName(FullName fullName, String middleName) {
 }
 ```
 
-## 模型系统
+## 模块系统
+
+Java平台模块系统（Java Platform Module System，JPMS）在JDK 9正式发布的
+
+Java 通过访问修饰符来进行访问控制，一共定义了四种类型的访问控制
+
+![](../images/java-permit-area.png)
+
+Java语言访问修饰符遗漏了很重要的一种情况，那就是Java包之间的关系。Java包之间的关系，并不是要么全开放，要么全封闭这么简单。
+
+同时包与包之间的依赖关系也是缺失的，只能全量遍历查找。
+
+Java模块的定义，使用的是`module-info.java`这个文件。这个文件要放在源代码的根目录下。
+
+```java
+module jus.crypto {
+    // 说明了这个模块允许外部访问的API，也就是这个模块的公开接口，非公共接口即使使用 public 修饰符也不能被外部访问。
+    exports co.ivi.jus.crypto;
+    // 说明这个模块直接使用了DigestManager定义的服务接口。
+    uses co.ivi.jus.crypto.DigestManager;
+}
+```
+
+```java
+module jus.crypto.impl {
+    // 定义依赖的模块
+    requires jus.crypto;
+    // 定义这个模块针对于 DigestManager 的实现类
+    provides co.ivi.jus.crypto.DigestManager with co.ivi.jus.impl.DigestManagerImpl;
+}
+```
+
+Java 模块定义细节可以查看 [备忘录](https://www.jrebel.com/system/files/java-9-modules-cheat-sheet.pdf)
 
 ## References
 
