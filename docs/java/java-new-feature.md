@@ -707,6 +707,33 @@ module jus.crypto.impl {
 }
 ```
 
+模块的编译和运行：
+
+```bash
+$ cd jus.crypto
+$ javac --enable-preview --release 17 \
+      -d classes src/main/java/co/ivi/jus/crypto/* \
+      src/main/java/module-info.java
+$ jar --create --file ../jars/jus.crypto.jar -C classes .
+
+$ cd ../jus.crypto.impl
+$ javac --enable-preview --release 17 \
+      --module-path ../jars -d classes \
+      src/main/java/co/ivi/jus/impl/* \
+      src/main/java/module-info.java
+$ jar --create --file ../jars/jus.crypto.impl.jar -C classes .
+
+$ cd ../jus.crypto.use
+$ javac --enable-preview --release 17 \
+      --module-path ../jars -d classes \
+      src/main/java/co/ivi/jus/use/* \
+      src/main/java/module-info.java 
+$ jar --create --file ../jars/jus.crypto.use.jar \
+      --main-class co.ivi.jus.use.UseCase \
+      -C classes .
+$ java --enable-preview --module-path ../jars --module jus.crypto.use
+```
+
 Java 模块定义细节可以查看 [备忘录](https://www.jrebel.com/system/files/java-9-modules-cheat-sheet.pdf)
 
 ## References
