@@ -42,6 +42,8 @@
 
 ## 指令式绘图系统：如何用 Canvas 绘制层次关系图
 
+[Canvas MDN 文档](https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API)
+
 Canvas 元素上的 width 和 height 属性不等同于 Canvas 元素的 CSS 样式的属性。这是因为，CSS 属性中的宽高影响 Canvas 在页面上呈现的大小，而 HTML 属性中的宽高则决定了 Canvas 的坐标系。如果我们不设置 Canvas 元素的样式，那么 Canvas 元素的画布宽高就会等于它的样式宽高的像素值
 
 <canvas id='rect' width="512" height="512"></canvas>
