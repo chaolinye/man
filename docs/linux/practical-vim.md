@@ -54,6 +54,30 @@ set sw=4 ts=4 sts=4 et
 :copen  " 打开结果列表，选择后回车跳转
 ```
 
+### vim 颜色主题
+
+[awesome-vim-colorschemes](https://github.com/rafi/awesome-vim-colorschemes?tab=readme-ov-file)
+
+`~/.vimrc` 颜色主题配置：
+
+```vim
+" vim-plug 插件管理
+call plug#begin()
+
+" List your plugins here
+Plug 'yorickpeterse/happy_hacking.vim'
+
+call plug#end()
+```
+
+```vim
+" 查看当前 colortheme
+:colorscheme
+
+" 设置当前主题
+:colorscheme happy_hacking.vim
+```
+
 ### 一个类IDE的缺省配置的 vim
 
 推荐组合：neovim + lazyvim
