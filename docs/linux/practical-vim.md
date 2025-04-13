@@ -66,6 +66,12 @@ call plug#begin()
 
 " List your plugins here
 Plug 'yorickpeterse/happy_hacking.vim'
+Plug 'AlessandroYorba/Alduin'
+Plug 'morhetz/gruvbox'
+Plug 'dracula/vim'
+Plug 'cocopon/iceberg.vim'
+Plug 'ayu-theme/ayu-vim'
+Plug 'crusoexia/vim-monokai'
 
 call plug#end()
 ```
@@ -75,7 +81,7 @@ call plug#end()
 :colorscheme
 
 " 设置当前主题
-:colorscheme happy_hacking.vim
+:colorscheme dracula
 ```
 
 ### 一个类IDE的缺省配置的 vim
