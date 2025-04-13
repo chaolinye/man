@@ -54,6 +54,19 @@ set sw=4 ts=4 sts=4 et
 :copen  " 打开结果列表，选择后回车跳转
 ```
 
+### 一个类IDE的缺省配置的 vim
+
+推荐组合：neovim + lazyvim
+
+1. 安装 [neovim](https://neovim.io/)
+2. 安装 [lazyvim](https://lazyvim-github-io.vercel.app/zh-Hans/installation)。
+    安装和启动过程中会通过 git 从 github 下载缺省的插件，需要解决科学上网的问题。比如通过 `export https_proxy=htpp://{username}:{password}@{hostname}:{port}` 配置 git http 代理。   
+    > 建议在安装后运行 `:checkhealth` 检查哪些功能存在问题
+3. 编程语言语法解析插件 TreeSitter 依赖于 C 编译器，可以安装: [clang](https://releases.llvm.org/download.html)，安装后将 clang 命令增加到 PATH 中
+4. 文件查找依赖于 [fg](https://github.com/sharkdp/fd)
+
+其它配置详见 [lazyvim文档](https://lazyvim-github-io.vercel.app/zh-Hans/)
+
 ## vimtutor
 
 ### 第一节
