@@ -3,6 +3,7 @@
 ## 编程
 
 - [x] [Unix 编程艺术](https://weread.qq.com/web/reader/665329e0813ab7b39g017144)
+- [计算机程序的构造和解释](https://www.bookstack.cn/read/sicp-py-zh/README.md)
 
 ## 语言
 
