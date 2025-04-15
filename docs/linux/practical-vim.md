@@ -5,6 +5,8 @@
 ```bash
 # 浏览当前编辑文件所在目录
 :E
+# 显示相对行号
+:set relativenumber
 ```
 
 ## FAQ
