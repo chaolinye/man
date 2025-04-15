@@ -97,6 +97,8 @@ call plug#end()
 
 其它配置详见 [lazyvim文档](https://lazyvim-github-io.vercel.app/zh-Hans/)
 
+[neovim + lazyvim 参考资料](https://youngxhui.top/2025/02/lazyvim/)
+
 ## vimtutor
 
 ### 第一节
