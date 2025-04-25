@@ -7,6 +7,16 @@
 :E
 # 显示相对行号
 :set relativenumber
+
+# 文字搜索，使用 vimgrep 命令，简写 vim，搜索结果是 quickfix，可以通过 copen 打开 quickfix，可以跳转对应的文件和位置
+## 在当前文件搜索
+:vim /关键字/ % | copen
+## 在当前目录搜索
+:vim /关键字/ * | copen
+## 递归搜索当前目录及其子目录
+:vim /关键字/ ** | copen
+## 递归搜索上级目录及其子目录
+:vim /关键字/ ./** | copen
 ```
 
 ## FAQ
