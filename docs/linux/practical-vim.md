@@ -17,6 +17,10 @@
 :vim /关键字/ ** | copen
 ## 递归搜索上级目录及其子目录
 :vim /关键字/ ./** | copen
+
+# 手动设置文件类型，以触发对应的语法高亮
+:setfiletype java
+:setf json
 ```
 
 ## FAQ
