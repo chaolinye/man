@@ -21,6 +21,10 @@
 - [talk](https://tlk.li/): 一个开源的 Web 应用，基于 WebRTC 技术的多人群聊软件，支持视频、音频和文字聊天。(无需注册，安全)
 - [RSS 在线阅读器](https://rss.app/myfeeds)
 
+## 协作工具
+
+- [局域版文件传递网页版](https://easychuan.cn/)
+
 
 ## AI 工具
 
