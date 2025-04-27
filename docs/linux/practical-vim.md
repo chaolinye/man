@@ -1488,3 +1488,4 @@ Vim会把添加到字典中的单词保存至某个拼写文件中，这样一�
 ## Reference
 
 - [Vim 文档](https://vimhelp.org/)
+- [Vim 实用技巧必知必会](https://learn.lianglianglee.com/%E4%B8%93%E6%A0%8F/Vim%20%E5%AE%9E%E7%94%A8%E6%8A%80%E5%B7%A7%E5%BF%85%E7%9F%A5%E5%BF%85%E4%BC%9A)
