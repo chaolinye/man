@@ -143,6 +143,8 @@ Spark支持Standalone、Yarn、Mesos、Kubernetes等多种部署方案，几种�
 
 ![](../images/hbase-lsm.jpg)
 
+[LSM原理参考](https://vonng.github.io/ddia/#/ch3)
+
 ## Reference
 
 - [从0开始学大数据](https://learn.lianglianglee.com/%E4%B8%93%E6%A0%8F/%E4%BB%8E0%E5%BC%80%E5%A7%8B%E5%AD%A6%E5%A4%A7%E6%95%B0%E6%8D%AE)
