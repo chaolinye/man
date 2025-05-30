@@ -21,6 +21,11 @@
 # 手动设置文件类型，以触发对应的语法高亮
 :setfiletype java
 :setf json
+
+# 设置视觉换行
+:set wrap
+# 设置行宽
+:set textwidth=80
 ```
 
 ## FAQ
