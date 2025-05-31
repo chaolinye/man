@@ -20,6 +20,7 @@
 - [Automa](https://www.automa.site/): 网站自动化操作，可以解决一些重复操作。
 - [talk](https://tlk.li/): 一个开源的 Web 应用，基于 WebRTC 技术的多人群聊软件，支持视频、音频和文字聊天。(无需注册，安全)
 - [RSS 在线阅读器](https://rss.app/myfeeds)
+- [Readest](https://readest.com/): 类似于微信读书的开源的多端的阅读器
 
 ## 协作工具
 
