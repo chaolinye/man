@@ -26,7 +26,7 @@ Set-ExecutionPolicy Bypass -Scope Process -Force; Invoke-Expression ((New-Object
 4. 在 `~/.bashrc` 文件中增加以下脚本启用 oh-my-posh 和选择某个主题，主题可在[oh-my-posh网站](https://ohmyposh.dev/docs/themes)挑选。
 
 ```bash
-eval "$(oh-my-posh init bash --config ~/AppData/Local/Programs/oh-my-posh/themes/iterm2.omp.json)"
+eval "$(oh-my-posh init bash --config ~/AppData/Local/Programs/oh-my-posh/themes/amro.omp.json)"
 ```
 
 5. 运行 `bash` 命令打开新 bash 查看 prompt 样式
