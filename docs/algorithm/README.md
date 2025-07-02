@@ -22,4 +22,4 @@
 
 ## References
 
-- [算法小抄](https://labuladong.gitee.io/algo/)
+- [算法小抄](https://labuladong.online/algo/home/)
