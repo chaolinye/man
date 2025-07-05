@@ -19,3 +19,12 @@ let word = "我不知道"
 updateSource(`https://dict.youdao.com/dictvoice?audio=${word}&type=1`);
 play();
 ```
+
+## 基于浏览器自带的 TTS(Text-to-Speech) 语音引擎实现文本发音
+
+[Build a Sentence-Level Reader with JS TTS & Highlights](https://jsdev.space/tts-sentence-reader/)
+
+```js
+const msg = new SpeechSynthesisUtterance("Hello, world!");
+window.speechSynthesis.speak(msg);
+```
