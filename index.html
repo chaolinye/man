@@ -17,7 +17,6 @@
 		<link rel="stylesheet" href="lib/katex.min.css" />
 		<script src="lib/marked@4.js"></script>
 
-		<script src="lib/docsify-katex.js"></script>
     </head>
     <body>
         <div id="app"></div>
@@ -40,6 +39,13 @@
 								'<div class="mermaid">' + mermaid.render('mermaid-svg-' + num++, code) + "</div>"
 							);
 							}
+                            if (lang === 'tex') {
+                                return (
+                                    '<span class="tex">'+ katex.renderToString(code, {
+                                        throwOnError: false
+                                    })+'</span>'
+                                    );
+                            }
 							return this.origin.code.apply(this, arguments);
 						}
 					}
@@ -64,5 +70,7 @@
 		<script src="lib/prism-toml.min.js"></script>
 		<script src="lib/prism-rust.min.js"></script>
 		<script src="lib/prism-awk.min.js"></script>
+		<script src="lib/docsify-katex.js"></script>
+        <!--		<script src="lib/prism-latex.min.js"></script> -->
     </body>
 </html>
