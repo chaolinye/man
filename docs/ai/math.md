@@ -81,6 +81,58 @@ vector 与 point，当箭头表达在页面过于繁琐，可以用点表示
 
 ### 矩阵与线性变换（Linear transformation）
 
+transformation 本质上就是个 function，input 是一个 vector，output 一个新的 vector
+
+> 使用 transformation 这个词是因为更好地表达出一个 vector move 到新的 vector
+
+线性变换：保持网格线平行且等距分布，并且保持原点不动
+
+线性变换是操纵空间的一种手段。
+
+空间中的向量可以看作是基向量的线性组合，经过线性变换后，仍然是相同的线性组合，因此可以通过变换后基向量的坐标得到所有其它向量的新坐标。
+
+变换后的基向量可以写成矩阵的形式
+
+```tex
+\begin{bmatrix} a & c \\ b & d \end{bmatrix} \begin{bmatrix} x \\ y \end{bmatrix}
+= x \begin{bmatrix} a \\ b \end{bmatrix} + y \begin{bmatrix} c \\ d \end{bmatrix}
+= \begin{bmatrix} ax+cy \\ bx+dy \end{bmatrix}
+```
+
+线性变换可以用一组数字表达，这组数字每列就是变换后的基向量。
+
+矩阵向量乘法就是计算线性变换作用于给定向量的一种途径。
+
+看到一个矩阵，都可以解读为对空间的一种特定变换。
+
+### 矩阵乘法与线性变换复合
+
+复合的线性变换：
+
+```tex
+\begin{bmatrix} 0 & 2 \\ 1 & 0 \end{bmatrix} ( \begin{bmatrix} 1 & -2 \\ -2 & 0 \end{bmatrix} \begin{bmatrix} x \\ y \end{bmatrix} )
+```
+
+等同于单一最终的基向量变换
+
+```tex
+\begin{bmatrix} 2 & 0 \\ 1 & -2 \end{bmatrix} \begin{bmatrix} x \\ y \end{bmatrix}
+```
+
+也就是
+
+```tex
+\begin{bmatrix} 0 & 2 \\ 1 & 0 \end{bmatrix} \begin{bmatrix} 0 & -2 \\ 1 & 0 \end{bmatrix} = \begin{bmatrix} 2 & 0 \\ 1 & -2 \end{bmatrix}
+```
+
+可以理解从右到左的基向量的线性变换
+
+通过空间的想象可以知道矩阵乘法不支持交换律，但是支持结合律
+
+矩阵乘法 = 线性变换的复合
+
+### 行列式（determinant）
+
 
 
 ## 微积分
