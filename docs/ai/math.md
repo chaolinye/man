@@ -133,7 +133,91 @@ transformation 本质上就是个 function，input 是一个 vector，output 一
 
 ### 行列式（determinant）
 
+行列式就是对空间的缩放比例
 
+计算基向量变换后的面积/体积的缩放比例，即可得到转换矩阵的行列式
+
+```tex
+det(\begin{bmatrix} 2 & 0 \\ 0 & 3 \end{bmatrix} = 6
+```
+<br/>
+
+```tex
+det(\begin{bmatrix} 1 & 1 \\ 0 & 1 \end{bmatrix} = 1
+```
+<br/>
+
+```tex
+det(\begin{bmatrix} 4 & 2 \\ 2 & 1 \end{bmatrix} = 0   ==> 降维
+```
+
+行列式为负数，就是把空间反转了，是否反转可以用基向量的相对方向来判断（右手法则）
+
+行列式为0，代表降维，也表明矩阵的列是线性相关的。
+
+矩阵乘法的行列式：
+
+```tex
+det(\mathbf{M_1} \mathbf{M_1}) = det(\mathbf{M_1}) det(\mathbf{M_2})
+```
+
+### 逆矩阵、列空间与零空间
+
+线性方程组（Linear system of equations）：在每一个方程中，所有未知量只具有常系数，这些未知量之间只进行加法
+
+```
+2x + 5y + 3z = -3   
+4x + 0y + 8z = 0  
+1x + 3y + 0z = 2
+```
+
+可以换成矩阵和向量的写法
+
+```tex
+\begin{bmatrix} 2 & 5 & 3 \\ 4 & 0 & 8 \\ 1 & 3 & 0 \end{bmatrix} \begin{bmatrix} x \\ y \\ z \end{bmatrix} = \begin{bmatrix} -3 & 0 & 2 \end{bmatrix}
+```
+
+这个矩阵叫做系数矩阵
+
+```tex
+\mathbf{A} \vec{x} = \vec{v}
+```
+<br/>
+
+```tex
+求解 \vec{x} 经过\mathbf{A} 变换后和 \vec{v} 重叠
+```
+
+```tex
+需要考虑 det(\mathbf{A}) 是否等于 0，等于 0 意味着降维，会有无数的解或者无解（\vec{v}不在降维后的空间中）; det(\mathbf{A}) != 0，有且只有一个解
+```
+<br/>
+
+```tex
+从 \vec{v} 反转换为 \vec{x} 的转换被称为 \mathbf{A} 的逆记为\mathbf{A^{-1}}
+```
+
+逆矩阵明显有以下特性:
+
+```tex
+\mathbf{A^{-1}} \mathbf{A} = \begin{bmatrix} 1 & 0 \\ 0 & 1 \end{bmatrix}
+```
+
+<br/>
+
+```tex
+\vec{x} = \mathbf{A^{-1}}\vec{v}
+```
+
+秩（rank）：线性变换会将空间压缩到几维，这个变换的秩就是几。
+
+由于 det(**A**) = 0，无法区别不同程度的降维，所以引入了秩，表达变换后空间的维数。
+
+矩阵的列空间就是矩阵的列所张成的空间，所以秩就是列空间的维数。
+
+如果秩等于矩阵的列数，称之为满秩。
+
+零空间就是经过变换落在原点的原向量组成的空间，det(**A**) != 0 时只有零向量会落在原点。
 
 ## 微积分
 
