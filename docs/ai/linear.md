@@ -275,3 +275,207 @@ det(\mathbf{M_1} \mathbf{M_1}) = det(\mathbf{M_1}) det(\mathbf{M_2})
 = \vec{i}(v_2 w_3 - v_3 w_2) + \vec{j}(v_3 w_1 - v_1 w_3) + \vec{k}(v_1 w_3 - v_2 w_3)
 = \begin{bmatrix} v_2 w_3 - v_3 v_2 \\ v_3 w_1 - v_1 w_3 \\ v_1 w_3 - v_2 w_1 \end{bmatrix}
 ```
+
+从二维的叉乘推到三维
+
+```tex
+\begin{bmatrix} u_1 \\ u_2 \\ u_3 \end{bmatrix} x \begin{bmatrix} v_1 \\ v_2 \\ v_3 \end{bmatrix} x \begin{bmatrix} w_1 \\ w_2 \\ w_3 \end{bmatrix} 
+= det(\begin{bmatrix} u_1 & v_1 & w_1 \\ u_2 & v_2 & w_2 \\ u_3 & v_3 & w_3 \end{bmatrix})
+```
+
+<br/>
+
+```tex
+把 \vec{u} 设为未知数
+```
+
+<br/>
+
+```tex
+\begin{bmatrix} x_1 \\ x_2 \\ x_3 \end{bmatrix} x \begin{bmatrix} v_1 \\ v_2 \\ v_3 \end{bmatrix} x \begin{bmatrix} w_1 \\ w_2 \\ w_3 \end{bmatrix}
+= det(\begin{bmatrix} x_1 & v_1 & w_1 \\ x_2 & v_2 & w_2 \\ x_3 & v_3 & w_3 \end{bmatrix})
+```
+
+```tex
+把 \vec{v} x \vec{w} 看作一个整体要求解的线性变换，它将 \vec{x} 降到一维，这个线性变换对应某个向量。
+```
+
+```tex
+\begin{bmatrix} p_1 \\ p_2 \\ p_3 \end{bmatrix} \cdot \begin{bmatrix} x_1 \\ x_2 \\ x_3 \end{bmatrix}
+= det(\begin{bmatrix} x_1 & v_1 & w_1 \\ x_2 & v_2 & w_2 \\ x_3 & v_3 & w_3 \end{bmatrix})
+
+p_1 x_1 + p_2 x_2 + p_3 x_3 = x_1(v_2 w_3 - v_3 w_2) + x_2(v_3 w_1 - v_1 w_3) + x_3(v_1 w_2 - v_2 w_1)
+
+p_1 = v_2 w_3 - v_3 w_2
+
+p_2 = v_3 w_1 - v_1 w_3
+
+p_3 = v_1 w_2 - v_2 w_1
+```
+
+```tex
+从几何上，\vec{p} \cdot \vec{x} 可看作 \vec{x} 在 \vec{p} 上的投影长度乘以 \vec{p} 的长度，而 \vec{x} \vec{v} \vec{w} 的行列式是组成的平行六面体的体积，这个体积以 \vec{v} \vec{w} 组成的平行四边形的面积为底，\vec{x} 到平行四边形的垂直向量的投影为高，推论可得 \vec{p} 的长度等于 \vec{v} \vec{w} 的面积，方向垂直于 \vec{v} \vec{w} 的平面。
+```
+
+## 基变换
+
+如何在不同的坐标系之间进行转换
+
+```tex
+假设取另一组基向量 \vec{v} 和 \vec{w}，在这个坐标系中的一个向量 \begin{bmatrix} a \\ b \end{bmatrix} , 可以表达为 a \vec{v} + b \vec{w} = a \begin{bmatrix} v_1 \\ v_2 \end{bmatrix} + b \begin{bmatrix} w_1 \\ w_2 \end{bmatrix} = \begin{bmatrix} v_1 & w_1 \\ v_2 & w_2 \end{bmatrix} \begin{bmatrix} a \\ b \end{bmatrix}
+```
+
+所以在原坐标系视角中还是同一个坐标经过，基向量的线性变换后得到的新坐标就是原视角下该向量的坐标
+
+相同的原坐标系下的某个向量在新坐标系中的坐标可以通逆转换来得到
+
+```tex
+\begin{bmatrix} v_1 & w_1 \\ v_2 & w_2 \end{bmatrix}^{-1} \begin{bmatrix} a \\ b \end{bmatrix}
+\\
+```
+
+```tex
+原坐标系的某个线性变换对应新坐标系的另一个线性变换，新坐标系的某个坐标 
+\begin{bmatrix} a \\ b \end{bmatrix}
+\\
+```
+
+```tex
+\begin{bmatrix} v_1 & w_1 \\ v_2 & w_2 \end{bmatrix}^{-1} \begin{bmatrix} i_1 & j_1 \\ i_2 & j_2 \end{bmatrix} \begin{bmatrix} v_1 & w_1 \\ v_2 & w_2 \end{bmatrix} \begin{bmatrix} a \\ b \end{bmatrix}
+\\
+转换B语言<--A转换<--转换A表述（基变换矩阵）<--B语言
+```
+
+总的来说，当看到这样的表达式:
+
+```tex
+A^{-1}MA
+```
+
+代表于 A 基变换视角下，M 转换的新表达
+
+## 特征向量与特征值
+
+变换前和变换后共线的向量称为该变换的特征向量，拉伸成压缩的比例称为特征值。
+
+```tex
+A\vec{v} = \lambda\vec{v} -> 特征向量
+```
+变换矩阵    特征值
+
+```tex
+A\vec{v} = (\lambda I)\vec{v} 
+```
+
+<br/>
+
+```tex
+(A - \lambda I) \vec{v} = \vec{0}
+```
+
+<br/>
+
+```tex
+det(A - \lambda I) = 0
+\\
+求解出 \lambda
+\\
+\vec{v} = (A - \lambda I)^{-1} \vec{0}
+\\
+求解出 \vec{v}
+```
+
+不是所有的线性变换都有特征向量和特征值。（比如旋转90°）
+
+```tex
+对角矩阵 \begin{bmatrix} a & 0 \\ 0 & b \end{bmatrix} 表示所有基向量都是其特征向量，且对角值就是特征值。
+```
+
+<br/>
+
+```tex
+\begin{bmatrix} a & 0 \\ 0 & b \end{bmatrix} \begin{bmatrix} a & 0 \\ 0 & b \end{bmatrix} \begin{bmatrix} x \\ y \end{bmatrix} = \begin{bmatrix} a^2 x \\ b^2 y \end{bmatrix}
+```
+
+这就是矩阵的快速幂
+
+对于不是对角矩阵的情况下可以通过基变换转换成对角矩阵：如果矩阵有两个以上非线性相关的特征向量，将基变换到这两个特征向量，这时候的变换就是
+
+```tex
+A^-1 M A = \begin{bmatrix} \lambda_1 & 0 \\ 0 & \lambda_2 \end{bmatrix}
+\\
+\lambda_1 和 \lambda_2 是特征值
+```
+
+这样的特征向量的基称为特征基
+
+## 抽象向量空间
+
+线性变换的严格定义
+
+```tex
+L(\vec{v} + \vec{w}) = L(\vec{v}) + L(\vec{w}) --> 可加性
+\\
+L(c\vec{v}) + cL(\vec{v})  --> 成比例
+```
+
+线性变换保持向量加法运算和数乘运算
+
+这也是线性变换可以用基向量变换后的坐标来表示的依据
+
+求导也是线性运算
+
+```tex
+\frac{d}{dx}(x^3+x^2) = \frac{d}{dx}x^3 + \frac{d}{dx}x^2
+\\
+\frac{d}{dx}(4x^3) = 4\frac{d}{dx}x^3
+\\
+```
+
+可以抽象出基函数（Basic Function）的概念
+
+```tex
+\frac{d}{dx}(1x^3+5x^2+4x+5) = 3x^2+2x+4
+\\
+基函数
+\\
+b_0(x) = 1 \\
+b_1(x) = x \\
+b_2(x) = x^2 \\
+b_3(x) = x^3 \\
+
+\begin{bmatrix} 0 & 1 & 0 & 0 \\ 0 & 0 & 2 & 0 \\ 0 & 0 & 0 & 3 \\ 0 & 0 & 0 & 0 \end{bmatrix} \begin{bmatrix} 5 \\ 4 \\ 5 \\ 1 \end{bmatrix} = \begin{bmatrix} 1 \cdot 4 \\ 2 \cdot 5 \\ 3 \cdot 1 \\ 0 \end{bmatrix} \\
+```
+
+这个矩阵的构建方法：求每个基函数的导数，然后把结果放在对应的列
+
+这样就可以用矩阵来求导了。
+
+线性代数中的概念都能找到函数中对应的概念
+
+```
+Linear transformation 线性变换 --> Linear operators 线性算子
+Dot product 点积 --> Inner products 内积
+Eigenvectors 特征向量 --> Eigenfunctions 特征函数
+```
+
+什么是向量？
+
+箭头、一组数、函数等等都无所谓，可以是任何东西，只要支持向量相加和数乘即可。
+
+!> 大道至简
+
+## 克莱姆法则--几何解释
+
+```tex
+\begin{bmatrix} 2 & -1 \\ 0 & -1 \end{bmatrix} \begin{bmatrix} x \\ y \end{bmatrix} = \begin{bmatrix} 4 \\ 2 \end{bmatrix}
+```
+
+![](../images/kelam.png)
+
+```tex
+Area = det(A) y --> 原来向量与x轴基向量的面积
+\\
+y = \frac{Area}{det(A)} = \frac{det(\begin{bmatrix} 2 & 4 \\ 0 & 2 \end{bmatrix})}{det(\begin{bmatrix} 2 & -1 \\ 0 & -1 \end{bmatrix})}
+```
+
