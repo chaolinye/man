@@ -13,9 +13,8 @@
 
 全概率公式: `P(B) = P(AB) / P(A)`
 
-$$\displaystyle\sum_{i=1}^n$$
+```tex
+\displaystyle\sum_{i=1}^n
+```
 
-## 微积分
-
-[你也能懂的微积分](https://zhuanlan.zhihu.com/p/94592123)
 

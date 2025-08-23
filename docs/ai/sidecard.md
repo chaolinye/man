@@ -1,5 +1,6 @@
 - [README]()
 - [数学](./math.md)
 - [线性代数](./linear.md)
+- [微积分](./calculus.md)
 - [大模型](./llm.md)
 - [动手实战人工智能](https://aibydoing.com/intro)
