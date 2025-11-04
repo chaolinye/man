@@ -35,3 +35,5 @@
 - [DDIA-数据密集型系统设计](https://vonng.github.io/ddia/#/preface)
 
 - [深入架构原理与实践](https://www.thebyte.com.cn/)
+
+- [软件构架设计](https://mysummary.readthedocs.io/zh/latest/%E8%BD%AF%E4%BB%B6%E6%9E%84%E6%9E%B6%E8%AE%BE%E8%AE%A1/README.html)
