@@ -6,3 +6,4 @@
 - [电脑选配](./select-computer.md)
 - [Excel基础](./excel.md)
 - [工作型PPT](./ppt.md)
+- [洞察力提升最佳实践](./insight.md)
