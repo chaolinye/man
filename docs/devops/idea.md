@@ -28,6 +28,7 @@
 | 展示当前可用 Action | `Alt + Enter` | `option + enter` |
 | 上下移动语句块 | `Ctrl + Shift + Up/Down`   |  `command + shift + up/down` |
 | 上下移动当前行 | `Alt + Shift + Up/down`  |  `option + shift + up/down` |
+| 调试场景打开 Evaluate 弹框 | `Alt + F8` | |
 
 ## 编程技巧
 
