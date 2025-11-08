@@ -93,6 +93,7 @@ Plug 'dracula/vim'
 Plug 'cocopon/iceberg.vim'
 Plug 'ayu-theme/ayu-vim'
 Plug 'crusoexia/vim-monokai'
+Plug 'doums/darcula'
 
 call plug#end()
 ```
@@ -102,7 +103,7 @@ call plug#end()
 :colorscheme
 
 " 设置当前主题
-:colorscheme dracula
+:colorscheme darcula
 ```
 
 ### 一个类IDE的缺省配置的 vim
