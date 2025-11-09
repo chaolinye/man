@@ -1,6 +1,6 @@
 # 线性代数
 
-[线性代数的本质](https://www.bilibili.com/video/BV1ys411472E/?spm_id_from=333.1387.favlist.content.click)
+[线性代数的本质](https://www.bilibili.com/video/BV1ys411472E/)
 
 ## 向量
 
