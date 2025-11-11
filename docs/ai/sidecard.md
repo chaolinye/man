@@ -2,6 +2,7 @@
 - [数学](./math.md)
 - [线性代数](./linear.md)
 - [微积分](./calculus.md)
+- [概率统计](./probability.md)
 - [大模型](./llm.md)
 - [动手实战人工智能](https://aibydoing.com/intro)
 - [Neural Network](./neural-network.md)
