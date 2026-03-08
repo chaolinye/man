@@ -7,3 +7,4 @@
 - [Excel基础](./excel.md)
 - [工作型PPT](./ppt.md)
 - [洞察力提升最佳实践](./insight.md)
+- [行测](./administrative-aptitude-test.md)
