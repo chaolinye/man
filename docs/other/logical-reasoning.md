@@ -1,6 +1,8 @@
 
 ## 数字推理
 
+![](../images/digital-reasoning.svg ":size=50%")
+
 ### 基础数列
 
 | 数列类型       | 定义/特点                     | 示例                                   |
