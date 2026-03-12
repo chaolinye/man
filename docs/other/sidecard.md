@@ -9,3 +9,4 @@
 - [洞察力提升最佳实践](./insight.md)
 - [行测](./administrative-aptitude-test.md)
     - [判断推理](./logical-reasoning.md)
+    - [数量关系](./quantity-relationship.md)
