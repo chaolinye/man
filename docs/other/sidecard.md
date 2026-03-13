@@ -10,3 +10,5 @@
 - [行测](./administrative-aptitude-test.md)
     - [判断推理](./logical-reasoning.md)
     - [数量关系](./quantity-relationship.md)
+    - [资料分析](./data-analysis.md)
+    - [言语理解与表达](./language-comprehension-and-expression.md)
