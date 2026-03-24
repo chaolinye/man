@@ -7,3 +7,4 @@
 - [动手实战人工智能](https://aibydoing.com/intro)
 - [Neural Network](./neural-network.md)
 - [AI Agent](./ai-agent.md)
+- [AI Infra](./ai-infra.md)
