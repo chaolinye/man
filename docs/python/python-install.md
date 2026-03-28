@@ -58,3 +58,13 @@ jupyter notebook
 pip install jupyterlab-vim
 # 重启 jupyter notebook
 ```
+
+使用技巧:
+
+```bash
+# 变量补全
+xxx<Tab>
+
+# 方法查看
+json.*?
+```
