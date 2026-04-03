@@ -18,3 +18,4 @@
 - [awk 语言](./awk)
 - [Unix 编程艺术](./unix-art.md)
 - [Vim实用技巧](./practical-vim.md)
+- [Linux系统邮件通知机制](./linux-mail.md)
