@@ -8,3 +8,4 @@
 - [Neural Network](./neural-network.md)
 - [AI Agent](./ai-agent.md)
 - [AI Infra](./ai-infra.md)
+- [AI Coding](./ai-coding.md)
