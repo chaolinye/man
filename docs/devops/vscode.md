@@ -11,7 +11,7 @@
 | 搜索 Symbol | `Ctrl + Shift + O` | `command + shift + O` |
 | 选中相同的内容 | `Ctrl + D` | `command + D` |
 | 跳到某一行 | `Ctrl + G` | `control + G` |
-| 前进/后退 | `Alt +  right/left` | `option + -` / `control + shift + -` |
+| 前进/后退 | `Alt +  right/left` | `control + shift + -` / `control + -` |
 | 上下移动当前行 | `Alt + Up/Down` | `option + Up/Down` |
 | 上下复制当前行 | `Alt + Shift + Up/Down` | `option + shift + Up/Down` |
 | 插入下一行 | `Ctrl + Enter` | `command + Enter` |
