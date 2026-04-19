@@ -14,3 +14,4 @@
 - [效率技巧](./effcient)
 - [画图](./draw)
 - [正则表达式](./regex)
+- [tmux](./tmux.md)
