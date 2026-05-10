@@ -10,3 +10,4 @@
 - [AI Infra](./ai-infra.md)
 - [AI Coding](./ai-coding.md)
 - [Skills](./skill.md)
+- [数学之美](./math-beautiful-note.md)
