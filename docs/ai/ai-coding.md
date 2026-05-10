@@ -1,5 +1,24 @@
 # AI Coding
 
+## 心得
+
+- 输出的好坏取决于 Context 的质量
+    - 提供足够的背景知识
+    - 尽量详细
+    - 保持 Context 的简单，不要放置无关的内容
+        - 关注Context的内容
+        - 新任务开启新的 session
+- Agent 走偏要及时纠正（不要害怕中断和重新开始）
+    - 手动中断，添加信息再往下走
+    - 回到之前的环节，添加信息，重新开始
+    - 开启新 Session，优化prompt，重新开始
+- 复杂任务先计划，调整计划，再行动
+- 所有事情都让 agent 完成，不要自己上手
+- second brain (.claude/xxxx.md)
+    - 重复的步骤，让 agent 总结生成 skills
+    - 完成任务，让 agent 把做的事情输出 project note
+    - 让 agent 更新 CLAUDE.md
+
 ## Hermess Engineering
 
 ### Framework
