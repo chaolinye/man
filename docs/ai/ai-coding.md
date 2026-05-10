@@ -13,7 +13,7 @@
     - 回到之前的环节，添加信息，重新开始
     - 开启新 Session，优化prompt，重新开始
 - 复杂任务先计划，调整计划，再行动
-- 所有事情都让 agent 完成，不要自己上手
+- 所有事情都让 agent 完成，不要自己上手(构建自己独特的ai workflow)
 - second brain (.claude/xxxx.md)
     - 重复的步骤，让 agent 总结生成 skills
     - 完成任务，让 agent 把做的事情输出 project note
