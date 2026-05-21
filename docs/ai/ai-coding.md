@@ -225,3 +225,4 @@ Pi 刻意不内置的功能，本身就是它设计理念的一部分。
 - [How I Turned Pi Into the Ultimate Coding Agent](https://www.youtube.com/watch?v=6xXjHM3V1zM&t=1102s)
 - [Learn 90% Of Pi Agent in Under 17 Minutes](https://www.youtube.com/watch?v=8Dt0HM8HIq4&t=94s)
 - [Pi Document](https://pi.dev/docs/latest)
+- [I Hated Every Coding Agent, So I Built My Own — Mario Zechner (Pi)](https://www.youtube.com/watch?v=Dli5slNaJu0)
