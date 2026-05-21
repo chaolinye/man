@@ -10,3 +10,4 @@
 - [Git Patch 和邮件](./git-patch)
 - [本地检视](./local-review)
 - [git-review 提交模式](./git-review)
+- [Commit message 和 Change log 编写指南](https://www.ruanyifeng.com/blog/2016/01/commit_message_change_log.html)
