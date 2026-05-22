@@ -53,12 +53,16 @@ Turn this into a skill I can reuse
 # https://github.com/mattpocock/skills/blob/main/skills/productivity/grill-me/SKILL.md
 # 比 plan mode 更好用 
 /grill-me
+# https://github.com/mattpocock/skills/blob/main/skills/engineering/grill-with-docs/SKILL.md
+# /grill-me 升级版，记录和适用Concept文档及架构决策文档
+# 有 codebase 时使用，无 codebase 时使用 grill-me
+/grill-with-docs
 # https://github.com/mattpocock/skills/blob/main/skills/engineering/to-prd/SKILL.md
 /write-a-prd
 # https://github.com/mattpocock/skills/blob/main/skills/engineering/to-issues/SKILL.md
 /write-issues
 # https://github.com/mattpocock/skills/blob/main/skills/engineering/to-issues/SKILL.md
-/prdd-to-issues
+/prd-to-issues
 ```
 
 > AI Coding 也要每天投入精力到系统设计，而不能仅仅是 spec2code
