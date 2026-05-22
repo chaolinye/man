@@ -12,11 +12,11 @@
     - 手动中断，添加信息再往下走
     - 回到之前的环节，添加信息，重新开始
     - 开启新 Session，优化prompt，重新开始
-- 复杂任务先计划，调整计划，再行动
-- 所有事情都让 agent 完成，不要自己上手(构建自己独特的ai workflow)
+- 复杂任务先计划，调整计划，再行动(`give me a plan/optimize plan/agree/do it`)
+- 所有事情都让 agent 完成，不要自己上手(构建自己独特的ai workflow)  `Turn this into a skill I can reuse `
 - second brain (.claude/xxxx.md)
     - 重复的步骤，让 agent 总结生成 skills
-    - 完成任务，让 agent 把做的事情输出 project note
+    - 完成任务，让 agent 把做的事情输出 project note `update project note by above`
     - 让 agent 更新 CLAUDE.md
 
 ### 领域知识累积 -- Build a local second Brain
@@ -293,3 +293,4 @@ Pi 刻意不内置的功能，本身就是它设计理念的一部分。
 - [I Hated Every Coding Agent, So I Built My Own — Mario Zechner (Pi)](https://www.youtube.com/watch?v=Dli5slNaJu0)
 - ["Software Fundamentals Matter More Than Ever" — Matt Pocock](https://www.youtube.com/watch?v=v4F1gFy-hqg&t=580s)
 - [WeiXin iLink API: Bot](https://www.wechatbot.dev/en/protocol)
+- [Project Note Skill](https://github.com/a3lem/my-claude-plugins)
