@@ -1,11 +1,11 @@
 # AI Coding
 
-## 心得
+## Tips
 
-- 输出的好坏取决于 Context 的质量
+- 输出的好坏取决于 Context 的质量（**Context is King**）
     - 提供足够的背景知识
     - 尽量详细
-    - 保持 Context 的简单，不要放置无关的内容
+    - 保持 Context 的简单，不要放置无关的内容（**新鲜& 精炼**）
         - 关注Context的内容
         - 新任务开启新的 session
 - Agent 走偏要及时纠正（不要害怕中断和重新开始）
@@ -18,6 +18,69 @@
     - 重复的步骤，让 agent 总结生成 skills
     - 完成任务，让 agent 把做的事情输出 project note
     - 让 agent 更新 CLAUDE.md
+
+### 领域知识累积 -- Build a local second Brain
+
+```bash
+# 更新到项目的 .claude/NOTES.md
+Update the project notes with what we worked on
+```
+
+让 Coding Agent 了解该项目的历史记录和决策，无需重新解释
+
+下次启动获取最新状态
+
+```bash
+Give me the latest status report
+```
+
+### Build Custom Workflow -- Skill
+
+```bash
+Turn this into a skill I can reuse 
+```
+
+方向：
+- PR Spliting
+
+### Before You Code，Reach A Shared Design Concept
+
+> No one exactly what they want
+
+对齐 Design Concept（概念空间）
+
+```bash
+# https://github.com/mattpocock/skills/blob/main/skills/productivity/grill-me/SKILL.md
+# 比 plan mode 更好用 
+/grill-me
+# https://github.com/mattpocock/skills/blob/main/skills/engineering/to-prd/SKILL.md
+/write-a-prd
+# https://github.com/mattpocock/skills/blob/main/skills/engineering/to-issues/SKILL.md
+/write-issues
+# https://github.com/mattpocock/skills/blob/main/skills/engineering/to-issues/SKILL.md
+/prdd-to-issues
+```
+
+> AI Coding 也要每天投入精力到系统设计，而不能仅仅是 spec2code
+
+### 让 AI 写出好的代码
+
+- 易测试的
+- 层次分明的
+
+```bash
+# https://github.com/mattpocock/skills/blob/main/skills/engineering/tdd/SKILL.md
+/tdd
+# https://github.com/mattpocock/skills/blob/main/skills/engineering/improve-codebase-architecture/SKILL.md 
+/improve-codebase-architecture
+```
+
+### Design the interface, delegate the implemenntatiton
+
+人脑跟不上，要记忆太多东西，太累
+
+对于非关键模块，只关注接口，不关注实现，只需要接口能按预期通过测试和验证即可
+
 
 ## Hermess Engineering
 
@@ -222,7 +285,10 @@ Pi 刻意不内置的功能，本身就是它设计理念的一部分。
 - [Learn Claude Code by doing, not reading.](https://claude.nagdy.me/)
 - [Claude Code Unpacked](https://ccunpacked.dev/)
 - [Claude Code Analysis](https://github.com/liuup/claude-code-analysis)
+- [How I use Claude Code (Meta Staff Engineer Tips)](https://www.youtube.com/watch?v=mZzhfPle9QU)
+- [Claude Code Workflows That Will 10x Your Productivity](https://www.youtube.com/watch?v=yZvDo_n12ns)
 - [How I Turned Pi Into the Ultimate Coding Agent](https://www.youtube.com/watch?v=6xXjHM3V1zM&t=1102s)
 - [Learn 90% Of Pi Agent in Under 17 Minutes](https://www.youtube.com/watch?v=8Dt0HM8HIq4&t=94s)
 - [Pi Document](https://pi.dev/docs/latest)
 - [I Hated Every Coding Agent, So I Built My Own — Mario Zechner (Pi)](https://www.youtube.com/watch?v=Dli5slNaJu0)
+- ["Software Fundamentals Matter More Than Ever" — Matt Pocock](https://www.youtube.com/watch?v=v4F1gFy-hqg&t=580s)
