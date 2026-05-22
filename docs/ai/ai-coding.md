@@ -292,3 +292,4 @@ Pi 刻意不内置的功能，本身就是它设计理念的一部分。
 - [Pi Document](https://pi.dev/docs/latest)
 - [I Hated Every Coding Agent, So I Built My Own — Mario Zechner (Pi)](https://www.youtube.com/watch?v=Dli5slNaJu0)
 - ["Software Fundamentals Matter More Than Ever" — Matt Pocock](https://www.youtube.com/watch?v=v4F1gFy-hqg&t=580s)
+- [WeiXin iLink API: Bot](https://www.wechatbot.dev/en/protocol)
