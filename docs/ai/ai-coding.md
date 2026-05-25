@@ -218,9 +218,7 @@ Memory in Claude Code means context that persists across sessions， are loaded 
 - **Skills**：给模型加“固定能力”，侧重底层功能/工具调用
 - **Prompt Templates**：给模型加“固定话术/任务指令”，侧重上层任务执行，可以理解为最简单的Skills
 
-这张图介绍了 **Pi 的扩展（Extensions）**，它们是让 Pi 成为专属智能体的核心能力模块，核心总结如下：
-
-### `Extensions are where Pi becomes your agent`
+### Extensions are where Pi becomes your agent
 
 扩展是让 Pi 从对话工具升级为自动化智能体的关键。
 
