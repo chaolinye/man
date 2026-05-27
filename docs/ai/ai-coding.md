@@ -186,6 +186,13 @@ Memory in Claude Code means context that persists across sessions， are loaded 
 | `Alt+Up` | 出队/取消排队 |
 | `/settings` | 打开通用配置 |
 
+## 常用功能
+
+```bash
+# disabled/enable extensions/packages/skill/prompt template
+pi config
+``
+
 ### Prompt Stack
 
 #### 一、Prompt 叠加顺序（栈结构，由外到内/由基础到补充）
