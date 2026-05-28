@@ -288,6 +288,12 @@ Pi 刻意不内置的功能，本身就是它设计理念的一部分。
 
 能改配置文件就不用写模板，能用模板就不用写技能，能用技能就不用开发扩展——始终用最低成本的方式解决问题。
 
+### 工具集
+
+- [pi-searxng-suite](https://github.com/blazer2k/pi-searxng-suite): web search 和 fetch 工具，连接 searxng 实例获取信息
+- [pi-playwright](https://github.com/guwidoe/pi-playwright): 浏览器自动化工具
+- [pi-codegraph](https://github.com/SeanPedersen/pi-codegraph): 使用 codegraph 理解代码仓的结构
+
 ## References
 
 - [Anatomy of the .claude/ Folder](https://blog.dailydoseofds.com/p/anatomy-of-the-claude-folder)
