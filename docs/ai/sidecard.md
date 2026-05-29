@@ -8,6 +8,7 @@
 - [Neural Network](./neural-network.md)
 - [AI Agent](./ai-agent.md)
   - [RAG](./rag.md)
+  - [LLM API](./llm-api-protocol-guide.md)
 - [AI Infra](./ai-infra.md)
 - [AI Coding](./ai-coding.md)
 - [Skills](./skill.md)
