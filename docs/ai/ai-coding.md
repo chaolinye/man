@@ -191,7 +191,7 @@ Memory in Claude Code means context that persists across sessions， are loaded 
 ```bash
 # disabled/enable extensions/packages/skill/prompt template
 pi config
-``
+```
 
 ### Prompt Stack
 
