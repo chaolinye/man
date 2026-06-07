@@ -85,6 +85,46 @@ Turn this into a skill I can reuse
 
 对于非关键模块，只关注接口，不关注实现，只需要接口能按预期通过测试和验证即可
 
+## 节省 token 的策略
+
+一般以准确度为代价，需要权衡取舍，决定什么时候开启，什么时候关闭。
+
+> 还会增加使用的复杂性
+
+###  Index the Code
+
+工具：[codegraph](https://github.com/colbymchenry/codegraph)
+
+原理：提前建好索引，提供 cli 工具给 agent 检索相关代码
+优点：减少代码检索的时间和适用的token，精准且更快找到相应的代码
+缺点：truth 的一致性问题。对于agent来说就存在两个信息源：codebase 和 codegraph index，如果没有及时更新codegraph index，信息可能会落后或者遗漏。
+
+### Compress the Output 
+
+工具：[RTK](https://github.com/rtk-ai/rtk)
+
+原理：提供 cli 封装常用命令行工具（git，docker ps，ls 等)，将其输出进行过滤（显示 `[+10 lines omitted]`)和压缩再返回给llm。通过hook或者extension的方式重写tool call中 bash 工具的命令行来实现，比如把 git 替换成 rtk git。
+优化：减少工具返回的大量调试或者无意义的信息，减少噪音和token
+缺点：过度删减内容，history 不够完善，后续的 llm 精准度降低。
+
+### Caveman
+
+工具：[caveman](https://github.com/JuliusBrussee/caveman)
+
+原理：通过 skill 要求 llm 像原始的穴居人摒弃所有客套话、修饰词和多余的连接词，只保留最核心的动词、名词和技术信息（电报式风格）。即用更少的字数表达相同的意思。根据自己的需要可以调节精简的level
+缺点：某些有用的信息被精简了。
+
+### Manage the Sessionn
+
+工具：无
+
+日常使用 Agent 的良好习惯：
+- session 压缩
+- new session
+- 控制 AGENT.md 文字数量
+
+
+
 
 ## Hermess Engineering
 
