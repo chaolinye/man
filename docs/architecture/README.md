@@ -106,3 +106,5 @@
 - [软件构架设计](https://mysummary.readthedocs.io/zh/latest/%E8%BD%AF%E4%BB%B6%E6%9E%84%E6%9E%B6%E8%AE%BE%E8%AE%A1/README.html)
 
 - [软件工程定律](https://lawsofsoftwareengineering.com/)
+
+- [生产验证的编程模式](https://patterns.totorojam.com/zh/patterns/)
