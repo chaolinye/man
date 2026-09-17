@@ -11,5 +11,6 @@
   - [LLM API](./llm-api-protocol-guide.md)
 - [AI Infra](./ai-infra.md)
 - [AI Coding](./ai-coding.md)
+- [AI Tool](./ai-tool.md)
 - [Skills](./skill.md)
 - [数学之美](./math-beautiful-note.md)
