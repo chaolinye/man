@@ -61,8 +61,8 @@ hf download hf://unsloth/Qwen3.6-35B-A3B-MTP-GGUF/Qwen3.6-35B-A3B-UD-Q4_K_M.gguf
   --port 8080 \
   --host 0.0.0.0
 
-# 35 tok/s
-TURBO_AUTO_ASYMMETRIC=0 ./build/bin/Release/llama-server.exe -m /d/Data/models/Qwen3.8-27B-UD-IQ3_XXS.gguf -c 130000 -ngl 99  -ctk turbo4 -ctv turbo4 -fa on --temp 1.0 --top-p  0.95 --top-k 20 --min-p 0.0 --presence-penalty 0.0 --kv-unified --no-host --cache-ram 32768 -np 1 -b 512 -ub 512 --reasoning-preserve --jinja --chat-template-file chat_template.jinja --reasoning-format deepseek --host  0.0.0.0 --port 8080 --spec-type draft-mtp --spec-draft-n-max 2
+# 40 tok/s
+TURBO_AUTO_ASYMMETRIC=0 ./build/bin/Release/llama-server.exe -m /d/Data/models/Qwen3.8-27B-GSQ-RCO-IQ3_XXS-mtp.gguf -c 131072 -ngl 99  -ctk turbo4 -ctv turbo4 -fa on --temp 1.0 --top-p  0.95 --top-k 20 --min-p 0.0 --presence-penalty 0.0 --kv-unified --no-host --cache-ram 32768 -np 1 -b 2048 -ub 512 --reasoning-preserve --jinja --chat-template-file chat_template.jinja --reasoning-format deepseek --host  0.0.0.0 --port 8080 --spec-type draft-mtp --spec-draft-n-max 2
 ```
 
 ## References
