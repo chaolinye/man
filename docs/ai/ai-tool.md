@@ -31,3 +31,23 @@ case "$PROMPT_COMMAND" in
 esac
 # <<< herdr shell integration <<<
 ```
+
+## OpenCli
+
+- 适用场景：将网站操作封装成 cli 命令，让网站操作更加高效精确，更容易自动化
+- 工作原理：通过监测网站操作时的网络请求，让AI提取其中关键的请求及其关系，找到API请求链路，使用Cli封装。登录态通过浏览器cookie或者触发浏览器请求来获取。
+- 官方文档：https://github.com/jackwener/OpenCLI/blob/main/README.zh-CN.md
+- 使用方式：
+```bash
+# 全局安装命令行工具
+npm install -g @jackwener/opencli
+# 安装自定义adapter skill
+npx skills add jackwener/opencli --skill opencli-adapter-author
+# 打开 ai coding agent
+# 提示词: /opencli-adapter-author intent: xxx  steps：1. 打开 xxxx 网站 2. 选择 xxx 3. 点击xxx  4. 获取到 xxx
+```
+
+## CLI-Anything
+
+- 适用场景：有某个软件或者网站的源码，开发其 cli 工具
+- 官方文档: https://github.com/HKUDS/CLI-Anything
