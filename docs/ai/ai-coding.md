@@ -334,6 +334,11 @@ Pi 刻意不内置的功能，本身就是它设计理念的一部分。
 - [pi-playwright](https://github.com/guwidoe/pi-playwright): 浏览器自动化工具
 - [pi-codegraph](https://github.com/SeanPedersen/pi-codegraph): 使用 codegraph 理解代码仓的结构
 
+### AI Coding Skill
+
+- [pstack](https://github.com/michael-denyer/pstack-claude/tree/main/plugins/pstack/skills): 没有plan，注重验证和软件工程principle
+- [mattpocock](https://github.com/mattpocock/skills/tree/main/skills): 创建著名的 grill-me，注重人对 skills 的掌控
+
 ## References
 
 - [Anatomy of the .claude/ Folder](https://blog.dailydoseofds.com/p/anatomy-of-the-claude-folder)
