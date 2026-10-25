@@ -14,7 +14,9 @@ pip install certifi
 export SSL_CERT_FILE=$(python -c "import certifi; print(certifi.where())")
 export REQUESTS_CA_BUNDLE=$(python -c "import certifi; print(certifi.where())")
 # 使用 hf 命令行工具下载
-hf download hf://unsloth/Qwen3.6-35B-A3B-MTP-GGUF/Qwen3.6-35B-A3B-UD-Q4_K_M.gguf
+hf download hf://unsloth/Qwen3.6-35B-A3B-GGUF/Qwen3.6-35B-A3B-UD-IQ3_S.gguf
+hf download hf://ISTA-DASLab/Qwen3.8-27B-GSQ-RCO-GGUF/Qwen3.8-27B-GSQ-RCO-IQ3_XXS-mtp.gguf
+hf download hf://unsloth/MiniMax-H3-GGUF/minimax_h3_fl2va_pruned-UD-Q3_K_XL.gguf
 ```
 
 ## 模型部署
